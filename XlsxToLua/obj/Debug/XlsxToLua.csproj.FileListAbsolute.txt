@@ -1,0 +1,15 @@
+D:\XlsxToLua\obj\Debug\XlsxToLua.csprojResolveAssemblyReference.cache
+D:\XlsxToLua\bin\Debug\XlsxToLua.exe
+D:\XlsxToLua\bin\Debug\XlsxToLua.pdb
+D:\XlsxToLua\obj\Debug\XlsxToLua.exe
+D:\XlsxToLua\obj\Debug\XlsxToLua.pdb
+C:\XlsxToLua\obj\Debug\XlsxToLua.exe
+C:\XlsxToLua\obj\Debug\XlsxToLua.pdb
+C:\XlsxToLua\bin\Debug\XlsxToLua.exe
+C:\XlsxToLua\bin\Debug\XlsxToLua.pdb
+C:\XlsxToLua\obj\Debug\XlsxToLua.csprojResolveAssemblyReference.cache
+D:\表格导出工具\XlsxToLua\obj\Debug\XlsxToLua.exe
+D:\表格导出工具\XlsxToLua\obj\Debug\XlsxToLua.pdb
+D:\表格导出工具\XlsxToLua\bin\Debug\XlsxToLua.exe
+D:\表格导出工具\XlsxToLua\bin\Debug\XlsxToLua.pdb
+D:\表格导出工具\XlsxToLua\obj\Debug\XlsxToLua.csprojResolveAssemblyReference.cache
