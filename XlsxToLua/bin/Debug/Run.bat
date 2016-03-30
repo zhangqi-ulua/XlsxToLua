@@ -1,0 +1,1 @@
+XlsxToLua.exe TestExcel ExportLua ClientVirtual lang.txt -columnInfo -printEmptyStringWhenLangNotMatching
