@@ -14,10 +14,11 @@ ______________________________________________________________________________<b
 ======= V2.0 2016.4.29 =======<br/>
 
 1.lang型字段增加一种新的数据声明方式：之前版本只能手工在每个单元格中填写具体的lang.txt中的key名。但考虑到key名一般是有规律的，往往是一个固定的前缀后面跟本行数据中某个字段的填写值（一般是id值）。本工具在此版本新增lang(itemDesc{id})声明方式，由程序自动组合成key值，不再需要在单元格中逐个手工填写。当然，不仅是前缀，也支持后缀，并且支持读取任意字段的值来拼成key名<br/>
-
+![](https://github.com/zhangqi-ulua/XlsxToLua/blob/master/screenshots/v2.0/lang%E6%96%B0%E5%A2%9E%E5%A3%B0%E6%98%8E%E6%96%B9%E5%BC%8F.png)<br/>
 2.新增整表检查功能，之前版本只能对字段按指定规则进行检查，而一张表格中往往存在字段之间、数据行之间的逻辑关系，这需要整表的检查规则来保证数据完整、逻辑关联正确等，详见样例表格HeroEquipment<br/>
-
+![](https://github.com/zhangqi-ulua/XlsxToLua/blob/master/screenshots/v2.0/%E6%95%B4%E8%A1%A8%E6%A3%80%E6%9F%A5%E8%A7%84%E5%88%99.png)<br/>
 3.新增按自定义索引方式导出lua文件的功能，之前版本只能是逐字段的导出，但程序在使用数据时往往需要自行组织数据的索引嵌套结构使得程序运行时能快速查找指定数据。本版本提供这样的功能，使得生成的lua文件中的table就是按一系列指定索引嵌套层次生成好的，直接读取使用即可，再也不用手工写代码实现<br/>
+![](https://github.com/zhangqi-ulua/XlsxToLua/blob/master/screenshots/v2.0/%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B4%A2%E5%BC%95%E5%AF%BC%E5%87%BA%E8%A7%84%E5%88%99.png)<br/>
 ______________________________________________________________________________<br/>
 ####运行截图<br/>
 ![](https://github.com/zhangqi-ulua/XlsxToLua/blob/master/screenshots/pic1.jpg)<br/>
