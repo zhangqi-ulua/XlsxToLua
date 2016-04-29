@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -54,6 +55,28 @@ public class Utils
         return columnName;
     }
 
+    /// <summary>
+    /// 将List中的所有数据用指定分隔符连接为一个新字符串
+    /// </summary>
+    public static string CombineString<T>(List<T> list, string separateString)
+    {
+        if (list == null || list.Count < 1)
+            return null;
+        else
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < list.Count; ++i)
+                builder.Append(list[i]).Append(separateString);
+
+            string result = builder.ToString();
+            // 去掉最后多加的一次分隔符
+            if (separateString != null)
+                return result.Substring(0, result.Length - separateString.Length);
+            else
+                return result;
+        }
+    }
+
     public static void Log(string logString)
     {
         Console.ForegroundColor = ConsoleColor.White;
@@ -88,7 +111,7 @@ public class Utils
     }
 
     /// <summary>
-    /// 将程序运行中检查出的所有错误保存到文本文件中，存储目录为本程序所在目录
+    /// 将程序运行中检查出的所有错误保存到文本文件中，存储目录为本工具所在目录
     /// </summary>
     public static bool SaveErrorInfoToFile()
     {
@@ -101,7 +124,7 @@ public class Utils
             writer.Flush();
             writer.Close();
 
-            Log(string.Format("全部错误信息已导出文本文件，文件名为\"{0}\"，存储在本程序所在目录下", fileName));
+            Log(string.Format("全部错误信息已导出文本文件，文件名为\"{0}\"，存储在本工具所在目录下", fileName));
             return true;
         }
         catch

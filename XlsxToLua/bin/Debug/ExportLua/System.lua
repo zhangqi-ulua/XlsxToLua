@@ -39,7 +39,7 @@ return {
 		openRewards = {
 			[1] = {
 				type = 1,
-				id = 1,
+				id = 100001,
 				count = 10,
 			},
 			[2] = nil,
@@ -56,7 +56,7 @@ return {
 		openRewards = {
 			[1] = {
 				type = 1,
-				id = 1,
+				id = 100001,
 				count = 5,
 			},
 			[2] = nil,

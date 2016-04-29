@@ -78,6 +78,274 @@ public class TableExportToLuaHelper
     }
 
     /// <summary>
+    /// 按配置的特殊索引导出方式输出lua文件（如果声明了在生成的lua文件开头以注释形式展示列信息，将生成更直观的嵌套字段信息，而不同于普通导出规则的列信息展示）
+    /// </summary>
+    public static bool SpecialExportTableToLua(TableInfo tableInfo, string exportRule, out string errorString)
+    {
+        // 解析按这种方式导出后的lua文件名
+        int colonIndex = exportRule.IndexOf(':');
+        if (colonIndex == -1)
+        {
+            errorString = string.Format("导出配置\"{0}\"定义错误，必须在开头声明导出lua文件名\n", exportRule);
+            return false;
+        }
+        string fileName = exportRule.Substring(0, colonIndex).Trim();
+        // 判断是否在花括号内声明table value中包含的字段
+        int leftBraceIndex = exportRule.IndexOf('{');
+        int rightBraceIndex = exportRule.LastIndexOf('}');
+        // 解析依次作为索引的字段名
+        string indexFieldNameString = null;
+        if (leftBraceIndex != -1)
+            indexFieldNameString = exportRule.Substring(colonIndex + 1, leftBraceIndex - colonIndex - 1);
+        else
+            indexFieldNameString = exportRule.Substring(colonIndex + 1, exportRule.Length - colonIndex - 1);
+
+        string[] indexFieldNames = indexFieldNameString.Split(new char[] { '-' }, System.StringSplitOptions.RemoveEmptyEntries);
+        List<FieldInfo> indexField = new List<FieldInfo>();
+        if (indexFieldNames.Length < 1)
+        {
+            errorString = string.Format("导出配置\"{0}\"定义错误，用于索引的字段不能为空，请按fileName:indexFieldName1-indexFieldName2{otherFieldName1,otherFieldName2}的格式配置\n", exportRule);
+            return false;
+        }
+        // 检查字段是否存在且为int、float、string或lang型
+        foreach (string fieldName in indexFieldNames)
+        {
+            FieldInfo fieldInfo = tableInfo.GetFieldInfoByFieldName(fieldName);
+            if (fieldInfo == null)
+            {
+                errorString = string.Format("导出配置\"{0}\"定义错误，声明的索引字段\"{1}\"不存在\n", exportRule, fieldName);
+                return false;
+            }
+            if (fieldInfo.DataType != DataType.Int && fieldInfo.DataType != DataType.Float && fieldInfo.DataType != DataType.String && fieldInfo.DataType != DataType.Lang)
+            {
+                errorString = string.Format("导出配置\"{0}\"定义错误，声明的索引字段\"{1}\"为{2}型，但只允许为int、float、string或lang型\n", exportRule, fieldName, fieldInfo.DataType);
+                return false;
+            }
+
+            // 强制对string、lang型索引字段进行非空检查
+            if (fieldInfo.DataType == DataType.String)
+            {
+                FieldCheckRule stringNotEmptyCheckRule = new FieldCheckRule();
+                stringNotEmptyCheckRule.CheckType = TABLE_CHECK_TYPE.NOT_EMPTY;
+                stringNotEmptyCheckRule.CheckRuleString = "notEmpty[trim]";
+                TableCheckHelper.CheckNotEmpty(fieldInfo, stringNotEmptyCheckRule, out errorString);
+                if (errorString != null)
+                {
+                    errorString = string.Format("按配置\"{0}\"进行自定义导出错误，string型索引字段\"{1}\"中存在以下空值，而作为索引的key不允许为空\n{2}\n", exportRule, fieldName, errorString);
+                    return false;
+                }
+            }
+            else if (fieldInfo.DataType == DataType.Lang)
+            {
+                FieldCheckRule langNotEmptyCheckRule = new FieldCheckRule();
+                langNotEmptyCheckRule.CheckType = TABLE_CHECK_TYPE.NOT_EMPTY;
+                langNotEmptyCheckRule.CheckRuleString = "notEmpty[key|value]";
+                TableCheckHelper.CheckNotEmpty(fieldInfo, langNotEmptyCheckRule, out errorString);
+                if (errorString != null)
+                {
+                    errorString = string.Format("按配置\"{0}\"进行自定义导出错误，lang型索引字段\"{1}\"中存在以下空值，而作为索引的key不允许为空\n{2}\n", exportRule, fieldName, errorString);
+                    return false;
+                }
+            }
+
+            indexField.Add(fieldInfo);
+        }
+
+        // 注意：这里不做强制检查来确保用于索引的字段中不会出现空值，需自行在相关字段配置notEmpty检查规则
+
+        // 解析table value中要输出的字段名
+        List<FieldInfo> tableValueField = new List<FieldInfo>();
+        // 如果在花括号内配置了table value中要输出的字段名
+        if (leftBraceIndex != -1 && rightBraceIndex != -1 && leftBraceIndex < rightBraceIndex)
+        {
+            string tableValueFieldName = exportRule.Substring(leftBraceIndex + 1, rightBraceIndex - leftBraceIndex - 1);
+            string[] fieldNames = tableValueFieldName.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+            if (fieldNames.Length < 1)
+            {
+                errorString = string.Format("导出配置\"{0}\"定义错误，花括号中声明的table value中的字段不能为空，请按fileName:indexFieldName1-indexFieldName2{otherFieldName1,otherFieldName2}的格式配置\n", exportRule);
+                return false;
+            }
+            // 检查字段是否存在
+            foreach (string fieldName in fieldNames)
+            {
+                FieldInfo fieldInfo = tableInfo.GetFieldInfoByFieldName(fieldName);
+                if (fieldInfo == null)
+                {
+                    errorString = string.Format("导出配置\"{0}\"定义错误，声明的table value中的字段\"{1}\"不存在\n", exportRule, fieldName);
+                    return false;
+                }
+
+                if (tableValueField.Contains(fieldInfo))
+                    Utils.LogWarning(string.Format("警告：导出配置\"{0}\"定义中，声明的table value中的字段存在重复，字段名为{1}（列号{2}），本工具只生成一次，请修正错误\n", exportRule, fieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1)));
+                else
+                    tableValueField.Add(fieldInfo);
+            }
+        }
+        else if (leftBraceIndex + rightBraceIndex != -2 || leftBraceIndex > rightBraceIndex)
+        {
+            errorString = string.Format("导出配置\"{0}\"定义错误，声明的table value中花括号不匹配\n", exportRule);
+            return false;
+        }
+        // 如果未在花括号内声明，则默认将索引字段之外的所有字段进行填充
+        else
+        {
+            List<string> indexFieldNameList = new List<string>(indexFieldNames);
+            foreach (FieldInfo fieldInfo in tableInfo.GetAllFieldInfo())
+            {
+                if (!indexFieldNameList.Contains(fieldInfo.FieldName))
+                    tableValueField.Add(fieldInfo);
+            }
+        }
+
+        // 解析完依次作为索引的字段以及table value中包含的字段后，按索引要求组成相应的嵌套数据结构
+        Dictionary<object, object> data = new Dictionary<object, object>();
+        int rowCount = tableInfo.GetKeyColumnFieldInfo().Data.Count;
+        for (int i = 0; i < rowCount; ++i)
+        {
+            Dictionary<object, object> temp = data;
+            // 生成除最内层的数据结构
+            for (int j = 0; j < indexField.Count - 1; ++j)
+            {
+                FieldInfo oneIndexField = indexField[j];
+                var tempData = oneIndexField.Data[i];
+                if (!temp.ContainsKey(tempData))
+                    temp.Add(tempData, new Dictionary<object, object>());
+
+                temp = (Dictionary<object, object>)temp[tempData];
+            }
+            // 最内层的value存数据的int型行号（从0开始计）
+            FieldInfo lastIndexField = indexField[indexField.Count - 1];
+            var lastIndexFieldData = lastIndexField.Data[i];
+            if (!temp.ContainsKey(lastIndexFieldData))
+                temp.Add(lastIndexFieldData, i);
+            else
+            {
+                errorString = string.Format("错误：对表格{0}按\"{1}\"规则进行特殊索引导出时发现第{2}行与第{3}行在各个索引字段的值完全相同，导出被迫停止，请修正错误后重试\n", tableInfo.TableName, exportRule, i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, temp[lastIndexFieldData]);
+                Utils.LogErrorAndExit(errorString);
+                return false;
+            }
+        }
+
+        // 生成导出的文件内容
+        StringBuilder content = new StringBuilder();
+
+        // 生成数据内容开头
+        content.AppendLine("return {");
+
+        // 当前缩进量
+        int currentLevel = 1;
+
+        // 逐层按嵌套结构输出数据
+        _GetIndexFieldData(content, data, tableValueField, ref currentLevel, out errorString);
+        if (errorString != null)
+        {
+            errorString = string.Format("错误：对表格{0}按\"{1}\"规则进行特殊索引导出时发现以下错误，导出被迫停止，请修正错误后重试：\n{2}\n", tableInfo.TableName, exportRule, errorString);
+            return false;
+        }
+
+        // 生成数据内容结尾
+        content.AppendLine("}");
+
+        string exportString = content.ToString();
+        if (AppValues.IsNeedColumnInfo == true)
+        {
+            StringBuilder columnInfo = new StringBuilder();
+            // 变量名前的缩进量
+            int level = 0;
+
+            // 按层次结构通过缩进形式生成索引列信息
+            foreach (FieldInfo fieldInfo in indexField)
+            {
+                columnInfo.Append(_GetOneFieldColumnInfo(fieldInfo, level));
+                ++level;
+            }
+            // 生成table value中包含字段的信息（首尾用花括号包裹）
+            columnInfo.AppendLine(string.Concat(_COMMENT_OUT_STRING, _GetFieldNameIndentation(level), "{"));
+            ++level;
+
+            foreach (FieldInfo fieldInfo in tableValueField)
+                columnInfo.Append(_GetOneFieldColumnInfo(fieldInfo, level));
+
+            --level;
+            columnInfo.AppendLine(string.Concat(_COMMENT_OUT_STRING, _GetFieldNameIndentation(level), "}"));
+
+            exportString = string.Concat(columnInfo, System.Environment.NewLine, exportString);
+        }
+
+        // 保存为lua文件
+        Utils.SaveLuaFile(fileName, exportString);
+
+        errorString = null;
+        return true;
+    }
+
+    /// <summary>
+    /// 按指定索引方式导出数据时,通过此函数递归生成层次结构,当递归到最内层时输出指定table value中的数据
+    /// </summary>
+    private static void _GetIndexFieldData(StringBuilder content, Dictionary<object, object> parentDict, List<FieldInfo> tableValueField, ref int currentLevel, out string errorString)
+    {
+        foreach (var key in parentDict.Keys)
+        {
+            content.Append(_GetLuaTableIndentation(currentLevel));
+            // 生成key
+            if (key.GetType() == typeof(int) || key.GetType() == typeof(float))
+                content.Append("[").Append(key).Append("]");
+            else if (key.GetType() == typeof(string))
+            {
+                //// 检查作为key值的变量名是否合法
+                //TableCheckHelper.CheckFieldName(key.ToString(), out errorString);
+                //if (errorString != null)
+                //{
+                //    errorString = string.Format("作为第{0}层索引的key值不是合法的变量名，你填写的为\"{1}\"", currentLevel - 1, key.ToString());
+                //    return;
+                //}
+                //content.Append(key);
+
+                content.Append("[\"").Append(key).Append("\"]");
+            }
+            else
+            {
+                errorString = string.Format("SpecialExportTableToLua中出现非法类型的索引列类型{0}", key.GetType());
+                Utils.LogErrorAndExit(errorString);
+                return;
+            }
+
+            content.AppendLine(" = {");
+            ++currentLevel;
+
+            // 如果已是最内层，输出指定table value中的数据
+            if (parentDict[key].GetType() == typeof(int))
+            {
+                foreach (FieldInfo fieldInfo in tableValueField)
+                {
+                    int rowIndex = (int)parentDict[key];
+                    string oneTableValueFieldData = _GetOneField(fieldInfo, rowIndex, currentLevel, out errorString);
+                    if (errorString != null)
+                    {
+                        errorString = string.Format("第{0}行的字段\"{1}\"（列号：{2}）导出数据错误：{3}", rowIndex + AppValues.DATA_FIELD_DATA_START_INDEX + 1, fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), errorString);
+                        return;
+                    }
+                    else
+                        content.Append(oneTableValueFieldData);
+                }
+            }
+            // 否则继续递归生成索引key
+            else
+            {
+                _GetIndexFieldData(content, (Dictionary<object, object>)(parentDict[key]), tableValueField, ref currentLevel, out errorString);
+                if (errorString != null)
+                    return;
+            }
+
+            --currentLevel;
+            content.Append(_GetLuaTableIndentation(currentLevel));
+            content.AppendLine("},");
+        }
+
+        errorString = null;
+    }
+
+    /// <summary>
     /// 生成要在lua文件最上方以注释形式展示的列信息
     /// </summary>
     private static string _GetColumnInfo(TableInfo tableInfo)
@@ -138,10 +406,14 @@ public class TableExportToLuaHelper
             case DataType.Int:
             case DataType.Float:
             case DataType.String:
-            case DataType.Lang:
             case DataType.Bool:
                 {
                     value = _GetBaseValue(fieldInfo, row, level);
+                    break;
+                }
+            case DataType.Lang:
+                {
+                    value = _GetLangValue(fieldInfo, row, level);
                     break;
                 }
             case DataType.TableString:
@@ -159,7 +431,7 @@ public class TableExportToLuaHelper
 
         if (errorString != null)
         {
-            errorString = string.Format("第{0}行第{1}列的数据存在错误无法导出，", row + AppValues.FIELD_DATA_START_INDEX + 1, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1)) + errorString;
+            errorString = string.Format("第{0}行第{1}列的数据存在错误无法导出，", row + AppValues.DATA_FIELD_DATA_START_INDEX + 1, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1)) + errorString;
             return null;
         }
 
@@ -190,24 +462,6 @@ public class TableExportToLuaHelper
                     content.Append("\"");
                     break;
                 }
-            case DataType.Lang:
-                {
-                    if (fieldInfo.Data[row] != null)
-                    {
-                        content.Append("\"");
-                        content.Append(fieldInfo.Data[row].ToString().Replace("\"", "\\\""));
-                        content.Append("\"");
-                    }
-                    else
-                    {
-                        if (AppValues.IsPrintEmptyStringWhenLangNotMatching == true)
-                            content.Append("\"\"");
-                        else
-                            content.Append("nil");
-                    }
-
-                    break;
-                }
             case DataType.Bool:
                 {
                     if ((bool)fieldInfo.Data[row] == true)
@@ -222,6 +476,27 @@ public class TableExportToLuaHelper
                     Utils.LogErrorAndExit("错误：用_WriteBaseValue函数解析了非基础类型的数据");
                     break;
                 }
+        }
+
+        return content.ToString();
+    }
+
+    private static string _GetLangValue(FieldInfo fieldInfo, int row, int level)
+    {
+        StringBuilder content = new StringBuilder();
+
+        if (fieldInfo.Data[row] != null)
+        {
+            content.Append("\"");
+            content.Append(fieldInfo.Data[row].ToString().Replace("\"", "\\\""));
+            content.Append("\"");
+        }
+        else
+        {
+            if (AppValues.IsPrintEmptyStringWhenLangNotMatching == true)
+                content.Append("\"\"");
+            else
+                content.Append("nil");
         }
 
         return content.ToString();

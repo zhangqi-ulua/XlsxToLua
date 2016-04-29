@@ -1,9 +1,10 @@
 -- id                               int                              id
 -- testBool                         bool                             测试bool
 -- testLang                         lang                             测试lang
--- testSimpleDict                   dict[2]                          测试简单dict
+-- testSimpleDict                   dict[3]                          测试简单dict
 --    dictChildString               string                           简单dict下的string
 --    dictChildLang                 lang                             简单dict下的lang
+--    dictChildLang2                lang(itemDesc{id})               简单dict下统一声明key的lang
 -- testDictIncludeArray             dict[2]                          测试dict嵌套array
 --    arrayInDict1                  array[string:2]                  dict下的array1
 --       [1]                        string                           array下的元素1
@@ -16,16 +17,9 @@
 -- testSimpleArray                  array[lang:2]                    测试简单array
 --    [1]                           lang                             1
 --    [2]                           lang                             2
--- testTableString1                 tableString[k:#1(int)|v:#true]   测试tableString1
--- testArrayIncludeArray            array[array[string:3]:2]         测试array嵌套array
---    [1]                           array[string:3]                  array下的array1
---       [1]                        string                           1
---       [2]                        string                           2
---       [3]                        string                           3
---    [2]                           array[string:3]                  array下的array2
---       [1]                        string                           1
---       [2]                        string                           2
---       [3]                        string                           3
+-- testSimpleArray2                 array[lang(itemName{id}):2]      测试简单array2，其中子元素为统一key名的lang型
+--    [1]                           lang(itemName{id})               测试tableString1
+--    [2]                           lang(itemName{id})               测试array嵌套array
 -- testTableString2                 tableString[k:#seq|v:#1(int)]    测试tableString2
 -- testArrayIncludeDict             array[dict[3]:2]                 测试array嵌套dict
 --    [1]                           dict[3]                          reward1
@@ -45,7 +39,7 @@
 -- testTableString3                 tableString[k:#seq|v:#table(type=#1(int),id=#2(int),count=#3(int))]   测试tableString3
 
 return {
-	[1] = {
+	[100001] = {
 		testBool = false,
 		testLang = "",
 		testSimpleDict = nil,
@@ -53,9 +47,10 @@ return {
 		testFloat = 0,
 		testString = "",
 		testSimpleArray = nil,
-		testTableString1 = {
+		testSimpleArray2 = {
+			[1] = "小号经验药水",
+			[2] = "小号经验药水",
 		},
-		testArrayIncludeArray = nil,
 		testTableString2 = {
 		},
 		testArrayIncludeDict = nil,
@@ -63,12 +58,13 @@ return {
 		testTableString3 = {
 		},
 	},
-	[2] = {
+	[100002] = {
 		testBool = true,
 		testLang = "使用增加英雄经验100点",
 		testSimpleDict = {
 			dictChildString = "",
-			dictChildLang = "使用增加英雄经验100点",
+			dictChildLang = "使用增加英雄经验200点",
+			dictChildLang2 = "使用增加英雄经验200点",
 		},
 		testDictIncludeArray = {
 			arrayInDict1 = {
@@ -83,10 +79,10 @@ return {
 			[1] = "",
 			[2] = "",
 		},
-		testTableString1 = {
-			[10001] = true,
+		testSimpleArray2 = {
+			[1] = "中号经验药水",
+			[2] = "中号经验药水",
 		},
-		testArrayIncludeArray = nil,
 		testTableString2 = {
 			[1] = 10001,
 		},
@@ -111,12 +107,13 @@ return {
 			},
 		},
 	},
-	[3] = {
+	[100003] = {
 		testBool = true,
 		testLang = "使用增加英雄经验200点",
 		testSimpleDict = {
 			dictChildString = "1",
 			dictChildLang = "",
+			dictChildLang2 = "使用增加英雄经验500点",
 		},
 		testDictIncludeArray = {
 			arrayInDict1 = {
@@ -134,16 +131,9 @@ return {
 			[1] = "使用增加英雄经验100点",
 			[2] = "",
 		},
-		testTableString1 = {
-			[10002] = true,
-		},
-		testArrayIncludeArray = {
-			[1] = {
-				[1] = "1",
-				[2] = "2",
-				[3] = "3",
-			},
-			[2] = nil,
+		testSimpleArray2 = {
+			[1] = "大号经验药水",
+			[2] = "大号经验药水",
 		},
 		testTableString2 = {
 			[1] = 10002,
@@ -172,12 +162,13 @@ return {
 			},
 		},
 	},
-	[4] = {
+	[100004] = {
 		testBool = false,
 		testLang = "使用增加英雄经验500点",
 		testSimpleDict = {
 			dictChildString = "2",
-			dictChildLang = "使用增加英雄经验200点",
+			dictChildLang = "使用增加英雄经验1000点",
+			dictChildLang2 = "使用增加英雄经验1000点",
 		},
 		testDictIncludeArray = {
 			arrayInDict1 = {
@@ -195,22 +186,9 @@ return {
 			[1] = "使用增加英雄经验200点",
 			[2] = "使用增加英雄经验500点",
 		},
-		testTableString1 = {
-			[10001] = true,
-			[10003] = true,
-			[10021] = true,
-		},
-		testArrayIncludeArray = {
-			[1] = {
-				[1] = "4",
-				[2] = "",
-				[3] = "6",
-			},
-			[2] = {
-				[1] = "",
-				[2] = "7",
-				[3] = "8",
-			},
+		testSimpleArray2 = {
+			[1] = "超级经验药水",
+			[2] = "超级经验药水",
 		},
 		testTableString2 = {
 			[1] = 10001,

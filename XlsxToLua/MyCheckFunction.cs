@@ -1,16 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 /// <summary>
 /// 该类定义那些复杂非通用的检查条件所需要手工编写的检查函数
-/// 注意：所定义函数必须形如public static bool funcName(FieldInfo fieldInfo, out string errorString)
+/// 注意：自定义字段检查函数必须形如public static bool funcName(FieldInfo fieldInfo, out string errorString),建议函数名为CheckXxxField
+/// 注意：自定义整表检查函数必须形如public static bool funcName(TableInfo tableInfo, out string errorString),建议函数名为CheckXxxTable
 /// </summary>
 public static class MyCheckFunction
 {
     /// <summary>
-    /// 检查奖励列表是否配置正确，要求字段的数据结构必须为array[dict[3]:n]，定义一种奖励类型的三个int型字段分别叫type、id、count，每个奖励项的类型必须存在，除道具类型之外不允许奖励同一种类型，奖励数量必须大于0，如果是道具类型则道具id在道具表中要存在
+    /// 检查奖励列表字段是否配置正确，要求字段的数据结构必须为array[dict[3]:n]，定义一种奖励类型的三个int型字段分别叫type、id、count，每个奖励项的类型必须存在，除道具类型之外不允许奖励同一种类型，奖励数量必须大于0，如果是道具类型则道具id在道具表中要存在
     /// </summary>
-    public static bool CheckRewardList(FieldInfo fieldInfo, out string errorString)
+    public static bool CheckRewardListField(FieldInfo fieldInfo, out string errorString)
     {
         // 道具类型对应的type
         int PROP_TYPE;
@@ -132,24 +134,24 @@ public static class MyCheckFunction
                 if (type == PROP_TYPE)
                 {
                     if (rewardPropId.ContainsKey(id))
-                        errorStringBuilder.AppendFormat("第{0}行的奖励列表中含有同种道具（id={1}）类型\n", i + AppValues.FIELD_DATA_START_INDEX + 1, id);
+                        errorStringBuilder.AppendFormat("第{0}行的奖励列表中含有同种道具（id={1}）类型\n", i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, id);
                     else
                         rewardPropId.Add(id, true);
 
                     if (!PROP_KEYS.Contains(id))
-                        errorStringBuilder.AppendFormat("第{0}行第{1}列的奖励项中所填的奖励道具（id={2}）在道具表中不存在\n", i + AppValues.FIELD_DATA_START_INDEX + 1, Utils.GetExcelColumnName(childDictField.ColumnSeq + 1), id);
+                        errorStringBuilder.AppendFormat("第{0}行第{1}列的奖励项中所填的奖励道具（id={2}）在道具表中不存在\n", i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, Utils.GetExcelColumnName(childDictField.ColumnSeq + 1), id);
                 }
                 // 对于非道具类型，需检查奖励类型type不能重复
                 else
                 {
                     if (rewardType.ContainsKey(type))
-                        errorStringBuilder.AppendFormat("第{0}行的奖励列表中含有同种奖励类型（{1}）\n", i + AppValues.FIELD_DATA_START_INDEX + 1, type);
+                        errorStringBuilder.AppendFormat("第{0}行的奖励列表中含有同种奖励类型（{1}）\n", i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, type);
                     else
                         rewardType.Add(type, true);
                 }
                 // 均要检查奖励count不能低于1
                 if (count < 1)
-                    errorStringBuilder.AppendFormat("第{0}行第{1}列的奖励项中所填的奖励数量低于1\n", i + AppValues.FIELD_DATA_START_INDEX + 1, Utils.GetExcelColumnName(childDictField.ColumnSeq + 1), type);
+                    errorStringBuilder.AppendFormat("第{0}行第{1}列的奖励项中所填的奖励数量低于1\n", i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, Utils.GetExcelColumnName(childDictField.ColumnSeq + 1), type);
             }
         }
 
@@ -178,6 +180,156 @@ public static class MyCheckFunction
         else
         {
             errorString = errorStringBuilder.ToString();
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 检查HeroEquipment表，凡是填写的英雄都必须填写在所有品阶下四个槽位可穿戴装备信息
+    /// </summary>
+    public static bool CheckHeroEquipmentTable(TableInfo tableInfo, out string errorString)
+    {
+        // 从配置文件中读取英雄的所有品阶（key：品阶， value：恒为true）
+        Dictionary<int, bool> HERO_QUALITY = new Dictionary<int, bool>();
+        // 每品阶英雄所需穿戴的装备数量
+        int HERO_EQUIPMENTCOUNT = 4;
+
+        string heroQualityConfigKey = "$heroQuality";
+        if (AppValues.ConfigData.ContainsKey(heroQualityConfigKey))
+        {
+            string configString = AppValues.ConfigData[heroQualityConfigKey];
+            // 去除首尾花括号后，通过英文逗号分隔每个有效值即可
+            if (!(configString.StartsWith("{") && configString.EndsWith("}")))
+            {
+                errorString = string.Format("表示英雄所有品阶的配置{0}错误，必须在首尾用一对花括号包裹整个定义内容，请修正后重试\n", heroQualityConfigKey);
+                return false;
+            }
+            string temp = configString.Substring(1, configString.Length - 2).Trim();
+            string[] values = temp.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (values.Length < 1)
+            {
+                errorString = string.Format("表示英雄所有品阶的配置{0}错误，不允许为空值，请修正后重试\n", heroQualityConfigKey);
+                return false;
+            }
+
+            for (int i = 0; i < values.Length; ++i)
+            {
+                string oneValueString = values[i].Trim();
+                int oneValue;
+                if (int.TryParse(oneValueString, out oneValue) == true)
+                {
+                    if (HERO_QUALITY.ContainsKey(oneValue))
+                        Utils.LogWarning(string.Format("警告：表示英雄所有品阶的配置{0}错误，出现了相同的品阶\"{1}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", heroQualityConfigKey, oneValue));
+                    else
+                        HERO_QUALITY.Add(oneValue, true);
+                }
+                else
+                {
+                    errorString = string.Format("表示英雄所有品阶的配置{0}错误，出现了非int型有效值的规则定义，其为\"{1}\"，请修正后重试\n", heroQualityConfigKey, oneValueString);
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            errorString = string.Format("config配置文件找不到名为\"{0}\"的表示英雄所有品阶的配置，无法进行HeroEquipment整表的检查，请填写配置后再重试\n", heroQualityConfigKey);
+            return false;
+        }
+
+        // 获取检查涉及的字段数据
+        string HERO_ID_FIELD_NAME = "heroId";
+        string HERO_QUALITY_FIELD_NAME = "heroQuality";
+        string SEQ_FIELD_NAME = "seq";
+        List<object> heroIdList = null;
+        List<object> heroQualityList = null;
+        List<object> equipmentSeqList = null;
+        if (tableInfo.GetFieldInfoByFieldName(HERO_ID_FIELD_NAME) != null)
+            heroIdList = tableInfo.GetFieldInfoByFieldName(HERO_ID_FIELD_NAME).Data;
+        else
+        {
+            errorString = string.Format("HeroEquipment表中找不到名为{0}的字段，无法进行整表检查，请修正后重试\n", HERO_ID_FIELD_NAME);
+            return false;
+        }
+        if (tableInfo.GetFieldInfoByFieldName(HERO_QUALITY_FIELD_NAME) != null)
+            heroQualityList = tableInfo.GetFieldInfoByFieldName(HERO_QUALITY_FIELD_NAME).Data;
+        else
+        {
+            errorString = string.Format("HeroEquipment表中找不到名为{0}的字段，无法进行整表检查，请修正后重试\n", HERO_QUALITY_FIELD_NAME);
+            return false;
+        }
+        if (tableInfo.GetFieldInfoByFieldName(SEQ_FIELD_NAME) != null)
+            equipmentSeqList = tableInfo.GetFieldInfoByFieldName(SEQ_FIELD_NAME).Data;
+        else
+        {
+            errorString = string.Format("HeroEquipment表中找不到名为{0}的字段，无法进行整表检查，请修正后重试\n", SEQ_FIELD_NAME);
+            return false;
+        }
+
+        // 记录实际填写的信息（key：从外层到内层依次表示heroId、quality、seq，最内层value为从0开始计的数据行序号）
+        Dictionary<int, Dictionary<int, Dictionary<int, int>>> inputData = new Dictionary<int, Dictionary<int, Dictionary<int, int>>>();
+
+        int dataCount = tableInfo.GetKeyColumnFieldInfo().Data.Count;
+        StringBuilder errorStringBuilder = new StringBuilder();
+        for (int i = 0; i < dataCount; ++i)
+        {
+            int heroId = (int)heroIdList[i];
+            int heroQuality = (int)heroQualityList[i];
+            int seq = (int)equipmentSeqList[i];
+            if (!inputData.ContainsKey(heroId))
+                inputData.Add(heroId, new Dictionary<int, Dictionary<int, int>>());
+
+            Dictionary<int, Dictionary<int, int>> qualityInfo = inputData[heroId];
+            if (!qualityInfo.ContainsKey(heroQuality))
+                qualityInfo.Add(heroQuality, new Dictionary<int, int>());
+
+            Dictionary<int, int> seqInfo = qualityInfo[heroQuality];
+            if (seqInfo.ContainsKey(seq))
+                errorStringBuilder.AppendFormat("第{0}行与第{1}行完全重复\n", i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, seqInfo[seq] + AppValues.DATA_FIELD_DATA_START_INDEX + 1);
+            else
+                seqInfo.Add(seq, i);
+        }
+
+        string repeatedLineErrorString = errorStringBuilder.ToString();
+        if (!string.IsNullOrEmpty(repeatedLineErrorString))
+        {
+            errorString = string.Format("HeroEquipment表中以下行中的heroId、heroQuality、seq字段与其他行存在完全重复的错误:\n{0}\n", repeatedLineErrorString);
+            return false;
+        }
+
+        // 检查配置的每个英雄是否都含有所有品阶下四个槽位的可穿戴装备信息
+        foreach (var heroInfo in inputData)
+        {
+            var qualityInfo = heroInfo.Value;
+            List<int> qualityList = new List<int>(qualityInfo.Keys);
+            List<int> LEGAL_QUALITY_LIST = new List<int>(HERO_QUALITY.Keys);
+            foreach (int quality in LEGAL_QUALITY_LIST)
+            {
+                // 检查是否含有所有品阶
+                if (!qualityList.Contains(quality))
+                    errorStringBuilder.AppendFormat("英雄（heroId={0}）缺少品质为{1}的装备配置\n", heroInfo.Key, quality);
+            }
+            // 检查每个品阶下是否配全了四个槽位的装备信息
+            foreach (var oneQualityInfo in qualityInfo)
+            {
+                var seqInfo = oneQualityInfo.Value;
+                List<int> seqList = new List<int>(seqInfo.Keys);
+                for (int seq = 1; seq <= HERO_EQUIPMENTCOUNT; ++seq)
+                {
+                    if (!seqList.Contains(seq) && LEGAL_QUALITY_LIST.Contains(oneQualityInfo.Key))
+                        errorStringBuilder.AppendFormat("英雄（heroId={0}）在品质为{1}下缺少第{2}个槽位的装备配置\n", heroInfo.Key, oneQualityInfo.Key, seq);
+                }
+            }
+        }
+
+        string lackDataErrorString = errorStringBuilder.ToString();
+        if (string.IsNullOrEmpty(lackDataErrorString))
+        {
+            errorString = null;
+            return true;
+        }
+        else
+        {
+            errorString = string.Format("HeroEquipment表中存在以下配置缺失:\n{0}\n", lackDataErrorString);
             return false;
         }
     }

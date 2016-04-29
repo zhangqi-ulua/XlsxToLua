@@ -2,14 +2,19 @@
 using System.Text;
 
 /// <summary>
-/// 定义本程序中的常量以及供各个类之间读取的常量
+/// 定义本工具中的常量以及供各个类之间读取的常量
 /// </summary>
 public class AppValues
 {
     /// <summary>
-    /// Excel文件中数据表的Sheet名，其余Sheet表可自定义内容，不会被本工具导出
+    /// Excel文件中存放数据的工作簿Sheet名。除预设功能的特殊Sheet表之外，其余Sheet表可自定义内容，不会被本工具导出
     /// </summary>
     public const string EXCEL_SHEET_NAME = "data$";
+
+    /// <summary>
+    /// Excel文件中存放该表格配置的工作簿Sheet名
+    /// </summary>
+    public const string EXCEL_CONFIG_NAME = "config$";
 
     /// <summary>
     /// 声明在生成的lua文件开头以注释形式展示列信息的命令参数
@@ -41,12 +46,24 @@ public class AppValues
     /// </summary>
     public const string CONFIG_FILE_NAME = "config.txt";
 
-    // 每个表格前四行分别声明字段描述、字段变量名、字段数据类型、字段检查规则（行编号从0开始）
-    public const int FIELD_DESC_INDEX = 0;
-    public const int FIELD_NAME_INDEX = 1;
-    public const int FIELD_DATA_TYPE_INDEX = 2;
-    public const int FIELD_CHECK_RULE_INDEX = 3;
-    public const int FIELD_DATA_START_INDEX = 4;
+    // 每张数据表前四行分别声明字段描述、字段变量名、字段数据类型、字段检查规则（行编号从0开始）
+    public const int DATA_FIELD_DESC_INDEX = 0;
+    public const int DATA_FIELD_NAME_INDEX = 1;
+    public const int DATA_FIELD_DATA_TYPE_INDEX = 2;
+    public const int DATA_FIELD_CHECK_RULE_INDEX = 3;
+    public const int DATA_FIELD_DATA_START_INDEX = 4;
+
+    // 每张配置表中的一列为一个配置参数的声明，其中第一行声明参数名，其余行声明具体参数（行编号从0开始）
+    public const int CONFIG_FIELD_DEFINE_INDEX = 0;
+    public const int CONFIG_FIELD_PARAM_START_INDEX = 1;
+
+    // 声明整表检查的配置参数名
+    public const string CONFIG_NAME_CHECK_TABLE = "tableCheckRule";
+    // 声明对某张表格设置特殊导出规则的配置参数名
+    public const string CONFIG_NAME_EXPORT = "tableExportConfig";
+
+    // 声明对某张表格不进行默认导出的参数配置
+    public const string CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE = "-notExportOriginalTable";
 
     /// <summary>
     /// 用户输入的要导出的Excel文件所在目录
@@ -94,7 +111,7 @@ public class AppValues
     public static Dictionary<string, string> ConfigData = new Dictionary<string, string>();
 
     /// <summary>
-    /// 存储每张Excel表格解析成的本程序所需的数据结构（key：表名）
+    /// 存储每张Excel表格解析成的本工具所需的数据结构（key：表名）
     /// </summary>
     public static Dictionary<string, TableInfo> TableInfo = new Dictionary<string, TableInfo>();
 

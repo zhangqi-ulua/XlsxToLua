@@ -7,6 +7,8 @@ using System.Collections.Generic;
 public class TableInfo
 {
     public string TableName { get; set; }
+    // 表格配置参数
+    public Dictionary<string, List<string>> TableConfig { get; set; }
     // 存储每个字段的信息以及按字段存储的所有数据
     private List<FieldInfo> _fieldInfo = new List<FieldInfo>();
     // 用于将字段名对应到_fieldInfo中的下标位置，目的是当其他表格进行ref检查规则时无需遍历快速找到指定字段列信息和数据（key：fieldName， value：index），但忽略array或dict的子元素列

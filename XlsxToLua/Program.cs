@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 
@@ -109,19 +110,29 @@ public class Program
         else
             Utils.LogWarning(string.Format("警告：找不到本工具所在路径下的{0}配置文件，请确定是否真的不需要自定义配置", AppValues.CONFIG_FILE_NAME));
 
-        // 读取给定的Excel所在目录下的所有Excel文件，然后解析成本程序所需的数据结构
+        // 读取给定的Excel所在目录下的所有Excel文件，然后解析成本工具所需的数据结构
         foreach (var filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
         {
             string errorString = null;
-            DataTable dt = XlsxReader.ReadXlsxFile(filePath, out errorString);
+            DataSet ds = XlsxReader.ReadXlsxFile(filePath, out errorString);
             if (string.IsNullOrEmpty(errorString))
             {
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
-                TableInfo tableInfo = TableAnalyzeHelper.AnalyzeTable(dt, fileName, out errorString);
+                TableInfo tableInfo = TableAnalyzeHelper.AnalyzeTable(ds.Tables[AppValues.EXCEL_SHEET_NAME], fileName, out errorString);
                 if (errorString != null)
                     Utils.LogErrorAndExit(string.Format("错误：解析{0}失败\n{1}", filePath, errorString));
                 else
+                {
+                    // 如果有表格配置进行解析
+                    if (ds.Tables[AppValues.EXCEL_CONFIG_NAME] != null)
+                    {
+                        tableInfo.TableConfig = TableAnalyzeHelper.GetTableConfig(ds.Tables[AppValues.EXCEL_CONFIG_NAME], out errorString);
+                        if (!string.IsNullOrEmpty(errorString))
+                            Utils.LogErrorAndExit(string.Format("错误：解析表格{0}的配置失败\n{1}", fileName, errorString));
+                    }
+
                     AppValues.TableInfo.Add(tableInfo.TableName, tableInfo);
+                }
             }
             else
                 Utils.LogErrorAndExit(string.Format("错误：读取{0}失败\n{1}", filePath, errorString));
@@ -154,9 +165,43 @@ public class Program
             foreach (TableInfo tableInfo in AppValues.TableInfo.Values)
             {
                 string errorString = null;
-                TableExportToLuaHelper.ExportTableToLua(tableInfo, out errorString);
-                if (errorString != null)
-                    Utils.LogErrorAndExit(errorString);
+                Utils.Log(string.Format("导出表格\"{0}\"：", tableInfo.TableName));
+                bool isNeedExportOriginalTable = true;
+                // 判断是否设置了特殊导出规则
+                if (tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_EXPORT))
+                {
+                    List<string> inputParams = tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT];
+                    if (inputParams.Contains(AppValues.CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE))
+                    {
+                        isNeedExportOriginalTable = false;
+                        if (inputParams.Count == 1)
+                            Utils.LogWarning(string.Format("警告：你设置了不对表格\"{0}\"按默认方式进行导出，而又没有指定任何其他自定义导出规则，本工具对此表格不进行任何导出，请确认是否真要如此", tableInfo.TableName));
+                        else
+                            Utils.Log("你设置了不对此表进行默认规则导出");
+                    }
+                    // 执行设置的特殊导出规则
+                    foreach (string param in inputParams)
+                    {
+                        if (!AppValues.CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE.Equals(param, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            Utils.Log(string.Format("对此表格按\"{0}\"自定义规则进行导出：", param));
+                            TableExportToLuaHelper.SpecialExportTableToLua(tableInfo, param, out errorString);
+                            if (errorString != null)
+                                Utils.LogErrorAndExit("导出失败：" + errorString);
+                            else
+                                Utils.Log("成功");
+                        }
+                    }
+                }
+                // 对表格按默认方式导出（除非通过参数设置不执行此操作）
+                if (isNeedExportOriginalTable == true)
+                {
+                    TableExportToLuaHelper.ExportTableToLua(tableInfo, out errorString);
+                    if (errorString != null)
+                        Utils.LogErrorAndExit(errorString);
+                    else
+                        Utils.Log("按默认方式导出成功");
+                }
             }
 
             Utils.Log("\n导出lua文件完毕\n");
@@ -168,7 +213,7 @@ public class Program
             Utils.SaveErrorInfoToFile();
         }
 
-        Utils.Log("\n按任意键退出本程序");
+        Utils.Log("\n按任意键退出本工具");
         Console.ReadKey();
     }
 }

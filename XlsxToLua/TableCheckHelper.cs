@@ -9,14 +9,27 @@ public class TableCheckHelper
     public static bool CheckTable(TableInfo tableInfo, out string errorString)
     {
         StringBuilder errorStringBuilder = new StringBuilder();
+        // 字段检查
+        StringBuilder fieldErrorBuilder = new StringBuilder();
         foreach (FieldInfo fieldInfo in tableInfo.GetAllFieldInfo())
         {
             CheckOneField(fieldInfo, out errorString);
             if (errorString != null)
             {
-                errorStringBuilder.Append(errorString);
+                fieldErrorBuilder.Append(errorString);
                 errorString = null;
             }
+        }
+        string fieldErrorString = fieldErrorBuilder.ToString();
+        if (!string.IsNullOrEmpty(fieldErrorString))
+            errorStringBuilder.Append("字段检查中发现以下错误：\n").Append(fieldErrorString);
+
+        // 整表检查
+        TableCheckHelper.CheckTableFunc(tableInfo, out errorString);
+        if (errorString != null)
+        {
+            errorStringBuilder.Append("整表检查中发现以下错误：\n").Append(errorString);
+            errorString = null;
         }
 
         errorString = errorStringBuilder.ToString();
@@ -351,7 +364,7 @@ public class TableCheckHelper
             errorStringBuild.Append("存在以下空数据，行号分别为：");
             string separator = ", ";
             foreach (int lineNum in emptyDataLines)
-                errorStringBuild.AppendFormat("{0}{1}", lineNum + AppValues.FIELD_DATA_START_INDEX + 1, separator);
+                errorStringBuild.AppendFormat("{0}{1}", lineNum + AppValues.DATA_FIELD_DATA_START_INDEX + 1, separator);
 
             // 去掉末尾多余的", "
             errorStringBuild.Remove(errorStringBuild.Length - separator.Length, separator.Length);
@@ -503,7 +516,7 @@ public class TableCheckHelper
                 List<int> lineIndex = item.Value;
                 foreach (int lineNum in lineIndex)
                 {
-                    repeatedLineInfo.Append(lineNum + AppValues.FIELD_DATA_START_INDEX + 1 + ", ");
+                    repeatedLineInfo.Append(lineNum + AppValues.DATA_FIELD_DATA_START_INDEX + 1 + ", ");
                 }
                 // 去掉最后多余的", "
                 repeatedLineInfo.Remove(repeatedLineInfo.Length - 2, 2);
@@ -715,7 +728,7 @@ public class TableCheckHelper
         {
             StringBuilder illegalValueInfo = new StringBuilder();
             foreach (var item in illegalValue)
-                illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不满足要求\n", item.Key + AppValues.FIELD_DATA_START_INDEX + 1, item.Value);
+                illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不满足要求\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
 
             errorString = illegalValueInfo.ToString();
             return false;
@@ -761,7 +774,7 @@ public class TableCheckHelper
                     if (int.TryParse(oneValueString, out oneValue) == true)
                     {
                         if (effectiveValues.ContainsKey(oneValue))
-                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本程序忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue));
+                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue));
                         else
                             effectiveValues.Add(oneValue, true);
                     }
@@ -789,7 +802,7 @@ public class TableCheckHelper
                 {
                     StringBuilder illegalValueInfo = new StringBuilder();
                     foreach (var item in illegalValue)
-                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.FIELD_DATA_START_INDEX + 1, item.Value);
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
 
                     errorString = illegalValueInfo.ToString();
                     return false;
@@ -811,7 +824,7 @@ public class TableCheckHelper
                     if (float.TryParse(oneValueString, out oneValue) == true)
                     {
                         if (effectiveValues.ContainsKey(oneValue))
-                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本程序忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue));
+                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue));
                         else
                             effectiveValues.Add(oneValue, true);
                     }
@@ -839,7 +852,7 @@ public class TableCheckHelper
                 {
                     StringBuilder illegalValueInfo = new StringBuilder();
                     foreach (var item in illegalValue)
-                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.FIELD_DATA_START_INDEX + 1, item.Value);
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
 
                     errorString = illegalValueInfo.ToString();
                     return false;
@@ -907,7 +920,7 @@ public class TableCheckHelper
             foreach (string effectiveValue in effectiveValueDefine)
             {
                 if (effectiveValues.ContainsKey(effectiveValue))
-                    Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本程序忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), effectiveValue));
+                    Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), effectiveValue));
                 else
                     effectiveValues.Add(effectiveValue, true);
             }
@@ -930,7 +943,7 @@ public class TableCheckHelper
             {
                 StringBuilder illegalValueInfo = new StringBuilder();
                 foreach (var item in illegalValue)
-                    illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.FIELD_DATA_START_INDEX + 1, item.Value);
+                    illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
 
                 errorString = illegalValueInfo.ToString();
                 return false;
@@ -1066,7 +1079,7 @@ public class TableCheckHelper
                         errorStringBuild.Append("单元格中填写的文件名中不允许含有\"\\\"或\"/\"，即要求填写的文件必须在填写路径的同级目录，以下行对应的文件名不符合此规则：");
                         string separator = ", ";
                         foreach (int lineNum in illegalFileNames)
-                            errorStringBuild.AppendFormat("{0}{1}", lineNum + AppValues.FIELD_DATA_START_INDEX + 1, separator);
+                            errorStringBuild.AppendFormat("{0}{1}", lineNum + AppValues.DATA_FIELD_DATA_START_INDEX + 1, separator);
 
                         // 去掉末尾多余的", "
                         errorStringBuild.Remove(errorStringBuild.Length - separator.Length, separator.Length);
@@ -1077,7 +1090,7 @@ public class TableCheckHelper
                     {
                         errorStringBuild.AppendLine("存在以下找不到的文件：");
                         foreach (var item in inexistFileInfo)
-                            errorStringBuild.AppendFormat("第{0}行数据，填写的文件名为{1}\n", item.Key + AppValues.FIELD_DATA_START_INDEX + 1, item.Value);
+                            errorStringBuild.AppendFormat("第{0}行数据，填写的文件名为{1}\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
                     }
 
                     errorString = errorStringBuild.ToString();
@@ -1198,7 +1211,7 @@ public class TableCheckHelper
                             StringBuilder errorStringBuild = new StringBuilder();
                             errorStringBuild.AppendLine("存在以下未找到引用关系的数据行：");
                             foreach (var item in unreferencedInfo)
-                                errorStringBuild.AppendFormat("第{0}行数据\"{1}\"在对应参考列不存在\n", item.Key + AppValues.FIELD_DATA_START_INDEX + 1, item.Value);
+                                errorStringBuild.AppendFormat("第{0}行数据\"{1}\"在对应参考列不存在\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
 
                             errorString = errorStringBuild.ToString();
                             return false;
@@ -1270,6 +1283,70 @@ public class TableCheckHelper
                 return false;
             }
         }
+    }
+
+    /// <summary>
+    /// 用于将整张表格用自定义函数进行检查
+    /// </summary>
+    public static bool CheckTableFunc(TableInfo tableInfo, out string errorString)
+    {
+        if (tableInfo.TableConfig == null || !tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_CHECK_TABLE))
+        {
+            errorString = null;
+            return true;
+        }
+        List<string> checkTableFuncNames = tableInfo.TableConfig[AppValues.CONFIG_NAME_CHECK_TABLE];
+        if (checkTableFuncNames.Count < 1)
+        {
+            errorString = null;
+            Utils.LogWarning(string.Format("警告：表格{0}中声明了整表检查参数但没有配置任何检查函数，请确认是否遗忘", tableInfo.TableName));
+            return true;
+        }
+        Type myCheckFunctionClassType = typeof(MyCheckFunction);
+        if (myCheckFunctionClassType == null)
+        {
+            errorString = string.Format("自定义函数检查规则无法使用，找不到{0}类\n", myCheckFunctionClassType.Name);
+            return false;
+        }
+        StringBuilder errorStringBuilder = new StringBuilder();
+        foreach (string funcName in checkTableFuncNames)
+        {
+            MethodInfo dynMethod = myCheckFunctionClassType.GetMethod(funcName, BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(TableInfo), typeof(string).MakeByRefType() }, null);
+            if (dynMethod == null)
+            {
+                errorStringBuilder.AppendFormat("自定义整表函数检查规则声明错误，{0}.cs中找不到符合要求的名为\"{1}\"的函数，函数必须形如public static bool funcName(TableInfo tableInfo, out string errorString)\n", myCheckFunctionClassType.Name, funcName);
+                continue;
+            }
+            else
+            {
+                string tempErrorString = null;
+                object[] inputParams = new object[] { tableInfo, tempErrorString };
+                bool checkResult = true;
+                try
+                {
+                    checkResult = (bool)dynMethod.Invoke(null, inputParams);
+                }
+                catch (Exception e)
+                {
+                    errorString = string.Format("运行自定义整表检查函数{0}错误，请修正代码后重试\n{1}", funcName, e);
+                    return false;
+                }
+                if (inputParams[1] != null)
+                    tempErrorString = inputParams[1].ToString();
+
+                if (checkResult == false)
+                    errorStringBuilder.AppendFormat("未通过自定义整表检查函数{0}的检查，存在以下错误：\n{1}\n", funcName, tempErrorString);
+            }
+        }
+
+        errorString = errorStringBuilder.ToString();
+        if (string.IsNullOrEmpty(errorString))
+        {
+            errorString = null;
+            return true;
+        }
+        else
+            return false;
     }
 
     /// <summary>

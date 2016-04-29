@@ -14,7 +14,7 @@ public class TableAnalyzeHelper
         int curColumnIndex = 0;
 
         // 解析第一列（主键列，要求数据类型为string或int且数据非空、唯一）
-        DataType primaryKeyColumnType = _AnalyzeDataType(dt.Rows[AppValues.FIELD_DATA_TYPE_INDEX][0].ToString().Trim());
+        DataType primaryKeyColumnType = _AnalyzeDataType(dt.Rows[AppValues.DATA_FIELD_DATA_TYPE_INDEX][0].ToString().Trim());
         if (!(primaryKeyColumnType == DataType.Int || primaryKeyColumnType == DataType.String))
         {
             errorString = _GetTableAnalyzeErrorString(tableName, 0) + "主键列的类型只能为int或string";
@@ -23,7 +23,7 @@ public class TableAnalyzeHelper
         else
         {
             // 解析出第一列，然后检查主键唯一性，如果是string型主键还要检查是否非空、是否符合变量名的规范（只能由英文字母、数字、下划线组成）
-            FieldInfo primaryKeyField = _AnalyzeOneField(dt, tableName, 0, null, out curColumnIndex, out errorString);
+            FieldInfo primaryKeyField = _AnalyzeOneField(dt, tableInfo, 0, null, out curColumnIndex, out errorString);
             if (errorString != null)
             {
                 errorString = _GetTableAnalyzeErrorString(tableName, 0) + "主键列解析错误\n" + errorString;
@@ -50,7 +50,7 @@ public class TableAnalyzeHelper
                         string tempError = null;
                         TableCheckHelper.CheckFieldName(primaryKeyField.Data[row].ToString(), out tempError);
                         if (tempError != null)
-                            errorStringBuilder.AppendFormat("第{0}行所填主键{1}\n", row + AppValues.FIELD_DATA_START_INDEX + 1, tempError);
+                            errorStringBuilder.AppendFormat("第{0}行所填主键{1}\n", row + AppValues.DATA_FIELD_DATA_START_INDEX + 1, tempError);
                     }
                     if (!string.IsNullOrEmpty(errorStringBuilder.ToString()))
                     {
@@ -68,7 +68,7 @@ public class TableAnalyzeHelper
         while (curColumnIndex < dt.Columns.Count)
         {
             int nextColumnIndex = curColumnIndex;
-            FieldInfo oneField = _AnalyzeOneField(dt, tableName, nextColumnIndex, null, out curColumnIndex, out errorString);
+            FieldInfo oneField = _AnalyzeOneField(dt, tableInfo, nextColumnIndex, null, out curColumnIndex, out errorString);
             if (errorString != null)
             {
                 errorString = _GetTableAnalyzeErrorString(tableName, nextColumnIndex) + errorString;
@@ -101,7 +101,7 @@ public class TableAnalyzeHelper
     /// <summary>
     /// 解析一列的数据结构及数据，返回FieldInfo
     /// </summary>
-    private static FieldInfo _AnalyzeOneField(DataTable dt, string tableName, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    private static FieldInfo _AnalyzeOneField(DataTable dt, TableInfo tableInfo, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
         // 判断列号是否越界
         if (columnIndex > dt.Columns.Count)
@@ -113,26 +113,26 @@ public class TableAnalyzeHelper
 
         FieldInfo fieldInfo = new FieldInfo();
         // 所在表格
-        fieldInfo.TableName = tableName;
+        fieldInfo.TableName = tableInfo.TableName;
         // 字段描述中的换行全替换为空格
-        fieldInfo.Desc = dt.Rows[AppValues.FIELD_DESC_INDEX][columnIndex].ToString().Trim().Replace(System.Environment.NewLine, " ").Replace('\n', ' ').Replace('\r', ' ').Replace('\t', ' ');
+        fieldInfo.Desc = dt.Rows[AppValues.DATA_FIELD_DESC_INDEX][columnIndex].ToString().Trim().Replace(System.Environment.NewLine, " ").Replace('\n', ' ').Replace('\r', ' ').Replace('\t', ' ');
         // 字段所在列号
         fieldInfo.ColumnSeq = columnIndex;
         // 检查规则字符串
-        string checkRuleString = dt.Rows[AppValues.FIELD_CHECK_RULE_INDEX][columnIndex].ToString().Trim().Replace(System.Environment.NewLine, " ").Replace('\n', ' ').Replace('\r', ' ').Replace('\t', ' ');
+        string checkRuleString = dt.Rows[AppValues.DATA_FIELD_CHECK_RULE_INDEX][columnIndex].ToString().Trim().Replace(System.Environment.NewLine, " ").Replace('\n', ' ').Replace('\r', ' ').Replace('\t', ' ');
         fieldInfo.CheckRule = string.IsNullOrEmpty(checkRuleString) ? null : checkRuleString;
         // 引用父FileInfo
         fieldInfo.ParentField = parentField;
 
         // 如果该字段是array类型的子元素，则不填写变量名（array下属元素的变量名自动顺序编号）
         // 并且如果子元素不是集合类型，也不需配置数据类型（直接使用array声明的子元素数据类型，子元素列不再单独配置），直接依次声明各子元素列
-        string inputFieldName = dt.Rows[AppValues.FIELD_NAME_INDEX][columnIndex].ToString().Trim();
+        string inputFieldName = dt.Rows[AppValues.DATA_FIELD_NAME_INDEX][columnIndex].ToString().Trim();
         if (parentField != null && parentField.DataType == DataType.Array)
         {
             // array的子元素如果为array或dict，则必须像array、dict定义格式那样通过一列声明子元素类型（目的为了校验，防止类似array声明子元素为dict[2]，而实际子元素为dict[3]，导致程序仍能正确解析之后的字段，但逻辑上却把后面的独立字段误认为是声明的array的子元素），但变量名仍旧不需填写
             if (parentField.ArrayChildDataType == DataType.Array)
             {
-                string inputDataTypeString = dt.Rows[AppValues.FIELD_DATA_TYPE_INDEX][columnIndex].ToString().Trim();
+                string inputDataTypeString = dt.Rows[AppValues.DATA_FIELD_DATA_TYPE_INDEX][columnIndex].ToString().Trim();
                 if (string.IsNullOrEmpty(inputDataTypeString))
                 {
                     errorString = "array的子元素若为array型，则必须在每个子元素声明列中声明具体的array类型";
@@ -178,7 +178,7 @@ public class TableAnalyzeHelper
             }
             else if (parentField.ArrayChildDataType == DataType.Dict)
             {
-                string inputDataTypeString = dt.Rows[AppValues.FIELD_DATA_TYPE_INDEX][columnIndex].ToString().Trim();
+                string inputDataTypeString = dt.Rows[AppValues.DATA_FIELD_DATA_TYPE_INDEX][columnIndex].ToString().Trim();
                 // dict类型子元素定义列中允许含有无效列
                 if (string.IsNullOrEmpty(inputDataTypeString))
                 {
@@ -250,7 +250,7 @@ public class TableAnalyzeHelper
                 fieldInfo.FieldName = inputFieldName;
 
             // 读取填写的数据类型
-            fieldInfo.DataTypeString = dt.Rows[AppValues.FIELD_DATA_TYPE_INDEX][columnIndex].ToString().Trim();
+            fieldInfo.DataTypeString = dt.Rows[AppValues.DATA_FIELD_DATA_TYPE_INDEX][columnIndex].ToString().Trim();
             fieldInfo.DataType = _AnalyzeDataType(fieldInfo.DataTypeString);
         }
 
@@ -260,24 +260,28 @@ public class TableAnalyzeHelper
             case DataType.Float:
             case DataType.Bool:
             case DataType.String:
+                {
+                    _AnalyzeBaseType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    break;
+                }
             case DataType.Lang:
                 {
-                    _AnalyzeBaseType(fieldInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    _AnalyzeLangType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
                     break;
                 }
             case DataType.TableString:
                 {
-                    _AnalyzeTableStringType(fieldInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    _AnalyzeTableStringType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
                     break;
                 }
             case DataType.Array:
                 {
-                    _AnalyzeArrayType(fieldInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    _AnalyzeArrayType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
                     break;
                 }
             case DataType.Dict:
                 {
-                    _AnalyzeDictType(fieldInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    _AnalyzeDictType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
                     break;
                 }
             default:
@@ -325,13 +329,11 @@ public class TableAnalyzeHelper
     }
 
     /// <summary>
-    /// 解析int、float、string、bool、lang这类基础数据类型
+    /// 解析int、float、string、bool这类基础数据类型
     /// </summary>
-    private static bool _AnalyzeBaseType(FieldInfo fieldInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    private static bool _AnalyzeBaseType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
         fieldInfo.Data = new List<object>();
-        if (fieldInfo.DataType == DataType.Lang)
-            fieldInfo.LangKeys = new List<object>();
 
         // 记录非法数据的行号以及数据值（key：行号， value：数据值）
         Dictionary<int, object> invalidInfo = new Dictionary<int, object>();
@@ -339,7 +341,7 @@ public class TableAnalyzeHelper
         // 如果是独立的字段
         if (parentField == null)
         {
-            for (int row = AppValues.FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+            for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
             {
                 string inputData = dt.Rows[row][columnIndex].ToString();
                 if (!(fieldInfo.DataType == DataType.String))
@@ -353,9 +355,9 @@ public class TableAnalyzeHelper
             // 嵌套一层，是集合类型的直接子类型（凡是集合类型的子元素，如果集合定义列中填写的数据为-1，则其子元素无效）
             if (parentField.ParentField == null)
             {
-                for (int row = AppValues.FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+                for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
                 {
-                    if ((bool)parentField.Data[row - AppValues.FIELD_DATA_START_INDEX] == false)
+                    if ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                         fieldInfo.Data.Add(null);
                     else
                     {
@@ -370,9 +372,9 @@ public class TableAnalyzeHelper
             // 嵌套两层
             else if (parentField.ParentField.ParentField == null)
             {
-                for (int row = AppValues.FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+                for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
                 {
-                    if ((bool)parentField.ParentField.Data[row - AppValues.FIELD_DATA_START_INDEX] == false || (bool)parentField.Data[row - AppValues.FIELD_DATA_START_INDEX] == false)
+                    if ((bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                         fieldInfo.Data.Add(null);
                     else
                     {
@@ -384,7 +386,7 @@ public class TableAnalyzeHelper
                     }
                 }
             }
-            // 本程序不允许更多层的嵌套
+            // 本工具不允许更多层的嵌套
             else
             {
                 errorString = "错误：本工具不支持高于两层集合类型的嵌套";
@@ -460,29 +462,6 @@ public class TableAnalyzeHelper
                     fieldInfo.Data.Add(inputData);
                     break;
                 }
-            case DataType.Lang:
-                {
-                    // 对于Lang型数据，表格中填写的值为Lang文件中的key
-                    if (string.IsNullOrEmpty(inputData))
-                    {
-                        fieldInfo.LangKeys.Add(string.Empty);
-                        fieldInfo.Data.Add(null);
-                    }
-                    else
-                    {
-                        if (AppValues.LangData.ContainsKey(inputData))
-                        {
-                            fieldInfo.LangKeys.Add(inputData);
-                            fieldInfo.Data.Add(AppValues.LangData[inputData]);
-                        }
-                        else
-                        {
-                            fieldInfo.LangKeys.Add(inputData);
-                            fieldInfo.Data.Add(null);
-                        }
-                    }
-                    break;
-                }
             default:
                 {
                     Utils.LogErrorAndExit("错误：用_GetOneValidBaseValue函数解析了非基础类型的数据");
@@ -491,10 +470,125 @@ public class TableAnalyzeHelper
         }
     }
 
+    private static bool _AnalyzeLangType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    {
+        fieldInfo.LangKeys = new List<object>();
+        fieldInfo.Data = new List<object>();
+
+        // 如果是统一指定key名规则，需要解析替换规则
+        Dictionary<string, List<object>> replaceInfo = null;
+        string configString = null;
+        if (!fieldInfo.DataTypeString.Equals("lang", StringComparison.CurrentCultureIgnoreCase))
+        {
+            replaceInfo = _GetLangKeyReplaceInfo(fieldInfo.DataTypeString, tableInfo, out configString, out errorString);
+            if (errorString != null)
+            {
+                errorString = string.Format("lang型格式定义错误，{0}", errorString);
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+
+            if (replaceInfo.Count < 1)
+                Utils.LogWarning(string.Format("警告：表格{0}中的Lang型字段{1}（列号：{2}）进行统一配置但使用的是完全相同的key名（{3}），请确定是否要这样设置", tableInfo.TableName, fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), configString));
+        }
+
+        for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+        {
+            // 如果本行该字段的父元素标记为无效则该数据也标为无效
+            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+            {
+                fieldInfo.LangKeys.Add(null);
+                fieldInfo.Data.Add(null);
+                continue;
+            }
+            string inputData = null;
+            // 未统一指定key名规则的Lang型数据，需在单元格中填写key
+            if (replaceInfo == null)
+                inputData = dt.Rows[row][columnIndex].ToString().Trim();
+            // 统一指定key名规则的Lang型数据，根据规则生成在Lang文件中的具体key名
+            else
+            {
+                inputData = configString;
+                foreach (var item in replaceInfo)
+                {
+                    if (item.Value[row - AppValues.DATA_FIELD_DATA_START_INDEX] != null)
+                        inputData = configString.Replace(item.Key, item.Value[row - AppValues.DATA_FIELD_DATA_START_INDEX].ToString());
+                }
+            }
+
+            if (string.IsNullOrEmpty(inputData))
+            {
+                fieldInfo.LangKeys.Add(string.Empty);
+                fieldInfo.Data.Add(null);
+            }
+            else
+            {
+                fieldInfo.LangKeys.Add(inputData);
+                if (AppValues.LangData.ContainsKey(inputData))
+                    fieldInfo.Data.Add(AppValues.LangData[inputData]);
+                else
+                    fieldInfo.Data.Add(null);
+            }
+        }
+
+        errorString = null;
+        nextFieldColumnIndex = columnIndex + 1;
+        return true;
+    }
+
+    /// <summary>
+    /// 获取统一配置的Lang型字段定义在合成key时需进行替换的信息（key：要替换的字符串形如{fieldName}， value：对应的字段数据列表）
+    /// </summary>
+    private static Dictionary<string, List<object>> _GetLangKeyReplaceInfo(string defineString, TableInfo tableInfo, out string configString, out string errorString)
+    {
+        Dictionary<string, List<object>> replaceInfo = new Dictionary<string, List<object>>();
+
+        // 取出括号中key的配置
+        int leftBracketIndex = defineString.IndexOf('(');
+        int rightBracketIndex = defineString.LastIndexOf(')');
+        if (leftBracketIndex == -1 || rightBracketIndex == -1 || leftBracketIndex > rightBracketIndex)
+        {
+            errorString = "lang类型统一key格式声明错误，必须形如lang(xxx{fieldName}xxx)，其中xxx可为任意内容，花括号中为拼成key的该行数据取哪个字段名下的值";
+            configString = null;
+            return null;
+        }
+        configString = defineString.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
+        if (string.IsNullOrEmpty(configString))
+        {
+            errorString = "lang类型统一key格式声明错误，括号内声明的key名规则不能为空";
+            return null;
+        }
+
+        int leftBraceIndex = -1;
+        for (int i = 0; i < defineString.Length; ++i)
+        {
+            if (defineString[i] == '{' && leftBraceIndex == -1)
+                leftBraceIndex = i;
+            else if (defineString[i] == '}' && leftBraceIndex != -1)
+            {
+                // 取出花括号中包含的字段名检查是否存在
+                string refFieldName = defineString.Substring(leftBraceIndex + 1, i - leftBraceIndex - 1).Trim();
+                FieldInfo refFielfInfo = tableInfo.GetFieldInfoByFieldName(refFieldName);
+                if (refFielfInfo != null)
+                    replaceInfo.Add(defineString.Substring(leftBraceIndex, i - leftBraceIndex + 1), refFielfInfo.Data);
+                else
+                {
+                    errorString = string.Format("lang类型统一key格式声明错误，找不到名为{0}的字段，注意所引用的字段必须在这个lang字段之前声明且不为集合类型子元素，否则无法找到", refFieldName);
+                    return null;
+                }
+
+                leftBraceIndex = -1;
+            }
+        }
+
+        errorString = null;
+        return replaceInfo;
+    }
+
     /// <summary>
     /// 解析tableString型数据的定义，将其格式解析为TableStringFormatDefine类，但填写的数据直接以字符串形式存在FieldInfo的Data变量中
     /// </summary>
-    private static bool _AnalyzeTableStringType(FieldInfo fieldInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    private static bool _AnalyzeTableStringType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
         // 因为array和dict在检查子类型时已经禁止子类型为tableString型，这里便可不必重复检查父类型不能是集合类型
 
@@ -508,7 +602,7 @@ public class TableAnalyzeHelper
         }
         // 将填写的数据直接以字符串形式存在FieldInfo的Data变量中
         fieldInfo.Data = new List<object>();
-        for (int row = AppValues.FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+        for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
             string inputData = dt.Rows[row][columnIndex].ToString().Trim();
             fieldInfo.Data.Add(inputData);
@@ -756,9 +850,9 @@ public class TableAnalyzeHelper
         return dataInIndexDefine;
     }
 
-    private static bool _AnalyzeArrayType(FieldInfo fieldInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    private static bool _AnalyzeArrayType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
-        // 本程序不允许高于两层的集合嵌套
+        // 本工具不允许高于两层的集合嵌套
         if (parentField != null && parentField.ParentField != null)
         {
             errorString = "错误：本工具不支持高于两层集合类型的嵌套";
@@ -789,7 +883,7 @@ public class TableAnalyzeHelper
         while (tempCount > 0)
         {
             int nextColumnIndex = nextFieldColumnIndex;
-            FieldInfo childFieldInfo = _AnalyzeOneField(dt, fieldInfo.TableName, nextColumnIndex, fieldInfo, out nextFieldColumnIndex, out errorString);
+            FieldInfo childFieldInfo = _AnalyzeOneField(dt, tableInfo, nextColumnIndex, fieldInfo, out nextFieldColumnIndex, out errorString);
             if (errorString != null)
             {
                 errorString = "array类型数据下属元素的解析存在错误\n" + errorString;
@@ -823,7 +917,7 @@ public class TableAnalyzeHelper
                     {
                         if (invalidDataIndex != 0)
                         {
-                            errorString = string.Format("array的子元素为array或dict类型时，当前面的子元素用-1标识为无效后，后面的数据也必须声明为无效的。而第{0}行第{1}个子元素声明为无效，而后面第{2}个子元素却有效\n", i + AppValues.FIELD_DATA_START_INDEX + 1, invalidDataIndex, j + 1);
+                            errorString = string.Format("array的子元素为array或dict类型时，当前面的子元素用-1标识为无效后，后面的数据也必须声明为无效的。而第{0}行第{1}个子元素声明为无效，而后面第{2}个子元素却有效\n", i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, invalidDataIndex, j + 1);
                             return false;
                         }
                     }
@@ -902,9 +996,9 @@ public class TableAnalyzeHelper
         }
     }
 
-    private static bool _AnalyzeDictType(FieldInfo fieldInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    private static bool _AnalyzeDictType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
-        // 本程序不允许高于两层的集合嵌套
+        // 本工具不允许高于两层的集合嵌套
         if (parentField != null && parentField.ParentField != null)
         {
             errorString = "错误：本工具不支持高于两层集合类型的嵌套";
@@ -931,7 +1025,7 @@ public class TableAnalyzeHelper
         while (tempCount > 0)
         {
             int nextColumnIndex = nextFieldColumnIndex;
-            FieldInfo childFieldInfo = _AnalyzeOneField(dt, fieldInfo.TableName, nextColumnIndex, fieldInfo, out nextFieldColumnIndex, out errorString);
+            FieldInfo childFieldInfo = _AnalyzeOneField(dt, tableInfo, nextColumnIndex, fieldInfo, out nextFieldColumnIndex, out errorString);
             if (errorString != null)
             {
                 errorString = "dict类型数据下属元素的解析存在错误\n" + errorString;
@@ -1012,7 +1106,7 @@ public class TableAnalyzeHelper
     {
         List<object> validInfo = new List<object>();
 
-        for (int row = AppValues.FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+        for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
             string inputData = dt.Rows[row][columnIndex].ToString().Trim();
             if ("-1".Equals(inputData))
@@ -1021,7 +1115,7 @@ public class TableAnalyzeHelper
                 validInfo.Add(true);
             else
             {
-                Utils.LogWarning(string.Format("警告：表格{0}的第{1}列的第{2}行数据有误，array或dict类型中若某行不需要此数据请填-1，否则留空，你填写的为\"{3}\"，本程序按有效值进行处理，但请按规范更正", tableName, Utils.GetExcelColumnName(columnIndex + 1), row, inputData));
+                Utils.LogWarning(string.Format("警告：表格{0}的第{1}列的第{2}行数据有误，array或dict类型中若某行不需要此数据请填-1，否则留空，你填写的为\"{3}\"，本工具按有效值进行处理，但请按规范更正", tableName, Utils.GetExcelColumnName(columnIndex + 1), row, inputData));
                 validInfo.Add(true);
             }
         }
@@ -1035,5 +1129,53 @@ public class TableAnalyzeHelper
     private static string _GetTableAnalyzeErrorString(string tableName, int columnIndex)
     {
         return string.Format("表格{0}中列号为{1}的字段存在以下严重错误，导致无法继续，请修正错误后重试\n", tableName, Utils.GetExcelColumnName(columnIndex + 1));
+    }
+
+    /// <summary>
+    /// 获取某张表格的配置参数（key：参数名， value：参数列表）
+    /// </summary>
+    public static Dictionary<string, List<string>> GetTableConfig(DataTable dt, out string errorString)
+    {
+        Dictionary<string, List<string>> config = new Dictionary<string, List<string>>();
+        int rowCount = dt.Rows.Count;
+        int columnCount = dt.Columns.Count;
+
+        for (int column = 0; column < columnCount; ++column)
+        {
+            // 取参数名
+            string paramName = dt.Rows[AppValues.CONFIG_FIELD_DEFINE_INDEX][column].ToString().Trim();
+            if (string.IsNullOrEmpty(paramName))
+                continue;
+            else
+            {
+                if (config.ContainsKey(paramName))
+                {
+                    errorString = string.Format("错误：表格{0}的配置表中存在相同的参数名{1}，请修正错误后重试\n");
+                    return null;
+                }
+                else
+                    config.Add(paramName, new List<string>());
+            }
+
+            // 取具体参数配置
+            List<string> inputParams = config[paramName];
+            for (int row = AppValues.CONFIG_FIELD_PARAM_START_INDEX; row < rowCount; ++row)
+            {
+                string param = dt.Rows[row][column].ToString();
+                if (!string.IsNullOrEmpty(param))
+                {
+                    if (inputParams.Contains(param))
+                        Utils.LogWarning(string.Format("警告：配置项（参数名为{0}）中存在相同的参数\"{1}\"，请确认是否填写错误\n", paramName, param));
+
+                    inputParams.Add(param);
+                }
+            }
+        }
+
+        errorString = null;
+        if (config.Count > 0)
+            return config;
+        else
+            return null;
     }
 }
