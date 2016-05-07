@@ -75,6 +75,10 @@ public class FieldInfo
     public List<FieldInfo> ChildField { get; set; }
     // 如果该字段是array或dict的子元素，存储其父元素的引用
     public FieldInfo ParentField { get; set; }
+    // 导出到数据库中对应的字段名
+    public string DatabaseFieldName { get; set; }
+    // 导出到数据库中对应的字段数据类型
+    public string DatabaseFieldType { get; set; }
 }
 
 /// <summary>

@@ -42,16 +42,22 @@ public class AppValues
     public const string LANG_NOT_MATCHING_PRINT_PARAM_STRING = "-printEmptyStringWhenLangNotMatching";
 
     /// <summary>
+    /// 声明将表格导出到MySQL数据库的命令参数
+    /// </summary>
+    public const string EXPORT_MYSQL = "-exportMySQL";
+
+    /// <summary>
     /// 配置文件（配置自定义的检查规则）的路径
     /// </summary>
     public const string CONFIG_FILE_NAME = "config.txt";
 
-    // 每张数据表前四行分别声明字段描述、字段变量名、字段数据类型、字段检查规则（行编号从0开始）
+    // 每张数据表前五行分别声明字段描述、字段变量名、字段数据类型、字段检查规则、导出到数据库中的字段名及类型（行编号从0开始）
     public const int DATA_FIELD_DESC_INDEX = 0;
     public const int DATA_FIELD_NAME_INDEX = 1;
     public const int DATA_FIELD_DATA_TYPE_INDEX = 2;
     public const int DATA_FIELD_CHECK_RULE_INDEX = 3;
-    public const int DATA_FIELD_DATA_START_INDEX = 4;
+    public const int DATA_FIELD_EXPORT_DATABASE_FIELD_INFO = 4;
+    public const int DATA_FIELD_DATA_START_INDEX = 5;
 
     // 每张配置表中的一列为一个配置参数的声明，其中第一行声明参数名，其余行声明具体参数（行编号从0开始）
     public const int CONFIG_FIELD_DEFINE_INDEX = 0;
@@ -61,9 +67,14 @@ public class AppValues
     public const string CONFIG_NAME_CHECK_TABLE = "tableCheckRule";
     // 声明对某张表格设置特殊导出规则的配置参数名
     public const string CONFIG_NAME_EXPORT = "tableExportConfig";
+    // 声明某张表格导出到数据库中的表名
+    public const string CONFIG_NAME_EXPORT_DATABASE_TABLE_NAME = "exportDatabaseTableName";
 
     // 声明对某张表格不进行默认导出的参数配置
     public const string CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE = "-notExportOriginalTable";
+
+    // config配置文件中用于配置MySQL连接字符串的key名
+    public const string APP_CONFIG_MYSQL_CONNECT_STRING_KEY = "connectMySQLString";
 
     /// <summary>
     /// 用户输入的要导出的Excel文件所在目录
@@ -94,6 +105,11 @@ public class AppValues
     /// 当lang型数据key在lang文件中找不到对应值时，是否在lua文件输出字段值为空字符（默认为输出nil）
     /// </summary>
     public static bool IsPrintEmptyStringWhenLangNotMatching = false;
+
+    /// <summary>
+    /// 用户输入的是否导出表格数据到MySQL数据库
+    /// </summary>
+    public static bool IsExportMySQL = false;
 
     /// <summary>
     /// 用户输入的是否需要在生成lua文件的最上方用注释形式显示列信息（默认为不需要）

@@ -1,4 +1,9 @@
-﻿####以下为表格检查规则
+﻿####以下为程序配置
+
+####连接MySQL数据库的参数字符串
+connectMySQLString:server=127.0.0.1;port=3306;uid=root;password=root;database=mydb;
+
+####以下为表格检查规则
 
 ####道具品质
 $propQuality:{1,2,3}

@@ -82,6 +82,7 @@ public class TableExportToLuaHelper
     /// </summary>
     public static bool SpecialExportTableToLua(TableInfo tableInfo, string exportRule, out string errorString)
     {
+        exportRule = exportRule.Trim();
         // 解析按这种方式导出后的lua文件名
         int colonIndex = exportRule.IndexOf(':');
         if (colonIndex == -1)
@@ -90,26 +91,47 @@ public class TableExportToLuaHelper
             return false;
         }
         string fileName = exportRule.Substring(0, colonIndex).Trim();
-        // 判断是否在花括号内声明table value中包含的字段
-        int leftBraceIndex = exportRule.IndexOf('{');
+        // 判断是否在最后的花括号内声明table value中包含的字段
+        int leftBraceIndex = exportRule.LastIndexOf('{');
         int rightBraceIndex = exportRule.LastIndexOf('}');
         // 解析依次作为索引的字段名
         string indexFieldNameString = null;
-        if (leftBraceIndex != -1)
+        // 注意分析花括号时要考虑到未声明table value中的字段而在某索引字段完整性检查规则中用花括号声明了有效值的情况
+        if (exportRule.EndsWith("}") && leftBraceIndex != -1)
             indexFieldNameString = exportRule.Substring(colonIndex + 1, leftBraceIndex - colonIndex - 1);
         else
             indexFieldNameString = exportRule.Substring(colonIndex + 1, exportRule.Length - colonIndex - 1);
 
-        string[] indexFieldNames = indexFieldNameString.Split(new char[] { '-' }, System.StringSplitOptions.RemoveEmptyEntries);
+        string[] indexFieldDefine = indexFieldNameString.Split(new char[] { '-' }, System.StringSplitOptions.RemoveEmptyEntries);
+        // 用于索引的字段列表
         List<FieldInfo> indexField = new List<FieldInfo>();
-        if (indexFieldNames.Length < 1)
+        // 索引字段对应的完整性检查规则
+        List<string> integrityCheckRules = new List<string>();
+        if (indexFieldDefine.Length < 1)
         {
             errorString = string.Format("导出配置\"{0}\"定义错误，用于索引的字段不能为空，请按fileName:indexFieldName1-indexFieldName2{otherFieldName1,otherFieldName2}的格式配置\n", exportRule);
             return false;
         }
         // 检查字段是否存在且为int、float、string或lang型
-        foreach (string fieldName in indexFieldNames)
+        foreach (string fieldDefine in indexFieldDefine)
         {
+            string fieldName = null;
+            // 判断是否在字段名后用小括号声明了该字段的完整性检查规则
+            int leftBracketIndex = fieldDefine.IndexOf('(');
+            int rightBracketIndex = fieldDefine.IndexOf(')');
+            if (leftBracketIndex > 0 && rightBracketIndex > leftBracketIndex)
+            {
+
+                fieldName = fieldDefine.Substring(0, leftBracketIndex);
+                string integrityCheckRule = fieldDefine.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
+                integrityCheckRules.Add(integrityCheckRule);
+            }
+            else
+            {
+                fieldName = fieldDefine.Trim();
+                integrityCheckRules.Add(null);
+            }
+
             FieldInfo fieldInfo = tableInfo.GetFieldInfoByFieldName(fieldName);
             if (fieldInfo == null)
             {
@@ -151,12 +173,10 @@ public class TableExportToLuaHelper
             indexField.Add(fieldInfo);
         }
 
-        // 注意：这里不做强制检查来确保用于索引的字段中不会出现空值，需自行在相关字段配置notEmpty检查规则
-
         // 解析table value中要输出的字段名
         List<FieldInfo> tableValueField = new List<FieldInfo>();
         // 如果在花括号内配置了table value中要输出的字段名
-        if (leftBraceIndex != -1 && rightBraceIndex != -1 && leftBraceIndex < rightBraceIndex)
+        if (exportRule.EndsWith("}") && leftBraceIndex != -1 && leftBraceIndex < rightBraceIndex)
         {
             string tableValueFieldName = exportRule.Substring(leftBraceIndex + 1, rightBraceIndex - leftBraceIndex - 1);
             string[] fieldNames = tableValueFieldName.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
@@ -181,7 +201,7 @@ public class TableExportToLuaHelper
                     tableValueField.Add(fieldInfo);
             }
         }
-        else if (leftBraceIndex + rightBraceIndex != -2 || leftBraceIndex > rightBraceIndex)
+        else if (exportRule.EndsWith("}") && leftBraceIndex == -1)
         {
             errorString = string.Format("导出配置\"{0}\"定义错误，声明的table value中花括号不匹配\n", exportRule);
             return false;
@@ -189,7 +209,7 @@ public class TableExportToLuaHelper
         // 如果未在花括号内声明，则默认将索引字段之外的所有字段进行填充
         else
         {
-            List<string> indexFieldNameList = new List<string>(indexFieldNames);
+            List<string> indexFieldNameList = new List<string>(indexFieldDefine);
             foreach (FieldInfo fieldInfo in tableInfo.GetAllFieldInfo())
             {
                 if (!indexFieldNameList.Contains(fieldInfo.FieldName))
@@ -222,6 +242,16 @@ public class TableExportToLuaHelper
             {
                 errorString = string.Format("错误：对表格{0}按\"{1}\"规则进行特殊索引导出时发现第{2}行与第{3}行在各个索引字段的值完全相同，导出被迫停止，请修正错误后重试\n", tableInfo.TableName, exportRule, i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, temp[lastIndexFieldData]);
                 Utils.LogErrorAndExit(errorString);
+                return false;
+            }
+        }
+        // 进行数据完整性检查
+        if (AppValues.IsNeedCheck == true)
+        {
+            TableCheckHelper.CheckTableIntegrity(indexField, data, integrityCheckRules, out errorString);
+            if (errorString != null)
+            {
+                errorString = string.Format("错误：对表格{0}按\"{1}\"规则进行特殊索引导时未通过数据完整性检查，导出被迫停止，请修正错误后重试：\n{2}\n", tableInfo.TableName, exportRule, errorString);
                 return false;
             }
         }

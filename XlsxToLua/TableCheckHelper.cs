@@ -762,7 +762,6 @@ public class TableCheckHelper
 
             string[] values = temp.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            // 要求字段类型只能为int、float或string型
             if (fieldInfo.DataType == DataType.Int)
             {
                 // 存储读取的用户设置的有效值（key：有效值， value：恒为true）
@@ -1347,6 +1346,93 @@ public class TableCheckHelper
         }
         else
             return false;
+    }
+
+    /// <summary>
+    /// 用于检查按自定义索引字段导出lua文件的表格中相关索引字段的数据完整性
+    /// </summary>
+    public static bool CheckTableIntegrity(List<FieldInfo> indexField, Dictionary<object, object> data, List<string> integrityCheckRules, out string errorString)
+    {
+        StringBuilder errorStringBuilder = new StringBuilder();
+
+        // 解析各个需要进行数据完整性检查的字段声明的有效值
+        List<List<object>> effectiveValues = new List<List<object>>();
+        for (int i = 0; i < integrityCheckRules.Count; ++i)
+        {
+            if (integrityCheckRules[i] == null)
+                effectiveValues.Add(null);
+            else
+            {
+                List<object> oneFieldEffectiveValues = Utils.GetEffectiveValue(integrityCheckRules[i], indexField[i].DataType, out errorString);
+                if (errorString != null)
+                {
+                    errorStringBuilder.AppendFormat("字段\"{0}\"（列号：{1}）的数据完整性检查规则定义错误，{2}\n", indexField[i].FieldName, Utils.GetExcelColumnName(indexField[i].ColumnSeq + 1), errorString);
+                    errorString = null;
+                }
+                else
+                    effectiveValues.Add(oneFieldEffectiveValues);
+            }
+        }
+        errorString = errorStringBuilder.ToString();
+        if (string.IsNullOrEmpty(errorString))
+            errorString = null;
+        else
+            return false;
+
+        // 进行数据完整性检查
+        List<object> parentKeys = new List<object>();
+        for (int i = 0; i < integrityCheckRules.Count; ++i)
+            parentKeys.Add(null);
+
+        int currentLevel = 0;
+        _CheckIntegrity(indexField, data, parentKeys, effectiveValues, ref currentLevel, errorStringBuilder);
+        errorString = errorStringBuilder.ToString();
+        if (string.IsNullOrEmpty(errorString))
+        {
+            errorString = null;
+            return true;
+        }
+        else
+            return false;
+    }
+
+    /// <summary>
+    /// 用于递归对表格进行数据完整性检查
+    /// </summary>
+    public static void _CheckIntegrity(List<FieldInfo> indexField, Dictionary<object, object> parentDict, List<object> parentKeys, List<List<object>> effectiveValues, ref int currentLevel, StringBuilder errorStringBuilder)
+    {
+        if (effectiveValues[currentLevel] != null)
+        {
+            List<object> inputData = new List<object>(parentDict.Keys);
+            foreach (object value in effectiveValues[currentLevel])
+            {
+                if (!inputData.Contains(value))
+                {
+                    if (currentLevel > 0)
+                    {
+                        StringBuilder parentKeyInfoBuilder = new StringBuilder();
+                        for (int i = 0; i <= currentLevel - 1; ++i)
+                            parentKeyInfoBuilder.AppendFormat("{0}={1},", indexField[i].FieldName, parentKeys[i]);
+
+                        string parentKeyInfo = parentKeyInfoBuilder.ToString().Substring(0, parentKeyInfoBuilder.Length - 1);
+                        errorStringBuilder.AppendFormat("字段\"{0}\"（列号：{1}）缺少在{2}情况下值为\"{3}\"的数据\n", indexField[currentLevel].FieldName, Utils.GetExcelColumnName(indexField[currentLevel].ColumnSeq + 1), parentKeyInfo, value);
+                    }
+                    else
+                        errorStringBuilder.AppendFormat("字段\"{0}\"（列号：{1}）缺少值为\"{2}\"的数据\n", indexField[currentLevel].FieldName, Utils.GetExcelColumnName(indexField[currentLevel].ColumnSeq + 1), value);
+                }
+            }
+        }
+
+        if (currentLevel < effectiveValues.Count - 1)
+        {
+            foreach (var key in parentDict.Keys)
+            {
+                parentKeys[currentLevel] = key;
+                ++currentLevel;
+                _CheckIntegrity(indexField, (Dictionary<object, object>)(parentDict[key]), parentKeys, effectiveValues, ref currentLevel, errorStringBuilder);
+                --currentLevel;
+            }
+        }
     }
 
     /// <summary>

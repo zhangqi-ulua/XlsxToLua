@@ -10,7 +10,11 @@ public class Program
 {
     /// <summary>
     /// 传入参数中，第1个必须为Excel表格所在目录，第2个必须为存放导出lua文件的目录，第3个参数为项目Client目录的路径（无需文件存在型检查规则则填-noClient），第4个参数为必须为lang文件路径（没有填-noLang）
-    /// 可附加参数为：-columnInfo（在生成lua文件的最上方用注释形式显示列信息，默认不开启），-unchecked（不对表格进行查错，不推荐使用），-printEmptyStringWhenLangNotMatching（当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串即xx = ""，默认为输出nil）
+    /// 可附加参数有：
+    /// 1) -columnInfo（在生成lua文件的最上方用注释形式显示列信息，默认不开启）
+    /// 2) -unchecked（不对表格进行查错，不推荐使用）
+    /// 3) -printEmptyStringWhenLangNotMatching（当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串即xx = ""，默认为输出nil）
+    /// 4) -exportMySQL（将表格数据导出到MySQL数据库中，默认不导出）
     /// </summary>
     static void Main(string[] args)
     {
@@ -90,6 +94,12 @@ public class Program
                     {
                         AppValues.IsPrintEmptyStringWhenLangNotMatching = true;
                         Utils.LogWarning("你选择了当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串");
+                        break;
+                    }
+                case AppValues.EXPORT_MYSQL:
+                    {
+                        AppValues.IsExportMySQL = true;
+                        Utils.LogWarning("你选择了导出表格数据到MySQL数据库");
                         break;
                     }
                 default:
@@ -187,7 +197,7 @@ public class Program
                             Utils.Log(string.Format("对此表格按\"{0}\"自定义规则进行导出：", param));
                             TableExportToLuaHelper.SpecialExportTableToLua(tableInfo, param, out errorString);
                             if (errorString != null)
-                                Utils.LogErrorAndExit("导出失败：" + errorString);
+                                Utils.LogErrorAndExit(string.Format("导出失败：\n{0}\n", errorString));
                             else
                                 Utils.Log("成功");
                         }
@@ -205,6 +215,26 @@ public class Program
             }
 
             Utils.Log("\n导出lua文件完毕\n");
+
+            // 进行数据库导出
+            if (AppValues.IsExportMySQL == true)
+            {
+                Utils.Log("\n导出表格数据到MySQL数据库\n");
+
+                string errorString = null;
+                TableExportToMySQLHelper.ConnectToDatabase(out errorString);
+                if (!string.IsNullOrEmpty(errorString))
+                    Utils.LogErrorAndExit(string.Format("无法连接至MySQL数据库：{0}\n导出至MySQL数据库被迫中止，请修正错误后重试\n", errorString));
+
+                foreach (TableInfo tableInfo in AppValues.TableInfo.Values)
+                {
+                    TableExportToMySQLHelper.ExportTableToDatabase(tableInfo, out errorString);
+                    if (!string.IsNullOrEmpty(errorString))
+                        Utils.LogErrorAndExit(string.Format("导出失败：{0}\n导出至MySQL数据库被迫中止，请修正错误后重试\n", errorString));
+                }
+
+                Utils.Log("\n导出到数据库完毕\n");
+            }
         }
         else
         {
