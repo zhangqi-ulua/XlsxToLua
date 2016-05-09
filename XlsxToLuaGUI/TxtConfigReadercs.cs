@@ -32,7 +32,7 @@ public class TxtConfigReader
                 int separatorIndex = line.IndexOf(separator);
                 if (separatorIndex == -1)
                 {
-                    errorString = string.Format("错误：第{0}行不合法不包含分隔符{1}，文件为{2}", lineNumber, separator, filePath);
+                    errorString = string.Format("错误：第{0}行不合法不包含分隔符{1}", lineNumber, separator);
                     return null;
                 }
                 string key = line.Substring(0, separatorIndex);
@@ -40,7 +40,7 @@ public class TxtConfigReader
                 string value = line.Substring(separatorIndex + 1).Replace("\\n", "\n");
                 if (result.ContainsKey(key))
                 {
-                    errorString = string.Format("错误：第{0}行中的key({1})重复定义，文件为{2}", lineNumber, key, filePath);
+                    errorString = string.Format("错误：第{0}行中的key({1})重复定义", lineNumber, key);
                     return null;
                 }
 

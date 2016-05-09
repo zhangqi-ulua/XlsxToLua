@@ -44,10 +44,15 @@ public class AppValues
     /// <summary>
     /// 声明将表格导出到MySQL数据库的命令参数
     /// </summary>
-    public const string EXPORT_MYSQL = "-exportMySQL";
+    public const string EXPORT_MYSQL_PARAM_STRING = "-exportMySQL";
 
     /// <summary>
-    /// 配置文件（配置自定义的检查规则）的路径
+    /// 声明只将部分指定Excel表进行导出的命令参数
+    /// </summary>
+    public const string PART_EXPORT_PARAM_STRING = "-part";
+
+    /// <summary>
+    /// 配置文件（配置自定义的检查规则）的文件名
     /// </summary>
     public const string CONFIG_FILE_NAME = "config.txt";
 
@@ -75,6 +80,11 @@ public class AppValues
 
     // config配置文件中用于配置MySQL连接字符串的key名
     public const string APP_CONFIG_MYSQL_CONNECT_STRING_KEY = "connectMySQLString";
+
+    /// <summary>
+    /// 本工具所在目录，不能用System.Environment.CurrentDirectory因为当本工具被其他程序调用时取得的CurrentDirectory将是调用者的路径
+    /// </summary>
+    public static string PROGRAM_FOLDER_PATH = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
 
     /// <summary>
     /// 用户输入的要导出的Excel文件所在目录
@@ -130,6 +140,11 @@ public class AppValues
     /// 存储每张Excel表格解析成的本工具所需的数据结构（key：表名）
     /// </summary>
     public static Dictionary<string, TableInfo> TableInfo = new Dictionary<string, TableInfo>();
+
+    /// <summary>
+    /// 存储本次要导出的Excel文件名
+    /// </summary>
+    public static List<string> exportTableNames = new List<string>();
 
     /// <summary>
     /// 存储运行时打印的所有信息，在程序运行完毕后输出为txt文件，从而解决如果输出内容过多控制台无法显示全部信息的问题

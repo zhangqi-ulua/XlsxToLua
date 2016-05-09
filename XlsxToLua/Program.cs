@@ -15,6 +15,7 @@ public class Program
     /// 2) -unchecked（不对表格进行查错，不推荐使用）
     /// 3) -printEmptyStringWhenLangNotMatching（当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串即xx = ""，默认为输出nil）
     /// 4) -exportMySQL（将表格数据导出到MySQL数据库中，默认不导出）
+    /// 5) -part（后面在英文小括号内声明本次要导出的Excel文件名，用|分隔，未声明的文件将被本工具忽略）
     /// </summary>
     static void Main(string[] args)
     {
@@ -76,44 +77,76 @@ public class Program
         for (int i = 4; i < args.Length; ++i)
         {
             string param = args[i];
-            switch (param)
+
+            if (param.Equals(AppValues.UNCHECKED_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
             {
-                case AppValues.UNCHECKED_PARAM_STRING:
-                    {
-                        AppValues.IsNeedCheck = false;
-                        Utils.LogWarning("警告：你选择了不进行表格检查，请务必自己保证表格的正确性");
-                        break;
-                    }
-                case AppValues.NEED_COLUMN_INFO_PARAM_STRING:
-                    {
-                        AppValues.IsNeedColumnInfo = true;
-                        Utils.LogWarning("你选择了在生成的lua文件最上方用注释形式显示列信息");
-                        break;
-                    }
-                case AppValues.LANG_NOT_MATCHING_PRINT_PARAM_STRING:
-                    {
-                        AppValues.IsPrintEmptyStringWhenLangNotMatching = true;
-                        Utils.LogWarning("你选择了当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串");
-                        break;
-                    }
-                case AppValues.EXPORT_MYSQL:
-                    {
-                        AppValues.IsExportMySQL = true;
-                        Utils.LogWarning("你选择了导出表格数据到MySQL数据库");
-                        break;
-                    }
-                default:
-                    {
-                        Utils.LogErrorAndExit(string.Format("错误：未知的指令参数{0}", param));
-                        break;
-                    }
+                AppValues.IsNeedCheck = false;
+                Utils.LogWarning("警告：你选择了不进行表格检查，请务必自己保证表格的正确性");
             }
+            else if (param.Equals(AppValues.NEED_COLUMN_INFO_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            {
+                AppValues.IsNeedColumnInfo = true;
+                Utils.LogWarning("你选择了在生成的lua文件最上方用注释形式显示列信息");
+            }
+            else if (param.Equals(AppValues.LANG_NOT_MATCHING_PRINT_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            {
+                AppValues.IsPrintEmptyStringWhenLangNotMatching = true;
+                Utils.LogWarning("你选择了当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串");
+            }
+            else if (param.Equals(AppValues.EXPORT_MYSQL_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            {
+                AppValues.IsExportMySQL = true;
+                Utils.LogWarning("你选择了导出表格数据到MySQL数据库");
+            }
+            else if (param.StartsWith(AppValues.PART_EXPORT_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            {
+                // 解析声明的本次要导出的Excel名
+                int leftBracketIndex = param.IndexOf('(');
+                int rightBracketIndex = param.LastIndexOf(')');
+                if (leftBracketIndex == -1 || rightBracketIndex == -1 || leftBracketIndex > rightBracketIndex)
+                    Utils.LogErrorAndExit(string.Format("错误：声明导出部分Excel表格的参数{0}后必须在英文小括号内声明Excel文件名", AppValues.PART_EXPORT_PARAM_STRING));
+                else
+                {
+                    string fileNameString = param.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
+                    string[] fileNames = fileNameString.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (fileNames.Length < 1)
+                        Utils.LogErrorAndExit(string.Format("错误：声明导出部分Excel表格的参数{0}后必须在英文小括号内声明至少一个Excel文件名", AppValues.PART_EXPORT_PARAM_STRING));
+
+                    foreach (string fileName in fileNames)
+                        AppValues.exportTableNames.Add(fileName.Trim());
+
+                    // 检查指定导出的Excel文件是否存在（注意不能直接用File.Exists判断是否存在，因为Windows会忽略声明的Excel文件名与实际文件名的大小写差异）
+                    List<string> existExcelFilePaths = new List<string>(Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"));
+                    List<string> existExcelFileNames = new List<string>();
+                    foreach (string filePath in existExcelFilePaths)
+                        existExcelFileNames.Add(Path.GetFileNameWithoutExtension(filePath));
+
+                    foreach (string exportExcelFileName in AppValues.exportTableNames)
+                    {
+                        if (!existExcelFileNames.Contains(exportExcelFileName))
+                            Utils.LogErrorAndExit(string.Format("要求导出的Excel文件（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(AppValues.ExcelFolderPath, string.Concat(exportExcelFileName, ".xlsx"))));
+                    }
+
+                    Utils.LogWarning(string.Format("警告：本次将仅检查并导出以下Excel文件：\n{0}\n", Utils.CombineString(AppValues.exportTableNames, ", ")));
+                }
+            }
+            else
+                Utils.LogErrorAndExit(string.Format("错误：未知的指令参数{0}", param));
         }
+
+        // 如果未指定导出部分Excel文件，则全部导出
+        if (AppValues.exportTableNames.Count == 0)
+        {
+            foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
+                AppValues.exportTableNames.Add(Path.GetFileNameWithoutExtension(filePath));
+        }
+
         // 解析本工具所在目录下的config文件
-        if (File.Exists(AppValues.CONFIG_FILE_NAME))
+        string configFilePath = Utils.CombinePath(AppValues.PROGRAM_FOLDER_PATH, AppValues.CONFIG_FILE_NAME);
+        if (File.Exists(configFilePath))
         {
             string errorString = null;
-            AppValues.ConfigData = TxtConfigReader.ParseTxtConfigFile(AppValues.CONFIG_FILE_NAME, ":", out errorString);
+            AppValues.ConfigData = TxtConfigReader.ParseTxtConfigFile(configFilePath, ":", out errorString);
             if (!string.IsNullOrEmpty(errorString))
                 Utils.LogErrorAndExit(errorString);
         }
@@ -121,7 +154,7 @@ public class Program
             Utils.LogWarning(string.Format("警告：找不到本工具所在路径下的{0}配置文件，请确定是否真的不需要自定义配置", AppValues.CONFIG_FILE_NAME));
 
         // 读取给定的Excel所在目录下的所有Excel文件，然后解析成本工具所需的数据结构
-        foreach (var filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
+        foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
         {
             string errorString = null;
             DataSet ds = XlsxReader.ReadXlsxFile(filePath, out errorString);
@@ -154,8 +187,9 @@ public class Program
         {
             Utils.Log("\n下面开始进行表格检查：");
 
-            foreach (TableInfo tableInfo in AppValues.TableInfo.Values)
+            foreach (string tableName in AppValues.exportTableNames)
             {
+                TableInfo tableInfo = AppValues.TableInfo[tableName];
                 string errorString = null;
                 Utils.Log(string.Format("检查表格\"{0}\"：", tableInfo.TableName));
                 TableCheckHelper.CheckTable(tableInfo, out errorString);
@@ -172,8 +206,9 @@ public class Program
         {
             Utils.Log("\n表格检查完毕，没有发现错误，开始导出为lua文件\n");
             // 进行表格导出
-            foreach (TableInfo tableInfo in AppValues.TableInfo.Values)
+            foreach (string tableName in AppValues.exportTableNames)
             {
+                TableInfo tableInfo = AppValues.TableInfo[tableName];
                 string errorString = null;
                 Utils.Log(string.Format("导出表格\"{0}\"：", tableInfo.TableName));
                 bool isNeedExportOriginalTable = true;
@@ -226,8 +261,9 @@ public class Program
                 if (!string.IsNullOrEmpty(errorString))
                     Utils.LogErrorAndExit(string.Format("无法连接至MySQL数据库：{0}\n导出至MySQL数据库被迫中止，请修正错误后重试\n", errorString));
 
-                foreach (TableInfo tableInfo in AppValues.TableInfo.Values)
+                foreach (string tableName in AppValues.exportTableNames)
                 {
+                    TableInfo tableInfo = AppValues.TableInfo[tableName];
                     TableExportToMySQLHelper.ExportTableToDatabase(tableInfo, out errorString);
                     if (!string.IsNullOrEmpty(errorString))
                         Utils.LogErrorAndExit(string.Format("导出失败：{0}\n导出至MySQL数据库被迫中止，请修正错误后重试\n", errorString));

@@ -360,7 +360,7 @@ public class Utils
         try
         {
             string fileName = string.Format("表格检查结果 {0}", string.Format("{0:yyyy年MM月dd日 HH时mm分ss秒}.txt", DateTime.Now));
-            string savePath = Utils.CombinePath(System.Environment.CurrentDirectory, fileName);
+            string savePath = Utils.CombinePath(AppValues.PROGRAM_FOLDER_PATH, fileName);
             StreamWriter writer = new StreamWriter(savePath, false, new UTF8Encoding(false));
             writer.WriteLine(AppValues.LogContent.ToString().Replace("\n", System.Environment.NewLine));
             writer.Flush();

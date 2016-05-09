@@ -1,0 +1,8 @@
+D:\表格导出工具\XlsxToLuaGUI\bin\Release\XlsxToLuaGUI.exe
+D:\表格导出工具\XlsxToLuaGUI\bin\Release\XlsxToLuaGUI.pdb
+D:\表格导出工具\XlsxToLuaGUI\obj\Release\XlsxToLuaGUI.csprojResolveAssemblyReference.cache
+D:\表格导出工具\XlsxToLuaGUI\obj\Release\XlsxToLuaGUI.MainForm.resources
+D:\表格导出工具\XlsxToLuaGUI\obj\Release\XlsxToLuaGUI.Properties.Resources.resources
+D:\表格导出工具\XlsxToLuaGUI\obj\Release\XlsxToLuaGUI.csproj.GenerateResource.Cache
+D:\表格导出工具\XlsxToLuaGUI\obj\Release\XlsxToLuaGUI.exe
+D:\表格导出工具\XlsxToLuaGUI\obj\Release\XlsxToLuaGUI.pdb
