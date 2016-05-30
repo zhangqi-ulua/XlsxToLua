@@ -40,15 +40,24 @@ public class Utils
         string columnName = string.Empty;
 
         if (columnNumber <= 26)
-        {
             columnName = ((char)('A' + columnNumber - 1)).ToString();
-        }
         else
         {
             int quotient = columnNumber / 26;
             int remainder = columnNumber % 26;
-            char first = (char)('A' + quotient - 1);
-            char second = (char)('A' + remainder - 1);
+            char first;
+            char second;
+            if (remainder == 0)
+            {
+                first = (char)('A' + quotient - 2);
+                second = 'Z';
+            }
+            else
+            {
+                first = (char)('A' + quotient - 1);
+                second = (char)('A' + remainder - 1);
+            }
+
             columnName = string.Concat(first, second);
         }
 

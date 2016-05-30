@@ -65,11 +65,11 @@ public class ExcelOperateHelper
             string checkRule = _GetCheckRuleByDatabaseColumnInfo(columnInfo.Rows[columnIndex - 1], dataType);
             dataWorksheet.Cells[AppValues.DATA_FIELD_CHECK_RULE_INDEX, columnIndex] = checkRule;
             // 第五行为导出到数据库中的字段名及类型
-            dataWorksheet.Cells[AppValues.DATA_FIELD_EXPORT_DATABASE_FIELD_INFO, columnIndex] = fullDatabaseDataType;
+            dataWorksheet.Cells[AppValues.DATA_FIELD_EXPORT_DATABASE_FIELD_INFO, columnIndex] = string.Format("{0}({1})", fileName, fullDatabaseDataType);
             // 从第六行开始导入数据库中数据表所填写的数据
             int dataCount = data.Rows.Count;
             for (int i = 0; i < dataCount; ++i)
-                dataWorksheet.Cells[AppValues.DATA_FIELD_DATA_START_INDEX + i, columnIndex] = data.Rows[i][columnIndex - 1];
+                dataWorksheet.Cells[AppValues.DATA_FIELD_DATA_START_INDEX + i, columnIndex] = data.Rows[i][columnIndex - 1].ToString();
 
             // 将每列的背景色按配置进行设置
             if (AppValues.ColumnBackgroundColorIndex != null)
