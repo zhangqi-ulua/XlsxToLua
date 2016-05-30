@@ -161,15 +161,15 @@ public class Program
             if (string.IsNullOrEmpty(errorString))
             {
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
-                TableInfo tableInfo = TableAnalyzeHelper.AnalyzeTable(ds.Tables[AppValues.EXCEL_SHEET_NAME], fileName, out errorString);
+                TableInfo tableInfo = TableAnalyzeHelper.AnalyzeTable(ds.Tables[AppValues.EXCEL_DATA_SHEET_NAME], fileName, out errorString);
                 if (errorString != null)
                     Utils.LogErrorAndExit(string.Format("错误：解析{0}失败\n{1}", filePath, errorString));
                 else
                 {
                     // 如果有表格配置进行解析
-                    if (ds.Tables[AppValues.EXCEL_CONFIG_NAME] != null)
+                    if (ds.Tables[AppValues.EXCEL_CONFIG_SHEET_NAME] != null)
                     {
-                        tableInfo.TableConfig = TableAnalyzeHelper.GetTableConfig(ds.Tables[AppValues.EXCEL_CONFIG_NAME], out errorString);
+                        tableInfo.TableConfig = TableAnalyzeHelper.GetTableConfig(ds.Tables[AppValues.EXCEL_CONFIG_SHEET_NAME], out errorString);
                         if (!string.IsNullOrEmpty(errorString))
                             Utils.LogErrorAndExit(string.Format("错误：解析表格{0}的配置失败\n{1}", fileName, errorString));
                     }

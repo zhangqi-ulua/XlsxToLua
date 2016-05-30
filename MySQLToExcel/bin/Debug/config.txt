@@ -1,0 +1,17 @@
+﻿####连接MySQL数据库的参数字符串
+connectMySQLString:server=127.0.0.1;port=3306;uid=root;password=root;database=mydb;
+
+####导出Excel文件所在目录
+exportExcelPath:ExportExcel
+
+####需要导出的数据表名（用|分隔）
+exportDataTableNames:hero|hero_equipment|prop|system
+
+####各列背景色的ColorIndex（用英文逗号分隔，本工具将循环设置，颜色编号参看https://msdn.microsoft.com/en-us/library/cc296089.aspx）
+columnBackgroundColor:34,36,40,24
+
+####data表标签按钮背景色的ColorIndex
+dataSheetTabColor:43
+
+####config表标签按钮背景色的ColorIndex
+configSheetTabColor:44

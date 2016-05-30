@@ -47,30 +47,30 @@ public class XlsxReader
             {
                 string sheetName = dtSheet.Rows[i]["TABLE_NAME"].ToString();
 
-                if (sheetName == AppValues.EXCEL_SHEET_NAME)
+                if (sheetName == AppValues.EXCEL_DATA_SHEET_NAME)
                     isFoundDateSheet = true;
-                else if (sheetName == AppValues.EXCEL_CONFIG_NAME)
+                else if (sheetName == AppValues.EXCEL_CONFIG_SHEET_NAME)
                     isFoundConfigSheet = true;
             }
             if (!isFoundDateSheet)
             {
-                errorString = string.Format("错误：{0}中不含有Sheet名为{1}的数据表", filePath, AppValues.EXCEL_SHEET_NAME.Replace("$", ""));
+                errorString = string.Format("错误：{0}中不含有Sheet名为{1}的数据表", filePath, AppValues.EXCEL_DATA_SHEET_NAME.Replace("$", ""));
                 return null;
             }
 
             // 初始化适配器
             da = new OleDbDataAdapter();
-            da.SelectCommand = new OleDbCommand(String.Format("Select * FROM [{0}]", AppValues.EXCEL_SHEET_NAME), conn);
+            da.SelectCommand = new OleDbCommand(String.Format("Select * FROM [{0}]", AppValues.EXCEL_DATA_SHEET_NAME), conn);
 
             ds = new DataSet();
-            da.Fill(ds, AppValues.EXCEL_SHEET_NAME);
+            da.Fill(ds, AppValues.EXCEL_DATA_SHEET_NAME);
 
             if (isFoundConfigSheet == true)
             {
                 da.Dispose();
                 da = new OleDbDataAdapter();
-                da.SelectCommand = new OleDbCommand(String.Format("Select * FROM [{0}]", AppValues.EXCEL_CONFIG_NAME), conn);
-                da.Fill(ds, AppValues.EXCEL_CONFIG_NAME);
+                da.SelectCommand = new OleDbCommand(String.Format("Select * FROM [{0}]", AppValues.EXCEL_CONFIG_SHEET_NAME), conn);
+                da.Fill(ds, AppValues.EXCEL_CONFIG_SHEET_NAME);
             }
         }
         catch

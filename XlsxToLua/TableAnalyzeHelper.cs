@@ -354,6 +354,14 @@ public class TableAnalyzeHelper
     /// </summary>
     private static bool _AnalyzeBaseType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
+        // 检查string型字段数据格式声明是否正确
+        if (fieldInfo.DataType == DataType.String && !"string(trim)".Equals(fieldInfo.DataTypeString) && !"string".Equals(fieldInfo.DataTypeString))
+        {
+            errorString = string.Format("错误：string型字段定义非法，若要自动去除输入字符串的首尾空白字符请将数据类型声明为\"string(trim)\"，否则声明为\"string\"，而你输入的为\"{0}\"", fieldInfo.DataTypeString);
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+
         fieldInfo.Data = new List<object>();
 
         // 记录非法数据的行号以及数据值（key：行号， value：数据值）
@@ -365,9 +373,6 @@ public class TableAnalyzeHelper
             for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
             {
                 string inputData = dt.Rows[row][columnIndex].ToString();
-                if (!(fieldInfo.DataType == DataType.String))
-                    inputData = inputData.Trim();
-
                 _GetOneValidBaseValue(fieldInfo, invalidInfo, inputData, row);
             }
         }
@@ -383,9 +388,6 @@ public class TableAnalyzeHelper
                     else
                     {
                         string inputData = dt.Rows[row][columnIndex].ToString();
-                        if (!(fieldInfo.DataType == DataType.String))
-                            inputData = inputData.Trim();
-
                         _GetOneValidBaseValue(fieldInfo, invalidInfo, inputData, row);
                     }
                 }
@@ -400,9 +402,6 @@ public class TableAnalyzeHelper
                     else
                     {
                         string inputData = dt.Rows[row][columnIndex].ToString();
-                        if (!(fieldInfo.DataType == DataType.String))
-                            inputData = inputData.Trim();
-
                         _GetOneValidBaseValue(fieldInfo, invalidInfo, inputData, row);
                     }
                 }
@@ -450,6 +449,7 @@ public class TableAnalyzeHelper
         {
             case DataType.Int:
                 {
+                    inputData = inputData.Trim();
                     int intValue;
                     bool isValid = int.TryParse(inputData, out intValue);
                     if (isValid)
@@ -460,6 +460,7 @@ public class TableAnalyzeHelper
                 }
             case DataType.Float:
                 {
+                    inputData = inputData.Trim();
                     float floatValue;
                     bool isValid = float.TryParse(inputData, out floatValue);
                     if (isValid)
@@ -470,6 +471,7 @@ public class TableAnalyzeHelper
                 }
             case DataType.Bool:
                 {
+                    inputData = inputData.Trim();
                     if ("1".Equals(inputData))
                         fieldInfo.Data.Add(true);
                     else if ("0".Equals(inputData))
@@ -480,7 +482,11 @@ public class TableAnalyzeHelper
                 }
             case DataType.String:
                 {
-                    fieldInfo.Data.Add(inputData);
+                    if ("string(trim)".Equals(fieldInfo.DataTypeString, StringComparison.CurrentCultureIgnoreCase))
+                        fieldInfo.Data.Add(inputData.Trim());
+                    else
+                        fieldInfo.Data.Add(inputData);
+
                     break;
                 }
             default:

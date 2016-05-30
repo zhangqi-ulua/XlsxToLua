@@ -1,0 +1,9 @@
+D:\表格导出工具\MySQLToExcel\obj\Release\Interop.VBIDE.dll
+D:\表格导出工具\MySQLToExcel\obj\Release\MySQLToExcel.csproj.ResolveComReference.cache
+D:\表格导出工具\MySQLToExcel\bin\Release\MySQLToExcel.exe
+D:\表格导出工具\MySQLToExcel\bin\Release\MySQLToExcel.pdb
+D:\表格导出工具\MySQLToExcel\bin\Release\MySql.Data.dll
+D:\表格导出工具\MySQLToExcel\bin\Release\Interop.VBIDE.dll
+D:\表格导出工具\MySQLToExcel\obj\Release\MySQLToExcel.csprojResolveAssemblyReference.cache
+D:\表格导出工具\MySQLToExcel\obj\Release\MySQLToExcel.exe
+D:\表格导出工具\MySQLToExcel\obj\Release\MySQLToExcel.pdb
