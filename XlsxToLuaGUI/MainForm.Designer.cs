@@ -55,6 +55,7 @@
             this.lbProgramPath = new System.Windows.Forms.Label();
             this.tbProgramPath = new System.Windows.Forms.TextBox();
             this.btnChooseProgramPath = new System.Windows.Forms.Button();
+            this.cbAllowedNullNumber = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lbExcelFolderPath
@@ -214,7 +215,7 @@
             // cbPart
             // 
             this.cbPart.AutoSize = true;
-            this.cbPart.Location = new System.Drawing.Point(15, 339);
+            this.cbPart.Location = new System.Drawing.Point(15, 361);
             this.cbPart.Name = "cbPart";
             this.cbPart.Size = new System.Drawing.Size(570, 16);
             this.cbPart.TabIndex = 17;
@@ -223,14 +224,14 @@
             // 
             // tbPartExcelNames
             // 
-            this.tbPartExcelNames.Location = new System.Drawing.Point(69, 361);
+            this.tbPartExcelNames.Location = new System.Drawing.Point(69, 383);
             this.tbPartExcelNames.Name = "tbPartExcelNames";
             this.tbPartExcelNames.Size = new System.Drawing.Size(435, 21);
             this.tbPartExcelNames.TabIndex = 18;
             // 
             // btnChoosePartExcel
             // 
-            this.btnChoosePartExcel.Location = new System.Drawing.Point(519, 359);
+            this.btnChoosePartExcel.Location = new System.Drawing.Point(519, 381);
             this.btnChoosePartExcel.Name = "btnChoosePartExcel";
             this.btnChoosePartExcel.Size = new System.Drawing.Size(75, 23);
             this.btnChoosePartExcel.TabIndex = 19;
@@ -240,7 +241,7 @@
             // 
             // btnSaveConfig
             // 
-            this.btnSaveConfig.Location = new System.Drawing.Point(30, 412);
+            this.btnSaveConfig.Location = new System.Drawing.Point(30, 434);
             this.btnSaveConfig.Name = "btnSaveConfig";
             this.btnSaveConfig.Size = new System.Drawing.Size(75, 23);
             this.btnSaveConfig.TabIndex = 20;
@@ -250,7 +251,7 @@
             // 
             // btnLoadConfig
             // 
-            this.btnLoadConfig.Location = new System.Drawing.Point(120, 412);
+            this.btnLoadConfig.Location = new System.Drawing.Point(120, 434);
             this.btnLoadConfig.Name = "btnLoadConfig";
             this.btnLoadConfig.Size = new System.Drawing.Size(75, 23);
             this.btnLoadConfig.TabIndex = 21;
@@ -261,7 +262,7 @@
             // btnExecute
             // 
             this.btnExecute.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnExecute.Location = new System.Drawing.Point(242, 401);
+            this.btnExecute.Location = new System.Drawing.Point(242, 423);
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(117, 39);
             this.btnExecute.TabIndex = 22;
@@ -271,7 +272,7 @@
             // 
             // btnGenerateBat
             // 
-            this.btnGenerateBat.Location = new System.Drawing.Point(404, 412);
+            this.btnGenerateBat.Location = new System.Drawing.Point(404, 434);
             this.btnGenerateBat.Name = "btnGenerateBat";
             this.btnGenerateBat.Size = new System.Drawing.Size(133, 23);
             this.btnGenerateBat.TabIndex = 23;
@@ -305,11 +306,23 @@
             this.btnChooseProgramPath.UseVisualStyleBackColor = true;
             this.btnChooseProgramPath.Click += new System.EventHandler(this.btnChooseProgramPath_Click);
             // 
+            // cbAllowedNullNumber
+            // 
+            this.cbAllowedNullNumber.AutoSize = true;
+            this.cbAllowedNullNumber.Location = new System.Drawing.Point(15, 339);
+            this.cbAllowedNullNumber.Name = "cbAllowedNullNumber";
+            this.cbAllowedNullNumber.Size = new System.Drawing.Size(408, 16);
+            this.cbAllowedNullNumber.TabIndex = 27;
+            this.cbAllowedNullNumber.Text = "-allowedNullNumber（允许int、float型字段下填写空值，不推荐使用）";
+            this.cbAllowedNullNumber.UseVisualStyleBackColor = true;
+            this.cbAllowedNullNumber.CheckedChanged += new System.EventHandler(this.cbAllowedNullNumber_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(605, 464);
+            this.ClientSize = new System.Drawing.Size(605, 480);
+            this.Controls.Add(this.cbAllowedNullNumber);
             this.Controls.Add(this.btnChooseProgramPath);
             this.Controls.Add(this.tbProgramPath);
             this.Controls.Add(this.lbProgramPath);
@@ -377,6 +390,7 @@
         private System.Windows.Forms.Label lbProgramPath;
         private System.Windows.Forms.TextBox tbProgramPath;
         private System.Windows.Forms.Button btnChooseProgramPath;
+        private System.Windows.Forms.CheckBox cbAllowedNullNumber;
     }
 }
 

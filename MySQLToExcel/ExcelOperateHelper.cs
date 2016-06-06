@@ -51,9 +51,16 @@ public class ExcelOperateHelper
             dataWorksheet.Cells[AppValues.DATA_FIELD_NAME_INDEX, columnIndex] = fileName;
             // 第三行为字段数据类型
             string databaseDataType = columnInfo.Rows[columnIndex - 1]["DATA_TYPE"].ToString();
-            string maxLength = columnInfo.Rows[columnIndex - 1]["CHARACTER_MAXIMUM_LENGTH"] as string;
-            string dataType = _ConvertDataType(databaseDataType, maxLength);
             string fullDatabaseDataType = columnInfo.Rows[columnIndex - 1]["COLUMN_TYPE"].ToString();
+            // 取出数据类型完整定义的括号中声明的长度
+            string length = null;
+            int leftBracketIndex = fullDatabaseDataType.LastIndexOf("(");
+            int rightBracketIndex = fullDatabaseDataType.LastIndexOf(")");
+            if (leftBracketIndex != -1 && rightBracketIndex > leftBracketIndex)
+                length = fullDatabaseDataType.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1);
+
+            string dataType = _ConvertDataType(databaseDataType, length);
+
             if (string.IsNullOrEmpty(dataType))
             {
                 Utils.LogErrorAndExit(string.Format("错误：数据表中名为{0}的列数据类型为{1}，而_ConvertDataType函数中未定义该数据库数据类型对应XlsxToLua工具要求的数据类型，请补全转换关系后重试", fileName, fullDatabaseDataType));
@@ -135,7 +142,7 @@ public class ExcelOperateHelper
     /// <summary>
     /// 自定义MySQL数据库中的数据类型对应转换到XlsxToLua工具要求的数据类型
     /// </summary>
-    private static string _ConvertDataType(string databaseDataType, string maxLength)
+    private static string _ConvertDataType(string databaseDataType, string length)
     {
         switch (databaseDataType)
         {
@@ -143,7 +150,7 @@ public class ExcelOperateHelper
                 return "int";
             case "tinyint":
                 {
-                    if ("1".Equals(maxLength))
+                    if ("1".Equals(length))
                         return "bool";
                     else
                         return "int";
@@ -162,14 +169,15 @@ public class ExcelOperateHelper
     }
 
     /// <summary>
-    /// 根据数据库中某列所设置的属性得到对应XlsxToLua工具支持的字段检查规则，因数据库列所提供信息有限，只能分析出unique和notEmpty检查规则且无法细分比如string型的notEmpty规则是否应包含trim参数
+    /// 根据数据库中某列所设置的属性得到对应XlsxToLua工具支持的字段检查规则，因数据库列所提供信息有限，只能分析出unique和notEmpty检查规则且无法细分比如lang型的notEmpty规则是否应包含key|value参数
     /// </summary>
     private static string _GetCheckRuleByDatabaseColumnInfo(System.Data.DataRow columnInfo, string xlsxToLuaDataType)
     {
         List<string> checkRules = new List<string>();
 
         // notEmpty检查规则
-        if ("string".Equals(xlsxToLuaDataType) || "lang".Equals(xlsxToLuaDataType))
+        // string型无法进行notEmpty检查规则判定，因为数据库中设置字段非空虽然不允许null但允许空字符串，而XlsxToLua工具中notEmpty检查规则不允许空字符串
+        if ("lang".Equals(xlsxToLuaDataType))
         {
             string isNullable = columnInfo["IS_NULLABLE"].ToString();
             if ("NO".Equals(isNullable, System.StringComparison.CurrentCultureIgnoreCase))

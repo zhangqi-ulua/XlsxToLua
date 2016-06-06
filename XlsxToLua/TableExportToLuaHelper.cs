@@ -144,7 +144,7 @@ public class TableExportToLuaHelper
                 return false;
             }
 
-            // 强制对string、lang型索引字段进行非空检查
+            // 对索引字段进行非空检查
             if (fieldInfo.DataType == DataType.String)
             {
                 FieldCheckRule stringNotEmptyCheckRule = new FieldCheckRule();
@@ -166,6 +166,18 @@ public class TableExportToLuaHelper
                 if (errorString != null)
                 {
                     errorString = string.Format("按配置\"{0}\"进行自定义导出错误，lang型索引字段\"{1}\"中存在以下空值，而作为索引的key不允许为空\n{2}\n", exportRule, fieldName, errorString);
+                    return false;
+                }
+            }
+            else if (AppValues.IsAllowedNullNumber == true)
+            {
+                FieldCheckRule numberNotEmptyCheckRule = new FieldCheckRule();
+                numberNotEmptyCheckRule.CheckType = TABLE_CHECK_TYPE.NOT_EMPTY;
+                numberNotEmptyCheckRule.CheckRuleString = "notEmpty";
+                TableCheckHelper.CheckNotEmpty(fieldInfo, numberNotEmptyCheckRule, out errorString);
+                if (errorString != null)
+                {
+                    errorString = string.Format("按配置\"{0}\"进行自定义导出错误，{1}型索引字段\"{2}\"中存在以下空值，而作为索引的key不允许为空\n{3}\n", exportRule, fieldInfo.DataType.ToString(), fieldName, errorString);
                     return false;
                 }
             }
@@ -481,7 +493,11 @@ public class TableExportToLuaHelper
             case DataType.Int:
             case DataType.Float:
                 {
-                    content.Append(fieldInfo.Data[row]);
+                    if (fieldInfo.Data[row] == null)
+                        content.Append("nil");
+                    else
+                        content.Append(fieldInfo.Data[row]);
+
                     break;
                 }
             case DataType.String:

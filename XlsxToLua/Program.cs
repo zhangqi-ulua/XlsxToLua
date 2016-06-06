@@ -130,6 +130,11 @@ public class Program
                     Utils.LogWarning(string.Format("警告：本次将仅检查并导出以下Excel文件：\n{0}\n", Utils.CombineString(AppValues.exportTableNames, ", ")));
                 }
             }
+            else if (param.StartsWith(AppValues.ALLOWED_NULL_NUMBER_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            {
+                AppValues.IsAllowedNullNumber = true;
+                Utils.LogWarning("警告：你选择了允许int、float字段中存在空值，建议为逻辑上不允许为空的数值型字段声明使用notEmpty检查规则");
+            }
             else
                 Utils.LogErrorAndExit(string.Format("错误：未知的指令参数{0}", param));
         }

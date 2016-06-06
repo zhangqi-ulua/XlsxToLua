@@ -13,6 +13,7 @@ public class AppValues
     public const string LANG_NOT_MATCHING_PRINT_PARAM_STRING = "-printEmptyStringWhenLangNotMatching";
     public const string EXPORT_MYSQL_PARAM_STRING = "-exportMySQL";
     public const string PART_EXPORT_PARAM_STRING = "-part";
+    public const string ALLOWED_NULL_NUMBER_PARAM_STRING = "-allowedNullNumber";
 
     public const string SAVE_CONFIG_KEY_PROGRAM_PATH = "programPath";
     public const string SAVE_CONFIG_KEY_EXCEL_FOLDER_PATH = "excelFolderPath";

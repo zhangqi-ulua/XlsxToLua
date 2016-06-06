@@ -450,34 +450,57 @@ public class TableAnalyzeHelper
             case DataType.Int:
                 {
                     inputData = inputData.Trim();
-                    int intValue;
-                    bool isValid = int.TryParse(inputData, out intValue);
-                    if (isValid)
-                        fieldInfo.Data.Add(intValue);
+                    if (string.IsNullOrEmpty(inputData))
+                    {
+                        if (AppValues.IsAllowedNullNumber == true)
+                            fieldInfo.Data.Add(null);
+                        else
+                            invalidInfo.Add(rowIndex, inputData);
+                    }
                     else
-                        invalidInfo.Add(rowIndex, inputData);
+                    {
+                        int intValue;
+                        bool isValid = int.TryParse(inputData, out intValue);
+                        if (isValid)
+                            fieldInfo.Data.Add(intValue);
+                        else
+                            invalidInfo.Add(rowIndex, inputData);
+                    }
+
                     break;
                 }
             case DataType.Float:
                 {
                     inputData = inputData.Trim();
-                    float floatValue;
-                    bool isValid = float.TryParse(inputData, out floatValue);
-                    if (isValid)
-                        fieldInfo.Data.Add(floatValue);
+                    if (string.IsNullOrEmpty(inputData))
+                    {
+                        if (AppValues.IsAllowedNullNumber == true)
+                            fieldInfo.Data.Add(null);
+                        else
+                            invalidInfo.Add(rowIndex, inputData);
+                    }
                     else
-                        invalidInfo.Add(rowIndex, inputData);
+                    {
+                        float floatValue;
+                        bool isValid = float.TryParse(inputData, out floatValue);
+                        if (isValid)
+                            fieldInfo.Data.Add(floatValue);
+                        else
+                            invalidInfo.Add(rowIndex, inputData);
+                    }
+
                     break;
                 }
             case DataType.Bool:
                 {
                     inputData = inputData.Trim();
-                    if ("1".Equals(inputData))
+                    if ("1".Equals(inputData) || "true".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
                         fieldInfo.Data.Add(true);
-                    else if ("0".Equals(inputData))
+                    else if ("0".Equals(inputData) || "false".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
                         fieldInfo.Data.Add(false);
                     else
                         invalidInfo.Add(rowIndex, inputData);
+
                     break;
                 }
             case DataType.String:

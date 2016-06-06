@@ -70,6 +70,7 @@ public static class MyCheckFunction
             errorString = "奖励列表字段的数据结构必须为array[dict[3]:n]";
             return false;
         }
+
         // 标识组成一个奖励项的三个字段的名称（type、id、count）
         List<string> fieldNames = new List<string>();
         fieldNames.Add("type");
@@ -123,11 +124,35 @@ public static class MyCheckFunction
                 foreach (FieldInfo field in childDictField.ChildField)
                 {
                     if (field.FieldName.Equals("type", System.StringComparison.CurrentCultureIgnoreCase))
-                        type = (int)field.Data[i];
+                    {
+                        if (field.Data[i] == null)
+                        {
+                            errorString = string.Format("第{0}行第{1}列\"type\"字段填写值为空", i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, Utils.GetExcelColumnName(field.ColumnSeq + 1));
+                            return false;
+                        }
+                        else
+                            type = (int)field.Data[i];
+                    }
                     else if (field.FieldName.Equals("id", System.StringComparison.CurrentCultureIgnoreCase))
-                        id = (int)field.Data[i];
+                    {
+                        if (field.Data[i] == null)
+                        {
+                            errorString = string.Format("第{0}行第{1}列\"id\"字段填写值为空", i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, Utils.GetExcelColumnName(field.ColumnSeq + 1));
+                            return false;
+                        }
+                        else
+                            id = (int)field.Data[i];
+                    }
                     else if (field.FieldName.Equals("count", System.StringComparison.CurrentCultureIgnoreCase))
-                        count = (int)field.Data[i];
+                    {
+                        if (field.Data[i] == null)
+                        {
+                            errorString = string.Format("第{0}行第{1}列\"count\"字段填写值为空", i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, Utils.GetExcelColumnName(field.ColumnSeq + 1));
+                            return false;
+                        }
+                        else
+                            count = (int)field.Data[i];
+                    }
                 }
 
                 // 对于道具类型，需检查奖励的道具id不能重复且Prop表中要存在该道具id
@@ -263,6 +288,33 @@ public static class MyCheckFunction
         {
             errorString = string.Format("HeroEquipment表中找不到名为{0}的字段，无法进行整表检查，请修正后重试\n", SEQ_FIELD_NAME);
             return false;
+        }
+
+        // 先对heroId、quality、seq三个字段进行非空检查，避免填写空值
+        if (AppValues.IsAllowedNullNumber == true)
+        {
+            FieldCheckRule numberNotEmptyCheckRule = new FieldCheckRule();
+            numberNotEmptyCheckRule.CheckType = TABLE_CHECK_TYPE.NOT_EMPTY;
+            numberNotEmptyCheckRule.CheckRuleString = "notEmpty";
+
+            TableCheckHelper.CheckNotEmpty(tableInfo.GetFieldInfoByFieldName(HERO_ID_FIELD_NAME), numberNotEmptyCheckRule, out errorString);
+            if (errorString != null)
+            {
+                errorString = string.Format("HeroEquipment表中{0}字段中{1}\n", HERO_ID_FIELD_NAME, errorString);
+                return false;
+            }
+            TableCheckHelper.CheckNotEmpty(tableInfo.GetFieldInfoByFieldName(HERO_QUALITY_FIELD_NAME), numberNotEmptyCheckRule, out errorString);
+            if (errorString != null)
+            {
+                errorString = string.Format("HeroEquipment表中{0}字段中{1}\n", HERO_QUALITY_FIELD_NAME, errorString);
+                return false;
+            }
+            TableCheckHelper.CheckNotEmpty(tableInfo.GetFieldInfoByFieldName(SEQ_FIELD_NAME), numberNotEmptyCheckRule, out errorString);
+            if (errorString != null)
+            {
+                errorString = string.Format("HeroEquipment表中{0}字段中{1}\n", SEQ_FIELD_NAME, errorString);
+                return false;
+            }
         }
 
         // 记录实际填写的信息（key：从外层到内层依次表示heroId、quality、seq，最内层value为从0开始计的数据行序号）

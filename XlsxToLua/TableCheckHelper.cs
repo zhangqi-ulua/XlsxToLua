@@ -290,7 +290,7 @@ public class TableCheckHelper
     }
 
     /// <summary>
-    /// 用于输入数据的非空检查，适用于string型或lang型
+    /// 用于输入数据的非空检查，适用于int、float、string或lang型
     /// 注意：string类型要求字符串不能为空但允许为连续空格字符串，如果也不允许为连续空格字符串，需要声明为notEmpty[trim]
     /// 注意：lang类型声明notEmpty[key]只检查是否填写了key值，声明notEmpty[value]只检查填写的key在相应的lang文件中能找到对应的value，声明notEmpty[key|value]或notEmpty则包含这两个要求
     /// </summary>
@@ -350,6 +350,25 @@ public class TableCheckHelper
             {
                 errorString = string.Format("数据非空检查规则用于lang型的声明错误，输入的检查规则字符串为{0}。而lang型声明notEmpty[key]只检查是否填写了key值，声明notEmpty[value]只检查填写的key在相应的lang文件中能找到对应的value，声明notEmpty[key|value]或notEmpty则包含这两个要求\n", checkRule.CheckRuleString);
                 return false;
+            }
+        }
+        else if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Float)
+        {
+            if (AppValues.IsAllowedNullNumber == true)
+            {
+                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                {
+                    // 如果int、float型字段下取值为null，可能填写的为空值，也可能是父集合类型标为无效
+                    if (fieldInfo.ParentField != null)
+                    {
+                        if ((bool)fieldInfo.ParentField.Data[i] == false)
+                            continue;
+                        else if (fieldInfo.ParentField.ParentField != null && (bool)fieldInfo.ParentField.ParentField.Data[i] == false)
+                            continue;
+                    }
+                    else if (fieldInfo.Data[i] == null)
+                        emptyDataLines.Add(i);
+                }
             }
         }
         else
@@ -484,7 +503,7 @@ public class TableCheckHelper
         for (int i = 0; i < data.Count; ++i)
         {
             object oneData = data[i];
-            // 如果值为null说明其属于标为无效集合的子数据，跳过unique检查。如果值为string.Empty说明其属于string类型列中的空数据也跳过检查
+            // 如果值为null说明其属于标为无效集合的子数据，或者是数值型字段中的空值，跳过unique检查。如果值为string.Empty说明其属于string类型列中的空数据也跳过检查
             if (oneData == null || string.IsNullOrEmpty(oneData.ToString()))
                 continue;
 
@@ -623,7 +642,7 @@ public class TableCheckHelper
             {
                 for (int i = 0; i < fieldInfo.Data.Count; ++i)
                 {
-                    // 忽略无效集合元素下属子类型的空值
+                    // 忽略无效集合元素下属子类型的空值或本身为空值
                     if (fieldInfo.Data[i] == null)
                         continue;
 
@@ -788,7 +807,7 @@ public class TableCheckHelper
                 Dictionary<int, int> illegalValue = new Dictionary<int, int>();
                 for (int i = 0; i < fieldInfo.Data.Count; ++i)
                 {
-                    // 忽略无效集合元素下属子类型的空值
+                    // 忽略无效集合元素下属子类型的空值或本身为空值
                     if (fieldInfo.Data[i] == null)
                         continue;
 
@@ -838,7 +857,7 @@ public class TableCheckHelper
                 Dictionary<int, float> illegalValue = new Dictionary<int, float>();
                 for (int i = 0; i < fieldInfo.Data.Count; ++i)
                 {
-                    // 忽略无效集合元素下属子类型的空值
+                    // 忽略无效集合元素下属子类型的空值或本身为空值
                     if (fieldInfo.Data[i] == null)
                         continue;
 
@@ -1184,7 +1203,7 @@ public class TableCheckHelper
                         {
                             for (int i = 0; i < fieldInfo.Data.Count; ++i)
                             {
-                                // 忽略无效集合元素下属子类型的空值
+                                // 忽略无效集合元素下属子类型的空值或本身为空值
                                 if (fieldInfo.Data[i] == null)
                                     continue;
 

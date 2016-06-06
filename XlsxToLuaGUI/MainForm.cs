@@ -130,10 +130,13 @@ namespace XlsxToLuaGUI
         private void cbUnchecked_CheckedChanged(object sender, EventArgs e)
         {
             CheckBox cb = sender as CheckBox;
-            if (cb.CheckState == CheckState.Checked)
-                cb.ForeColor = Color.Red;
-            else
-                cb.ForeColor = Color.Black;
+            _WarnWhenChooseDangerousParam(cb);
+        }
+
+        private void cbAllowedNullNumber_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            _WarnWhenChooseDangerousParam(cb);
         }
 
         private void btnExecute_Click(object sender, EventArgs e)
@@ -199,6 +202,8 @@ namespace XlsxToLuaGUI
                         configStringBuilder.Append(AppValues.LANG_NOT_MATCHING_PRINT_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(trueString);
                     if (cbExportMySQL.CheckState == CheckState.Checked)
                         configStringBuilder.Append(AppValues.EXPORT_MYSQL_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(trueString);
+                    if (cbAllowedNullNumber.CheckState == CheckState.Checked)
+                        configStringBuilder.Append(AppValues.ALLOWED_NULL_NUMBER_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(trueString);
                     if (cbPart.CheckState == CheckState.Checked)
                         configStringBuilder.Append(AppValues.PART_EXPORT_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(tbPartExcelNames.Text.Trim());
 
@@ -246,6 +251,8 @@ namespace XlsxToLuaGUI
                     cbPrintEmptyStringWhenLangNotMatching.CheckState = CheckState.Checked;
                 if (config.ContainsKey(AppValues.EXPORT_MYSQL_PARAM_STRING))
                     cbExportMySQL.CheckState = CheckState.Checked;
+                if (config.ContainsKey(AppValues.ALLOWED_NULL_NUMBER_PARAM_STRING))
+                    cbAllowedNullNumber.CheckState = CheckState.Checked;
                 if (config.ContainsKey(AppValues.PART_EXPORT_PARAM_STRING))
                 {
                     cbPart.CheckState = CheckState.Checked;
@@ -382,6 +389,8 @@ namespace XlsxToLuaGUI
                 stringBuilder.AppendFormat("\"{0}\" ", AppValues.LANG_NOT_MATCHING_PRINT_PARAM_STRING);
             if (cbExportMySQL.CheckState == CheckState.Checked)
                 stringBuilder.AppendFormat("\"{0}\" ", AppValues.EXPORT_MYSQL_PARAM_STRING);
+            if (cbAllowedNullNumber.CheckState == CheckState.Checked)
+                stringBuilder.AppendFormat("\"{0}\" ", AppValues.ALLOWED_NULL_NUMBER_PARAM_STRING);
             if (cbPart.CheckState == CheckState.Checked)
             {
                 string partExcelNames = tbPartExcelNames.Text.Trim();
@@ -389,6 +398,14 @@ namespace XlsxToLuaGUI
             }
 
             return stringBuilder.ToString();
+        }
+
+        private void _WarnWhenChooseDangerousParam(CheckBox cb)
+        {
+            if (cb.CheckState == CheckState.Checked)
+                cb.ForeColor = Color.Red;
+            else
+                cb.ForeColor = Color.Black;
         }
     }
 }

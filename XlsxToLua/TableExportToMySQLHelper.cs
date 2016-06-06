@@ -182,6 +182,25 @@ public class TableExportToMySQLHelper
             {
                 if (fieldInfo.Data[i] == null)
                     values.Add("NULL");
+                // 这里需要自行处理向数据库中某些数据类型如datetime的列不允许插入空字符串的情况
+                else if (string.IsNullOrEmpty(fieldInfo.Data[i].ToString()))
+                {
+                    if (fieldInfo.DatabaseFieldType.StartsWith("datetime", StringComparison.CurrentCultureIgnoreCase))
+                        values.Add("NULL");
+                    else
+                        values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
+                }
+                else if (fieldInfo.DataType == DataType.Bool)
+                {
+                    string inputData = fieldInfo.Data[i].ToString();
+                    // 如果数据库用tinyint(1)数据类型表示bool型，比如要写入true，SQL语句中可以写为'1'或者不带单引号的true
+                    if ("true".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
+                        values.Add("true");
+                    else if ("false".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
+                        values.Add("false");
+                    else
+                        values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
+                }
                 else
                     values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
             }

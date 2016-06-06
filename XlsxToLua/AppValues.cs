@@ -52,6 +52,11 @@ public class AppValues
     public const string PART_EXPORT_PARAM_STRING = "-part";
 
     /// <summary>
+    /// 声明允许int、float型字段中存在空值的命令参数
+    /// </summary>
+    public const string ALLOWED_NULL_NUMBER_PARAM_STRING = "-allowedNullNumber";
+
+    /// <summary>
     /// 配置文件（配置自定义的检查规则）的文件名
     /// </summary>
     public const string CONFIG_FILE_NAME = "config.txt";
@@ -125,6 +130,11 @@ public class AppValues
     /// 用户输入的是否需要在生成lua文件的最上方用注释形式显示列信息（默认为不需要）
     /// </summary>
     public static bool IsNeedColumnInfo = false;
+
+    /// <summary>
+    /// 用户输入的是否允许int、float型字段中存在空值
+    /// </summary>
+    public static bool IsAllowedNullNumber = false;
 
     /// <summary>
     /// lang文件转为键值对形式（key：lang文件中的key名， value：对应的在指定语言下的翻译）
