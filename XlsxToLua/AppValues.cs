@@ -34,7 +34,7 @@ public class AppValues
     /// <summary>
     /// 声明不含有lang文件的命令参数
     /// </summary>
-    public const string NO_LONG_PARAM_STRING = "-noLong";
+    public const string NO_LONG_PARAM_STRING = "-noLang";
 
     /// <summary>
     /// 声明当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串的命令参数
