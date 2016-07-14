@@ -9,7 +9,7 @@ public class AppValues
     public const string NEED_COLUMN_INFO_PARAM_STRING = "-columnInfo";
     public const string UNCHECKED_PARAM_STRING = "-unchecked";
     public const string NO_CLIENT_PATH_STRING = "-noClient";
-    public const string NO_LONG_PARAM_STRING = "-noLong";
+    public const string NO_LANG_PARAM_STRING = "-noLang";
     public const string LANG_NOT_MATCHING_PRINT_PARAM_STRING = "-printEmptyStringWhenLangNotMatching";
     public const string EXPORT_MYSQL_PARAM_STRING = "-exportMySQL";
     public const string PART_EXPORT_PARAM_STRING = "-part";

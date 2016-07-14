@@ -20,7 +20,7 @@ namespace XlsxToLuaGUI
         {
             // 部分文本框填入默认值
             tbClientFolderPath.Text = AppValues.NO_CLIENT_PATH_STRING;
-            tbLangFilePath.Text = AppValues.NO_LONG_PARAM_STRING;
+            tbLangFilePath.Text = AppValues.NO_LANG_PARAM_STRING;
             // 查找本程序所在目录下是否含有XlsxToLua工具，如果有直接填写路径到“工具所在目录”文本框中
             string defaultPath = Utils.CombinePath(AppValues.PROGRAM_FOLDER_PATH, AppValues.PROGRAM_NAME);
             if (File.Exists(defaultPath))
@@ -326,11 +326,11 @@ namespace XlsxToLuaGUI
             string langFilePath = tbLangFilePath.Text.Trim();
             if (string.IsNullOrEmpty(langFilePath))
             {
-                MessageBox.Show(string.Format("未指定lang文件所在路径（若无需指定，请填写{0}）", AppValues.NO_LONG_PARAM_STRING), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                tbLangFilePath.Text = AppValues.NO_LONG_PARAM_STRING;
+                MessageBox.Show(string.Format("未指定lang文件所在路径（若无需指定，请填写{0}）", AppValues.NO_LANG_PARAM_STRING), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                tbLangFilePath.Text = AppValues.NO_LANG_PARAM_STRING;
                 return false;
             }
-            if (!langFilePath.Equals(AppValues.NO_LONG_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            if (!langFilePath.Equals(AppValues.NO_LANG_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
             {
                 if (!File.Exists(langFilePath))
                 {

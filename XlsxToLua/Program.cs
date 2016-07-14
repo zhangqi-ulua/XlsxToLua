@@ -55,7 +55,7 @@ public class Program
         // 检查第4个参数（lang文件路径）是否正确
         if (args.Length < 4)
             Utils.LogErrorAndExit("错误：未输入lang文件路径或未声明不含lang文件（使用-noLang）");
-        if (AppValues.NO_LONG_PARAM_STRING.Equals(args[3], StringComparison.CurrentCultureIgnoreCase))
+        if (AppValues.NO_LANG_PARAM_STRING.Equals(args[3], StringComparison.CurrentCultureIgnoreCase))
         {
             AppValues.LangFilePath = null;
             Utils.Log("选择的lang文件路径：无");
