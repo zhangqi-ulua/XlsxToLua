@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Text;
 
 public class TableAnalyzeHelper
@@ -13,11 +14,11 @@ public class TableAnalyzeHelper
         // 当前解析到的列号
         int curColumnIndex = 0;
 
-        // 解析第一列（主键列，要求数据类型为string或int且数据非空、唯一）
+        // 解析第一列（主键列，要求数据类型为int、long或string且数据非空、唯一）
         DataType primaryKeyColumnType = _AnalyzeDataType(dt.Rows[AppValues.DATA_FIELD_DATA_TYPE_INDEX][0].ToString().Trim());
-        if (!(primaryKeyColumnType == DataType.Int || primaryKeyColumnType == DataType.String))
+        if (!(primaryKeyColumnType == DataType.Int || primaryKeyColumnType == DataType.Long || primaryKeyColumnType == DataType.String))
         {
-            errorString = _GetTableAnalyzeErrorString(tableName, 0) + "主键列的类型只能为int或string";
+            errorString = _GetTableAnalyzeErrorString(tableName, 0) + "主键列的类型只能为int、long或string";
             return null;
         }
         else
@@ -33,7 +34,7 @@ public class TableAnalyzeHelper
             {
                 // 唯一性检查
                 FieldCheckRule uniqueCheckRule = new FieldCheckRule();
-                uniqueCheckRule.CheckType = TABLE_CHECK_TYPE.UNIQUE;
+                uniqueCheckRule.CheckType = TableCheckType.Unique;
                 uniqueCheckRule.CheckRuleString = "unique";
                 TableCheckHelper.CheckUnique(primaryKeyField, uniqueCheckRule, out errorString);
                 if (errorString != null)
@@ -278,6 +279,7 @@ public class TableAnalyzeHelper
         switch (fieldInfo.DataType)
         {
             case DataType.Int:
+            case DataType.Long:
             case DataType.Float:
             case DataType.Bool:
             case DataType.String:
@@ -288,6 +290,16 @@ public class TableAnalyzeHelper
             case DataType.Lang:
                 {
                     _AnalyzeLangType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    break;
+                }
+            case DataType.Date:
+                {
+                    _AnalyzeDateType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    break;
+                }
+            case DataType.Time:
+                {
+                    _AnalyzeTimeType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
                     break;
                 }
             case DataType.TableString:
@@ -331,6 +343,8 @@ public class TableAnalyzeHelper
 
         if (typeString.StartsWith("int", StringComparison.CurrentCultureIgnoreCase))
             return DataType.Int;
+        if (typeString.StartsWith("long", StringComparison.CurrentCultureIgnoreCase))
+            return DataType.Long;
         else if (typeString.StartsWith("float", StringComparison.CurrentCultureIgnoreCase))
             return DataType.Float;
         else if (typeString.StartsWith("string", StringComparison.CurrentCultureIgnoreCase))
@@ -339,6 +353,10 @@ public class TableAnalyzeHelper
             return DataType.Lang;
         else if (typeString.StartsWith("bool", StringComparison.CurrentCultureIgnoreCase))
             return DataType.Bool;
+        else if (typeString.StartsWith("date", StringComparison.CurrentCultureIgnoreCase))
+            return DataType.Date;
+        else if (typeString.StartsWith("time", StringComparison.CurrentCultureIgnoreCase))
+            return DataType.Time;
         else if (typeString.StartsWith("tableString", StringComparison.CurrentCultureIgnoreCase))
             return DataType.TableString;
         else if (typeString.StartsWith("array", StringComparison.CurrentCultureIgnoreCase))
@@ -424,9 +442,7 @@ public class TableAnalyzeHelper
                 invalidDataInfo.AppendFormat("以下行中数据不是合法的{0}类型的值：\n", fieldInfo.DataType.ToString());
 
             foreach (var item in invalidInfo)
-            {
                 invalidDataInfo.AppendFormat("第{0}行，错误地填写数据为\"{1}\"\n", item.Key + 1, item.Value);
-            }
 
             errorString = invalidDataInfo.ToString();
             nextFieldColumnIndex = columnIndex + 1;
@@ -463,6 +479,28 @@ public class TableAnalyzeHelper
                         bool isValid = int.TryParse(inputData, out intValue);
                         if (isValid)
                             fieldInfo.Data.Add(intValue);
+                        else
+                            invalidInfo.Add(rowIndex, inputData);
+                    }
+
+                    break;
+                }
+            case DataType.Long:
+                {
+                    inputData = inputData.Trim();
+                    if (string.IsNullOrEmpty(inputData))
+                    {
+                        if (AppValues.IsAllowedNullNumber == true)
+                            fieldInfo.Data.Add(null);
+                        else
+                            invalidInfo.Add(rowIndex, inputData);
+                    }
+                    else
+                    {
+                        long longValue;
+                        bool isValid = long.TryParse(inputData, out longValue);
+                        if (isValid)
+                            fieldInfo.Data.Add(longValue);
                         else
                             invalidInfo.Add(rowIndex, inputData);
                     }
@@ -636,6 +674,502 @@ public class TableAnalyzeHelper
     }
 
     /// <summary>
+    /// 解析date型的格式类型
+    /// </summary>
+    public static DateFormatType GetDateFormatType(string formatString)
+    {
+        formatString = formatString.Trim();
+        if ("#1970sec".Equals(formatString, StringComparison.CurrentCultureIgnoreCase))
+            return DateFormatType.ReferenceDateSec;
+        else if ("#1970msec".Equals(formatString, StringComparison.CurrentCultureIgnoreCase))
+            return DateFormatType.ReferenceDateMsec;
+        else if ("#dateTable".Equals(formatString, StringComparison.CurrentCultureIgnoreCase))
+            return DateFormatType.DataTable;
+        else
+            return DateFormatType.FormatString;
+    }
+
+    /// <summary>
+    /// 解析time型的格式类型
+    /// </summary>
+    public static TimeFormatType GetTimeFormatType(string formatString)
+    {
+        formatString = formatString.Trim();
+        if ("#sec".Equals(formatString, StringComparison.CurrentCultureIgnoreCase))
+            return TimeFormatType.ReferenceTimeSec;
+        else
+            return TimeFormatType.FormatString;
+    }
+
+    /// <summary>
+    /// 解析date型数据的定义
+    /// </summary>
+    private static bool _AnalyzeDateType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    {
+        const string DEFINE_START_STRING = "date";
+        // 定义date型输入导出格式的key
+        const string INPUT_PARAM_KEY = "input";
+        const string TO_LUA_PARAM_KEY = "toLua";
+        const string TO_DATABASE_PARAM_KEY = "toDatabase";
+        // 解析date型输入导出格式的声明
+        if (!DEFINE_START_STRING.Equals(fieldInfo.DataTypeString, StringComparison.CurrentCultureIgnoreCase))
+        {
+            int leftBracketIndex = fieldInfo.DataTypeString.IndexOf('(');
+            int rightBracketIndex = fieldInfo.DataTypeString.LastIndexOf(')');
+            if (leftBracketIndex == -1 && rightBracketIndex == -1)
+            {
+                errorString = "date型格式定义错误";
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            if (!(leftBracketIndex != -1 || rightBracketIndex > leftBracketIndex))
+            {
+                errorString = "date型格式定义错误，括号不匹配";
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+
+            // 解析声明的时间格式
+            string defineString = fieldInfo.DataTypeString.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
+            if (string.IsNullOrEmpty(defineString))
+            {
+                errorString = "date型格式定义错误，若要声明时间格式就必须在括号中填写，否则不要加括号，本工具会采用config配置文件中设置的默认时间格式";
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            // 通过|分隔各个时间参数
+            string[] defineParams = defineString.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            StringBuilder paramDefineErrorStringBuilder = new StringBuilder();
+            const string ERROR_STRING_FORMAT = "配置项\"{0}\"设置的格式\"{1}\"错误：{2}\n";
+            foreach (string defineParam in defineParams)
+            {
+                // 通过=分隔参数项的key和value
+                string[] paramKeyAndValue = defineParam.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                if (paramKeyAndValue.Length != 2)
+                {
+                    paramDefineErrorStringBuilder.AppendFormat("配置参数\"{0}\"未正确用=分隔配置项的key和value\n", defineParam);
+                    continue;
+                }
+                string paramKey = paramKeyAndValue[0].Trim();
+                string paramValue = paramKeyAndValue[1].Trim();
+
+                errorString = null;
+                switch (paramKey)
+                {
+                    case INPUT_PARAM_KEY:
+                        {
+                            if (TableCheckHelper.CheckDateInputDefine(paramValue, out errorString) == true)
+                                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_INPUT_FORMAT] = paramValue;
+                            else
+                                paramDefineErrorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, paramKey, paramValue, errorString);
+
+                            break;
+                        }
+                    case TO_LUA_PARAM_KEY:
+                        {
+                            if (TableCheckHelper.CheckDateToLuaDefine(paramValue, out errorString) == true)
+                                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_LUA_FORMAT] = paramValue;
+                            else
+                                paramDefineErrorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, paramKey, paramValue, errorString);
+
+                            break;
+                        }
+                    case TO_DATABASE_PARAM_KEY:
+                        {
+                            if (TableCheckHelper.CheckDateToDatabaseDefine(paramValue, out errorString) == true)
+                                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_DATABASE_FORMAT] = paramValue;
+                            else
+                                paramDefineErrorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, paramKey, paramValue, errorString);
+
+                            break;
+                        }
+                    default:
+                        {
+                            paramDefineErrorStringBuilder.AppendFormat("存在非法配置项key\"{0}\"\n", paramKey);
+                            break;
+                        }
+                }
+            }
+            string paramDefineErrorString = paramDefineErrorStringBuilder.ToString();
+            if (!string.IsNullOrEmpty(paramDefineErrorString))
+            {
+                errorString = string.Format("date型格式定义存在以下错误：\n{0}", paramDefineErrorString);
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+        }
+
+        // 检查date型输入格式、导出至lua文件格式、导出至MySQL数据库格式是否都已声明，没有则分别采用config文件的默认设置
+        if (!fieldInfo.ExtraParam.ContainsKey(AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_INPUT_FORMAT))
+        {
+            if (AppValues.DefaultDateInputFormat == null)
+            {
+                errorString = string.Format("未声明date型的输入格式，在config配置文件中也未定义名为\"{0}\"的默认格式配置项", AppValues.APP_CONFIG_KEY_DEFAULT_DATE_INPUT_FORMAT);
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            else
+                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_INPUT_FORMAT] = AppValues.DefaultDateInputFormat;
+        }
+        if (!fieldInfo.ExtraParam.ContainsKey(AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_LUA_FORMAT))
+        {
+            if (AppValues.DefaultDateToLuaFormat == null)
+            {
+                errorString = string.Format("未声明date型导出至lua文件的格式，在config配置文件中也未定义名为\"{0}\"的默认格式配置项", AppValues.APP_CONFIG_KEY_DEFAULT_DATE_TO_LUA_FORMAT);
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            else
+                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_LUA_FORMAT] = AppValues.DefaultDateToLuaFormat;
+        }
+        if (!fieldInfo.ExtraParam.ContainsKey(AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_DATABASE_FORMAT))
+        {
+            if (AppValues.DefaultDateToDatabaseFormat == null)
+            {
+                errorString = string.Format("未声明date型导出至MySQL数据库的格式，在config配置文件中也未定义名为\"{0}\"的默认格式配置项", AppValues.APP_CONFIG_KEY_DEFAULT_DATE_TO_DATABASE_FORMAT);
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            else
+                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_DATABASE_FORMAT] = AppValues.DefaultDateToDatabaseFormat;
+        }
+
+        DateFormatType dateFormatType = GetDateFormatType((string)fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_INPUT_FORMAT]);
+        fieldInfo.Data = new List<object>();
+        // 记录非法数据的行号以及数据值（key：行号， value：数据值）
+        Dictionary<int, object> invalidInfo = new Dictionary<int, object>();
+
+        if (dateFormatType == DateFormatType.FormatString)
+        {
+            // 用于对时间格式进行转换
+            DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
+            dateTimeFormat.ShortDatePattern = (string)fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_INPUT_FORMAT];
+
+            for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+            {
+                // 如果本行该字段的父元素标记为无效则该数据也标为无效
+                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                    fieldInfo.Data.Add(null);
+                else
+                {
+                    string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                    // 忽略未填写的数据
+                    if (string.IsNullOrEmpty(inputData))
+                        fieldInfo.Data.Add(null);
+                    else
+                    {
+                        try
+                        {
+                            DateTime dateTime = Convert.ToDateTime(inputData, dateTimeFormat);
+                            fieldInfo.Data.Add(dateTime);
+                        }
+                        catch
+                        {
+                            invalidInfo.Add(row, inputData);
+                        }
+                    }
+                }
+            }
+        }
+        else if (dateFormatType == DateFormatType.ReferenceDateSec)
+        {
+            for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+            {
+                // 如果本行该字段的父元素标记为无效则该数据也标为无效
+                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                    fieldInfo.Data.Add(null);
+                else
+                {
+                    string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                    ulong inputLongValue = 0;
+                    if (ulong.TryParse(inputData, out inputLongValue) == false)
+                        invalidInfo.Add(row, inputData);
+                    else
+                    {
+                        DateTime dateTime = AppValues.REFERENCE_DATE.AddSeconds((double)inputLongValue);
+                        fieldInfo.Data.Add(dateTime);
+                    }
+                }
+            }
+        }
+        else if (dateFormatType == DateFormatType.ReferenceDateMsec)
+        {
+            for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+            {
+                // 如果本行该字段的父元素标记为无效则该数据也标为无效
+                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                    fieldInfo.Data.Add(null);
+                else
+                {
+                    string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                    ulong inputLongValue = 0;
+                    if (ulong.TryParse(inputData, out inputLongValue) == false)
+                        invalidInfo.Add(row, inputData);
+                    else
+                    {
+                        DateTime dateTime = AppValues.REFERENCE_DATE.AddMilliseconds((double)inputLongValue);
+                        fieldInfo.Data.Add(dateTime);
+                    }
+                }
+            }
+        }
+        else
+        {
+            errorString = "错误：用_AnalyzeDateType函数处理非法的DateFormatType类型";
+            Utils.LogErrorAndExit(errorString);
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+
+        if (invalidInfo.Count > 0)
+        {
+            StringBuilder invalidDataInfo = new StringBuilder();
+            invalidDataInfo.AppendFormat("以下行中的数据无法按指定的输入格式（{0}）进行读取\n", fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_INPUT_FORMAT]);
+            foreach (var item in invalidInfo)
+                invalidDataInfo.AppendFormat("第{0}行，错误地填写数据为\"{1}\"\n", item.Key + 1, item.Value);
+
+            errorString = invalidDataInfo.ToString();
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+        else
+        {
+            errorString = null;
+            nextFieldColumnIndex = columnIndex + 1;
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// 解析time型数据的定义
+    /// </summary>
+    private static bool _AnalyzeTimeType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    {
+        const string DEFINE_START_STRING = "time";
+
+        // 定义time型输入导出格式的key
+        const string INPUT_PARAM_KEY = "input";
+        const string TO_LUA_PARAM_KEY = "toLua";
+        const string TO_DATABASE_PARAM_KEY = "toDatabase";
+        // 解析time型输入导出格式的声明
+        if (!DEFINE_START_STRING.Equals(fieldInfo.DataTypeString, StringComparison.CurrentCultureIgnoreCase))
+        {
+            int leftBracketIndex = fieldInfo.DataTypeString.IndexOf('(');
+            int rightBracketIndex = fieldInfo.DataTypeString.LastIndexOf(')');
+            if (leftBracketIndex == -1 && rightBracketIndex == -1)
+            {
+                errorString = "time型格式定义错误";
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            if (!(leftBracketIndex != -1 || rightBracketIndex > leftBracketIndex))
+            {
+                errorString = "time型格式定义错误，括号不匹配";
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+
+            // 解析声明的时间格式
+            string defineString = fieldInfo.DataTypeString.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
+            if (string.IsNullOrEmpty(defineString))
+            {
+                errorString = "time型格式定义错误，若要声明时间格式就必须在括号中填写，否则不要加括号，本工具会采用config配置文件中设置的默认时间格式";
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            // 通过|分隔各个时间参数
+            string[] defineParams = defineString.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            StringBuilder paramDefineErrorStringBuilder = new StringBuilder();
+            const string ERROR_STRING_FORMAT = "配置项\"{0}\"设置的格式\"{1}\"错误：{2}\n";
+            foreach (string defineParam in defineParams)
+            {
+                // 通过=分隔参数项的key和value
+                string[] paramKeyAndValue = defineParam.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                if (paramKeyAndValue.Length != 2)
+                {
+                    paramDefineErrorStringBuilder.AppendFormat("配置参数\"{0}\"未正确用=分隔配置项的key和value\n", defineParam);
+                    continue;
+                }
+                string paramKey = paramKeyAndValue[0].Trim();
+                string paramValue = paramKeyAndValue[1].Trim();
+
+                errorString = null;
+                switch (paramKey)
+                {
+                    case INPUT_PARAM_KEY:
+                        {
+                            if (TableCheckHelper.CheckTimeDefine(paramValue, out errorString) == true)
+                                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_INPUT_FORMAT] = paramValue;
+                            else
+                                paramDefineErrorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, paramKey, paramValue, errorString);
+
+                            break;
+                        }
+                    case TO_LUA_PARAM_KEY:
+                        {
+                            if (TableCheckHelper.CheckTimeDefine(paramValue, out errorString) == true)
+                                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_LUA_FORMAT] = paramValue;
+                            else
+                                paramDefineErrorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, paramKey, paramValue, errorString);
+
+                            break;
+                        }
+                    case TO_DATABASE_PARAM_KEY:
+                        {
+                            if (TableCheckHelper.CheckTimeDefine(paramValue, out errorString) == true)
+                                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_DATABASE_FORMAT] = paramValue;
+                            else
+                                paramDefineErrorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, paramKey, paramValue, errorString);
+
+                            break;
+                        }
+                    default:
+                        {
+                            paramDefineErrorStringBuilder.AppendFormat("存在非法配置项key\"{0}\"\n", paramKey);
+                            break;
+                        }
+                }
+            }
+            string paramDefineErrorString = paramDefineErrorStringBuilder.ToString();
+            if (!string.IsNullOrEmpty(paramDefineErrorString))
+            {
+                errorString = string.Format("time型格式定义存在以下错误：\n{0}", paramDefineErrorString);
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+        }
+
+        // 检查time型输入格式、导出至lua文件格式、导出至MySQL数据库格式是否都已声明，没有则分别采用config文件的默认设置
+        if (!fieldInfo.ExtraParam.ContainsKey(AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_INPUT_FORMAT))
+        {
+            if (AppValues.DefaultTimeInputFormat == null)
+            {
+                errorString = string.Format("未声明time型的输入格式，在config配置文件中也未定义名为\"{0}\"的默认格式配置项", AppValues.APP_CONFIG_KEY_DEFAULT_TIME_INPUT_FORMAT);
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            else
+                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_INPUT_FORMAT] = AppValues.DefaultTimeInputFormat;
+        }
+        if (!fieldInfo.ExtraParam.ContainsKey(AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_LUA_FORMAT))
+        {
+            if (AppValues.DefaultTimeToLuaFormat == null)
+            {
+                errorString = string.Format("未声明time型导出至lua文件的格式，在config配置文件中也未定义名为\"{0}\"的默认格式配置项", AppValues.APP_CONFIG_KEY_DEFAULT_TIME_TO_LUA_FORMAT);
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            else
+                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_LUA_FORMAT] = AppValues.DefaultTimeToLuaFormat;
+        }
+        if (!fieldInfo.ExtraParam.ContainsKey(AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_DATABASE_FORMAT))
+        {
+            if (AppValues.DefaultTimeToDatabaseFormat == null)
+            {
+                errorString = string.Format("未声明time型导出至MySQL数据库的格式，在config配置文件中也未定义名为\"{0}\"的默认格式配置项", AppValues.APP_CONFIG_KEY_DEFAULT_TIME_TO_DATABASE_FORMAT);
+                nextFieldColumnIndex = columnIndex + 1;
+                return false;
+            }
+            else
+                fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_DATABASE_FORMAT] = AppValues.DefaultTimeToDatabaseFormat;
+        }
+
+        TimeFormatType timeFormatType = GetTimeFormatType((string)fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_INPUT_FORMAT]);
+        fieldInfo.Data = new List<object>();
+        // 记录非法数据的行号以及数据值（key：行号， value：数据值）
+        Dictionary<int, object> invalidInfo = new Dictionary<int, object>();
+
+        if (timeFormatType == TimeFormatType.FormatString)
+        {
+            // 用于对时间格式进行转换
+            DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
+            dateTimeFormat.ShortTimePattern = (string)fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_INPUT_FORMAT];
+
+            for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+            {
+                // 如果本行该字段的父元素标记为无效则该数据也标为无效
+                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                    fieldInfo.Data.Add(null);
+                else
+                {
+                    string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                    // 忽略未填写的数据
+                    if (string.IsNullOrEmpty(inputData))
+                        fieldInfo.Data.Add(null);
+                    else
+                    {
+                        try
+                        {
+                            // 此函数会将DateTime的日期部分自动赋值为当前时间
+                            DateTime tempDateTime = Convert.ToDateTime(inputData, dateTimeFormat);
+                            fieldInfo.Data.Add(new DateTime(AppValues.REFERENCE_DATE.Year, AppValues.REFERENCE_DATE.Month, AppValues.REFERENCE_DATE.Day, tempDateTime.Hour, tempDateTime.Minute, tempDateTime.Second));
+                        }
+                        catch
+                        {
+                            invalidInfo.Add(row, inputData);
+                        }
+                    }
+                }
+            }
+        }
+        else if (timeFormatType == TimeFormatType.ReferenceTimeSec)
+        {
+            for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+            {
+                // 如果本行该字段的父元素标记为无效则该数据也标为无效
+                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                    fieldInfo.Data.Add(null);
+                else
+                {
+                    string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                    uint inputIntValue = 0;
+                    if (uint.TryParse(inputData, out inputIntValue) == false)
+                        invalidInfo.Add(row, inputData);
+                    else
+                    {
+                        if (inputIntValue >= 86400)
+                            invalidInfo.Add(row, inputData);
+                        else
+                        {
+                            int hour = (int)inputIntValue / 60 / 60;
+                            int remainingSecond = (int)inputIntValue - hour * 60 * 60;
+                            int minute = remainingSecond / 60;
+                            remainingSecond = remainingSecond - minute * 60;
+                            DateTime dateTime = new DateTime(AppValues.REFERENCE_DATE.Year, AppValues.REFERENCE_DATE.Month, AppValues.REFERENCE_DATE.Day, hour, minute, remainingSecond);
+                            fieldInfo.Data.Add(dateTime);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            errorString = "错误：用_AnalyzeTimeType函数处理非法的TimeFormatType类型";
+            Utils.LogErrorAndExit(errorString);
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+
+        if (invalidInfo.Count > 0)
+        {
+            StringBuilder invalidDataInfo = new StringBuilder();
+            invalidDataInfo.AppendFormat("以下行中的数据无法按指定的输入格式（{0}）进行读取\n", fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_INPUT_FORMAT]);
+            foreach (var item in invalidInfo)
+                invalidDataInfo.AppendFormat("第{0}行，错误地填写数据为\"{1}\"\n", item.Key + 1, item.Value);
+
+            errorString = invalidDataInfo.ToString();
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+        else
+        {
+            errorString = null;
+            nextFieldColumnIndex = columnIndex + 1;
+            return true;
+        }
+    }
+
+    /// <summary>
     /// 解析tableString型数据的定义，将其格式解析为TableStringFormatDefine类，但填写的数据直接以字符串形式存在FieldInfo的Data变量中
     /// </summary>
     private static bool _AnalyzeTableStringType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
@@ -668,14 +1202,14 @@ public class TableAnalyzeHelper
         TableStringFormatDefine formatDefine = new TableStringFormatDefine();
 
         // 必须在tableString[]中声明格式
-        string defineStartString = "tableString[";
-        if (!(dataTypeString.StartsWith(defineStartString, StringComparison.CurrentCultureIgnoreCase) && dataTypeString.EndsWith("]")))
+        const string DEFINE_START_STRING = "tableString[";
+        if (!(dataTypeString.StartsWith(DEFINE_START_STRING, StringComparison.CurrentCultureIgnoreCase) && dataTypeString.EndsWith("]")))
         {
             errorString = "必须在tableString[]中声明，即以\"tableString[\"开头，以\"]\"结尾";
             return formatDefine;
         }
         // 去掉外面的tableString[]，取得中间定义内容
-        int startIndex = defineStartString.Length;
+        int startIndex = DEFINE_START_STRING.Length;
         string formatString = dataTypeString.Substring(startIndex, dataTypeString.Length - startIndex - 1).Trim();
         // 通过|分离key和value的声明
         string[] keyAndValueFormatString = formatString.Split(new char[] { '|' }, System.StringSplitOptions.RemoveEmptyEntries);
@@ -686,8 +1220,8 @@ public class TableAnalyzeHelper
         }
         // 解析key声明
         string keyFormatString = keyAndValueFormatString[0].Trim();
-        string keyStartString = "k:";
-        if (!keyFormatString.StartsWith(keyStartString, StringComparison.CurrentCultureIgnoreCase))
+        const string KEY_START_STRING = "k:";
+        if (!keyFormatString.StartsWith(KEY_START_STRING, StringComparison.CurrentCultureIgnoreCase))
         {
             errorString = "key的声明必须以k:开头";
             return formatDefine;
@@ -695,17 +1229,17 @@ public class TableAnalyzeHelper
         else
         {
             // 去除开头的k:
-            keyFormatString = keyFormatString.Substring(keyStartString.Length).Trim();
+            keyFormatString = keyFormatString.Substring(KEY_START_STRING.Length).Trim();
 
             // 按数据顺序自动编号
             if (keyFormatString.Equals("#seq", StringComparison.CurrentCultureIgnoreCase))
             {
-                formatDefine.KeyDefine.KeyType = TABLE_STRING_KEY_TYPE.SEQ;
+                formatDefine.KeyDefine.KeyType = TableStringKeyType.Seq;
             }
             // 以数据组中指定索引位置的数据为key
             else if (keyFormatString.StartsWith("#"))
             {
-                formatDefine.KeyDefine.KeyType = TABLE_STRING_KEY_TYPE.DATA_IN_INDEX;
+                formatDefine.KeyDefine.KeyType = TableStringKeyType.DataInIndex;
                 formatDefine.KeyDefine.DataInIndexDefine = _GetDataInIndexDefine(keyFormatString, out errorString);
                 if (errorString != null)
                 {
@@ -728,8 +1262,8 @@ public class TableAnalyzeHelper
 
         // 解析value声明
         string valueFormatString = keyAndValueFormatString[1].Trim();
-        string valueStartString = "v:";
-        if (!valueFormatString.StartsWith(valueStartString, StringComparison.CurrentCultureIgnoreCase))
+        const string VALUE_START_STRING = "v:";
+        if (!valueFormatString.StartsWith(VALUE_START_STRING, StringComparison.CurrentCultureIgnoreCase))
         {
             errorString = "value的声明必须以v:开头";
             return formatDefine;
@@ -737,17 +1271,17 @@ public class TableAnalyzeHelper
         else
         {
             // 去除开头的v:
-            valueFormatString = valueFormatString.Substring(valueStartString.Length).Trim();
+            valueFormatString = valueFormatString.Substring(VALUE_START_STRING.Length).Trim();
 
             // value始终为true
             if (valueFormatString.Equals("#true", StringComparison.CurrentCultureIgnoreCase))
             {
-                formatDefine.ValueDefine.ValueType = TABLE_STRING_VALUE_TYPE.TRUE;
+                formatDefine.ValueDefine.ValueType = TableStringValueType.True;
             }
             // value为table类型
             else if (valueFormatString.StartsWith("#table", StringComparison.CurrentCultureIgnoreCase))
             {
-                formatDefine.ValueDefine.ValueType = TABLE_STRING_VALUE_TYPE.TABLE;
+                formatDefine.ValueDefine.ValueType = TableStringValueType.Table;
                 // 判断是否形如#table(xxx)
                 int leftBracketIndex = valueFormatString.IndexOf('(');
                 int rightBracketIndex = valueFormatString.LastIndexOf(')');
@@ -794,7 +1328,7 @@ public class TableAnalyzeHelper
             // 以数据组中指定索引位置的数据为value
             else if (valueFormatString.StartsWith("#"))
             {
-                formatDefine.ValueDefine.ValueType = TABLE_STRING_VALUE_TYPE.DATA_IN_INDEX;
+                formatDefine.ValueDefine.ValueType = TableStringValueType.DataInIndex;
                 formatDefine.ValueDefine.DataInIndexDefine = _GetDataInIndexDefine(valueFormatString, out errorString);
                 if (errorString != null)
                 {

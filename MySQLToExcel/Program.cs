@@ -14,23 +14,41 @@ public class Program
             Utils.LogErrorAndExit(errorString);
 
         // 检查填写的Excel导出目录是否存在
-        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_EXPORT_EXCEL_PATH_KEY))
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_EXPORT_EXCEL_PATH))
         {
-            AppValues.ExportExcelPath = AppValues.ConfigData[AppValues.APP_CONFIG_EXPORT_EXCEL_PATH_KEY].Trim();
+            AppValues.ExportExcelPath = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_EXPORT_EXCEL_PATH].Trim();
             if (!Directory.Exists(AppValues.ExportExcelPath))
                 Utils.LogErrorAndExit(string.Format("config配置文件中声明的导出Excel文件的存放目录不存在，你填写的为\"{0}\"", AppValues.ExportExcelPath));
         }
         else
-            Utils.LogErrorAndExit(string.Format("未在config配置文件中以名为\"{0}\"的key声明导出Excel文件的存放目录", AppValues.APP_CONFIG_EXPORT_EXCEL_PATH_KEY));
+            Utils.LogErrorAndExit(string.Format("未在config配置文件中以名为\"{0}\"的key声明导出Excel文件的存放目录", AppValues.APP_CONFIG_KEY_EXPORT_EXCEL_PATH));
+
+        // 获取设置的Excel文件中列的最大宽度
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_EXCEL_COLUMN_MAX_WIDTH))
+        {
+            double inputExcelColumnMaxWidth = -1;
+            string inputParam = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_EXCEL_COLUMN_MAX_WIDTH];
+            if (double.TryParse(inputParam, out inputExcelColumnMaxWidth) == true)
+            {
+                if (inputExcelColumnMaxWidth > 0)
+                    AppValues.ExcelColumnMaxWidth = inputExcelColumnMaxWidth;
+                else
+                    Utils.LogErrorAndExit(string.Format("config配置文件中声明的Excel文件中列的最大宽度非法，必须大于0，你输入的为\"{0}\"", inputParam));
+            }
+            else
+                Utils.LogErrorAndExit(string.Format("config配置文件中声明的Excel文件中列的最大宽度不是一个合法数字，你输入的为\"{0}\"", inputParam));
+        }
+        else
+            Utils.LogWarning(string.Format("警告：未在config配置文件中以名为\"{0}\"的key声明生成的Excel文件中列的最大宽度，本工具将不对生成的Excel文件进行美化", AppValues.APP_CONFIG_KEY_EXCEL_COLUMN_MAX_WIDTH));
 
         const int COLOR_INDEX_MIN = 0;
         const int COLOR_INDEX_MAX = 56;
 
         // 获取设置的每列背景色，如果进行了设置需检查ColorIndex是否正确
-        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_COLUMN_BACKGROUND_COLOR_KEY))
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_COLUMN_BACKGROUND_COLOR))
         {
             AppValues.ColumnBackgroundColorIndex = new List<int>();
-            string inputParam = AppValues.ConfigData[AppValues.APP_CONFIG_COLUMN_BACKGROUND_COLOR_KEY];
+            string inputParam = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_COLUMN_BACKGROUND_COLOR];
 
             string[] colorIndexString = inputParam.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             if (colorIndexString.Length > 0)
@@ -50,13 +68,13 @@ public class Program
                 }
             }
             else
-                Utils.LogErrorAndExit(string.Format("config配置文件中以名为\"{0}\"的key声明各列背景色不允许为空", AppValues.APP_CONFIG_COLUMN_BACKGROUND_COLOR_KEY));
+                Utils.LogErrorAndExit(string.Format("config配置文件中以名为\"{0}\"的key声明各列背景色不允许为空", AppValues.APP_CONFIG_KEY_COLUMN_BACKGROUND_COLOR));
         }
 
         // 获取设置的data、config两张Sheet表的标签按钮颜色
-        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_DATA_SHEET_TAB_COLOR_KEY))
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_DATA_SHEET_TAB_COLOR))
         {
-            string colorIndexString = AppValues.ConfigData[AppValues.APP_CONFIG_DATA_SHEET_TAB_COLOR_KEY];
+            string colorIndexString = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_DATA_SHEET_TAB_COLOR];
             int colorIndex = -1;
             if (int.TryParse(colorIndexString, out colorIndex) == true)
             {
@@ -68,9 +86,9 @@ public class Program
             else
                 Utils.LogErrorAndExit(string.Format("config配置文件中声明的data表标签按钮颜色索引值\"{0}\"不是一个合法数字", colorIndexString));
         }
-        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_CONFIG_SHEET_TAB_COLOR_KEY))
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_CONFIG_SHEET_TAB_COLOR))
         {
-            string colorIndexString = AppValues.ConfigData[AppValues.APP_CONFIG_CONFIG_SHEET_TAB_COLOR_KEY];
+            string colorIndexString = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_CONFIG_SHEET_TAB_COLOR];
             int colorIndex = -1;
             if (int.TryParse(colorIndexString, out colorIndex) == true)
             {
@@ -86,11 +104,11 @@ public class Program
         // 获取要导出的数据表名
         List<string> exportTableName = new List<string>();
         // 在这里自定义获取要导出的数据表名的方法（这里以在config.txt中进行配置为例，还可以采用类似表名特殊前缀标识等方式实现）
-        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_EXPORT_DATA_TABLE_NAMES_KEY))
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_EXPORT_DATA_TABLE_NAMES))
         {
-            string exportTableNameString = AppValues.ConfigData[AppValues.APP_CONFIG_EXPORT_DATA_TABLE_NAMES_KEY].Trim();
+            string exportTableNameString = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_EXPORT_DATA_TABLE_NAMES].Trim();
             if (string.IsNullOrEmpty(exportTableNameString))
-                Utils.LogErrorAndExit(string.Format("config配置文件中以名为\"{0}\"的key声明要导出的数据表名不允许为空", AppValues.APP_CONFIG_EXPORT_DATA_TABLE_NAMES_KEY));
+                Utils.LogErrorAndExit(string.Format("config配置文件中以名为\"{0}\"的key声明要导出的数据表名不允许为空", AppValues.APP_CONFIG_KEY_EXPORT_DATA_TABLE_NAMES));
             else
             {
                 string[] tableNames = exportTableNameString.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
@@ -99,7 +117,7 @@ public class Program
             }
         }
         else
-            Utils.LogErrorAndExit(string.Format("未在config配置文件中以名为\"{0}\"的key声明要导出的数据表名", AppValues.APP_CONFIG_EXPORT_DATA_TABLE_NAMES_KEY));
+            Utils.LogErrorAndExit(string.Format("未在config配置文件中以名为\"{0}\"的key声明要导出的数据表名", AppValues.APP_CONFIG_KEY_EXPORT_DATA_TABLE_NAMES));
 
         // 连接MySQL数据库
         MySQLOperateHelper.ConnectToDatabase(out errorString);

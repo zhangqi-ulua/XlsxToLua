@@ -69,6 +69,8 @@ public class FieldInfo
     public List<object> Data { get; set; }
     // 如果该字段为lang型，LangKeys中额外存储所填的所有key名，对应的键值则存储在Data中
     public List<object> LangKeys { get; set; }
+    // 存储额外属性，比如date类型的输入、导出选项等
+    public Dictionary<string, object> ExtraParam { get; set; }
     // 如果该字段为tableString型，存储解析之后的格式定义
     public TableStringFormatDefine TableStringFormatDefine { get; set; }
     // 如果该字段是array或dict类型，其下属的字段信息存放在该变量中
@@ -79,6 +81,11 @@ public class FieldInfo
     public string DatabaseFieldName { get; set; }
     // 导出到数据库中对应的字段数据类型
     public string DatabaseFieldType { get; set; }
+
+    public FieldInfo()
+    {
+        ExtraParam = new Dictionary<string, object>();
+    }
 }
 
 /// <summary>
@@ -89,10 +96,13 @@ public enum DataType
     Invalid,
 
     Int,
+    Long,
     Float,
     Bool,
     String,
     Lang,
+    Date,
+    Time,
     TableString,
     Array,
     Dict,
@@ -101,20 +111,20 @@ public enum DataType
 /// <summary>
 /// tableString代表的table中的key类型
 /// </summary>
-public enum TABLE_STRING_KEY_TYPE
+public enum TableStringKeyType
 {
-    SEQ,              // 按数据顺序自动编号
-    DATA_IN_INDEX,    // 以数据组中指定索引位置的数据为key
+    Seq,             // 按数据顺序自动编号
+    DataInIndex,     // 以数据组中指定索引位置的数据为key
 }
 
 /// <summary>
 /// tableString代表的table中的value类型
 /// </summary>
-public enum TABLE_STRING_VALUE_TYPE
+public enum TableStringValueType
 {
-    TRUE,             // 值始终为true
-    DATA_IN_INDEX,    // 以数据组中指定索引位置的数据为value
-    TABLE,            // value是含有复杂数据的table
+    True,            // 值始终为true
+    DataInIndex,     // 以数据组中指定索引位置的数据为value
+    Table,           // value是含有复杂数据的table
 }
 
 /// <summary>
@@ -143,7 +153,7 @@ public struct TableElementDefine
 public struct TableStringKeyDefine
 {
     // key的类型
-    public TABLE_STRING_KEY_TYPE KeyType;
+    public TableStringKeyType KeyType;
     // 如果key为DATA_IN_INDEX类型，存储其定义
     public DataInIndexDefine DataInIndexDefine;
 }
@@ -154,7 +164,7 @@ public struct TableStringKeyDefine
 public struct TableStringValueDefine
 {
     // value的类型
-    public TABLE_STRING_VALUE_TYPE ValueType;
+    public TableStringValueType ValueType;
     // 如果value为DATA_IN_INDEX类型，存储其定义
     public DataInIndexDefine DataInIndexDefine;
     // 如果value为TABLE类型，则需要存储table中每个元素的定义
@@ -168,4 +178,24 @@ public struct TableStringFormatDefine
 {
     public TableStringKeyDefine KeyDefine;
     public TableStringValueDefine ValueDefine;
+}
+
+/// <summary>
+/// date型数据的输入导出格式
+/// </summary>
+public enum DateFormatType
+{
+    FormatString,          // 符合C#类库要求的标准时间格式
+    ReferenceDateSec,      // 用距离1970年1月1日的秒数表示
+    ReferenceDateMsec,     // 用距离1970年1月1日的毫秒数表示
+    DataTable,             // 生成调用lua库函数os.date的代码形式
+}
+
+/// <summary>
+/// time型数据的输入导出格式
+/// </summary>
+public enum TimeFormatType
+{
+    FormatString,          // 符合C#类库要求的标准时间格式
+    ReferenceTimeSec,      // 用距离0点的秒数表示
 }

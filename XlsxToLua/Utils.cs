@@ -17,19 +17,19 @@ public class Utils
     /// <summary>
     /// 获取某个文件的状态
     /// </summary>
-    public static FILE_STATE GetFileState(string filePath)
+    public static FileState GetFileState(string filePath)
     {
         if (File.Exists(filePath))
         {
             IntPtr vHandle = _lopen(filePath, OF_READWRITE | OF_SHARE_DENY_NONE);
             if (vHandle == HFILE_ERROR)
-                return FILE_STATE.IS_OPEN;
+                return FileState.IsOpen;
 
             CloseHandle(vHandle);
-            return FILE_STATE.AVAILABLE;
+            return FileState.Available;
         }
         else
-            return FILE_STATE.INEXIST;
+            return FileState.Inexist;
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public class Utils
         FieldCheckRule checkRule = fieldCheckRules[0];
         switch (checkRule.CheckType)
         {
-            case TABLE_CHECK_TYPE.EFFECTIVE:
+            case TableCheckType.Effective:
                 {
                     if (dataType == DataType.Int || dataType == DataType.Float)
                     {
@@ -242,7 +242,7 @@ public class Utils
 
                     break;
                 }
-            case TABLE_CHECK_TYPE.RANGE:
+            case TableCheckType.Range:
                 {
                     if (dataType == DataType.Int)
                     {
@@ -420,9 +420,9 @@ public class Utils
     }
 }
 
-public enum FILE_STATE
+public enum FileState
 {
-    INEXIST,     // 不存在
-    IS_OPEN,     // 已被打开
-    AVAILABLE,   // 当前可用
+    Inexist,     // 不存在
+    IsOpen,      // 已被打开
+    Available,   // 当前可用
 }

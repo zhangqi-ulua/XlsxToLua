@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 /// <summary>
@@ -83,13 +84,51 @@ public class AppValues
     // 声明对某张表格不进行默认导出的参数配置
     public const string CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE = "-notExportOriginalTable";
 
-    // config配置文件中用于配置MySQL连接字符串的key名
-    public const string APP_CONFIG_MYSQL_CONNECT_STRING_KEY = "connectMySQLString";
+    // 以下为config配置文件中配置项的key名
+    // MySQL连接字符串
+    public const string APP_CONFIG_KEY_MYSQL_CONNECT_STRING = "connectMySQLString";
+    // 未声明date型的输入格式时所采用的默认格式
+    public const string APP_CONFIG_KEY_DEFAULT_DATE_INPUT_FORMAT = "defaultDateInputFormat";
+    // 未声明date型导出至lua文件的格式时所采用的默认格式
+    public const string APP_CONFIG_KEY_DEFAULT_DATE_TO_LUA_FORMAT = "defaultDateToLuaFormat";
+    // 未声明date型导出至MySQL数据库的格式时所采用的默认格式
+    public const string APP_CONFIG_KEY_DEFAULT_DATE_TO_DATABASE_FORMAT = "defaultDateToDatabaseFormat";
+    // 未声明time型的输入格式时所采用的默认格式
+    public const string APP_CONFIG_KEY_DEFAULT_TIME_INPUT_FORMAT = "defaultTimeInputFormat";
+    // 未声明time型导出至lua文件的格式时所采用的默认格式
+    public const string APP_CONFIG_KEY_DEFAULT_TIME_TO_LUA_FORMAT = "defaultTimeToLuaFormat";
+    // 未声明time型导出至MySQL数据库的格式时所采用的默认格式
+    public const string APP_CONFIG_KEY_DEFAULT_TIME_TO_DATABASE_FORMAT = "defaultTimeToDatabaseFormat";
+
+    // 以下为TableInfo的ExtraParam所支持的key声明
+    // date型的输入格式
+    public const string TABLE_INFO_EXTRA_PARAM_KEY_DATE_INPUT_FORMAT = "dateInputFormat";
+    // date型导出至lua文件的格式
+    public const string TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_LUA_FORMAT = "dateToLuaFormat";
+    // date型导出至MySQL数据库的格式
+    public const string TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_DATABASE_FORMAT = "dateToDatabaseFormat";
+    // time型的输入格式
+    public const string TABLE_INFO_EXTRA_PARAM_KEY_TIME_INPUT_FORMAT = "timeInputFormat";
+    // time型导出至lua文件的格式
+    public const string TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_LUA_FORMAT = "timeToLuaFormat";
+    // time型导出至MySQL数据库的格式
+    public const string TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_DATABASE_FORMAT = "timeToDatabaseFormat";
+
+    // 将MySQL中datetime、date型的默认格式作为本工具对date、time两种时间型进行检查并发现错误后的输出格式
+    public const string APP_DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public const string APP_DEFAULT_TIME_FORMAT = "HH:mm:ss";
+    // 导出数据到MySQL中的date型字段的默认格式
+    public const string APP_DEFAULT_ONLY_DATE_FORMAT = "yyyy-MM-dd";
 
     /// <summary>
     /// 本工具所在目录，不能用System.Environment.CurrentDirectory因为当本工具被其他程序调用时取得的CurrentDirectory将是调用者的路径
     /// </summary>
     public static string PROGRAM_FOLDER_PATH = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+
+    /// <summary>
+    /// 以1970年1月1日作为计算距今秒数的参考时间，并且作为存储time型的DateTime变量的日期部分
+    /// </summary>
+    public static DateTime REFERENCE_DATE = new DateTime(1970, 1, 1);
 
     /// <summary>
     /// 用户输入的要导出的Excel文件所在目录
@@ -135,6 +174,36 @@ public class AppValues
     /// 用户输入的是否允许int、float型字段中存在空值
     /// </summary>
     public static bool IsAllowedNullNumber = false;
+
+    /// <summary>
+    /// 未声明date型的输入格式时所采用的默认格式
+    /// </summary>
+    public static string DefaultDateInputFormat = null;
+
+    /// <summary>
+    /// 未声明date型导出至lua文件的格式时所采用的默认格式
+    /// </summary>
+    public static string DefaultDateToLuaFormat = null;
+
+    /// <summary>
+    /// 未声明date型导出至MySQL数据库的格式时所采用的默认格式
+    /// </summary>
+    public static string DefaultDateToDatabaseFormat = null;
+
+    /// <summary>
+    /// 未声明time型的输入格式时所采用的默认格式
+    /// </summary>
+    public static string DefaultTimeInputFormat = null;
+
+    /// <summary>
+    /// 未声明time型导出至lua文件的格式时所采用的默认格式
+    /// </summary>
+    public static string DefaultTimeToLuaFormat = null;
+
+    /// <summary>
+    /// 未声明time型导出至MySQL数据库的格式时所采用的默认格式
+    /// </summary>
+    public static string DefaultTimeToDatabaseFormat = null;
 
     /// <summary>
     /// lang文件转为键值对形式（key：lang文件中的key名， value：对应的在指定语言下的翻译）

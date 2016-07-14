@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 public class TableExportToLuaHelper
@@ -124,6 +125,11 @@ public class TableExportToLuaHelper
 
                 fieldName = fieldDefine.Substring(0, leftBracketIndex);
                 string integrityCheckRule = fieldDefine.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
+                if (string.IsNullOrEmpty(integrityCheckRule))
+                {
+                    errorString = string.Format("导出配置\"{0}\"定义错误，用于索引的字段\"{1}\"若要声明完整性检查规则就必须在括号中填写否则不要加括号\n", exportRule, fieldName);
+                    return false;
+                }
                 integrityCheckRules.Add(integrityCheckRule);
             }
             else
@@ -138,9 +144,9 @@ public class TableExportToLuaHelper
                 errorString = string.Format("导出配置\"{0}\"定义错误，声明的索引字段\"{1}\"不存在\n", exportRule, fieldName);
                 return false;
             }
-            if (fieldInfo.DataType != DataType.Int && fieldInfo.DataType != DataType.Float && fieldInfo.DataType != DataType.String && fieldInfo.DataType != DataType.Lang)
+            if (fieldInfo.DataType != DataType.Int && fieldInfo.DataType != DataType.Long && fieldInfo.DataType != DataType.Float && fieldInfo.DataType != DataType.String && fieldInfo.DataType != DataType.Lang)
             {
-                errorString = string.Format("导出配置\"{0}\"定义错误，声明的索引字段\"{1}\"为{2}型，但只允许为int、float、string或lang型\n", exportRule, fieldName, fieldInfo.DataType);
+                errorString = string.Format("导出配置\"{0}\"定义错误，声明的索引字段\"{1}\"为{2}型，但只允许为int、long、float、string或lang型\n", exportRule, fieldName, fieldInfo.DataType);
                 return false;
             }
 
@@ -148,7 +154,7 @@ public class TableExportToLuaHelper
             if (fieldInfo.DataType == DataType.String)
             {
                 FieldCheckRule stringNotEmptyCheckRule = new FieldCheckRule();
-                stringNotEmptyCheckRule.CheckType = TABLE_CHECK_TYPE.NOT_EMPTY;
+                stringNotEmptyCheckRule.CheckType = TableCheckType.NotEmpty;
                 stringNotEmptyCheckRule.CheckRuleString = "notEmpty[trim]";
                 TableCheckHelper.CheckNotEmpty(fieldInfo, stringNotEmptyCheckRule, out errorString);
                 if (errorString != null)
@@ -160,7 +166,7 @@ public class TableExportToLuaHelper
             else if (fieldInfo.DataType == DataType.Lang)
             {
                 FieldCheckRule langNotEmptyCheckRule = new FieldCheckRule();
-                langNotEmptyCheckRule.CheckType = TABLE_CHECK_TYPE.NOT_EMPTY;
+                langNotEmptyCheckRule.CheckType = TableCheckType.NotEmpty;
                 langNotEmptyCheckRule.CheckRuleString = "notEmpty[key|value]";
                 TableCheckHelper.CheckNotEmpty(fieldInfo, langNotEmptyCheckRule, out errorString);
                 if (errorString != null)
@@ -172,7 +178,7 @@ public class TableExportToLuaHelper
             else if (AppValues.IsAllowedNullNumber == true)
             {
                 FieldCheckRule numberNotEmptyCheckRule = new FieldCheckRule();
-                numberNotEmptyCheckRule.CheckType = TABLE_CHECK_TYPE.NOT_EMPTY;
+                numberNotEmptyCheckRule.CheckType = TableCheckType.NotEmpty;
                 numberNotEmptyCheckRule.CheckRuleString = "notEmpty";
                 TableCheckHelper.CheckNotEmpty(fieldInfo, numberNotEmptyCheckRule, out errorString);
                 if (errorString != null)
@@ -426,7 +432,7 @@ public class TableExportToLuaHelper
     {
         string indentationString = string.Empty;
         for (int i = 0; i < level; ++i)
-            indentationString += _DICT_CHILD_INDENTATION_STRING;
+            indentationString = indentationString + _DICT_CHILD_INDENTATION_STRING;
 
         return indentationString;
     }
@@ -446,6 +452,7 @@ public class TableExportToLuaHelper
         switch (fieldInfo.DataType)
         {
             case DataType.Int:
+            case DataType.Long:
             case DataType.Float:
             case DataType.String:
             case DataType.Bool:
@@ -458,6 +465,16 @@ public class TableExportToLuaHelper
                     value = _GetLangValue(fieldInfo, row, level);
                     break;
                 }
+            case DataType.Date:
+                {
+                    value = _GetDateValue(fieldInfo, row, level);
+                    break;
+                }
+            case DataType.Time:
+                {
+                    value = _GetTimeValue(fieldInfo, row, level);
+                    break;
+                }
             case DataType.TableString:
                 {
                     value = _GetTableStringValue(fieldInfo, row, level, out errorString);
@@ -468,6 +485,12 @@ public class TableExportToLuaHelper
                 {
                     value = _GetSetValue(fieldInfo, row, level);
                     break;
+                }
+            default:
+                {
+                    errorString = string.Format("_GetOneField函数中未定义{0}类型数据导出至lua文件的形式", fieldInfo.DataType);
+                    Utils.LogErrorAndExit(errorString);
+                    return null;
                 }
         }
 
@@ -491,6 +514,7 @@ public class TableExportToLuaHelper
         switch (fieldInfo.DataType)
         {
             case DataType.Int:
+            case DataType.Long:
             case DataType.Float:
                 {
                     if (fieldInfo.Data[row] == null)
@@ -519,7 +543,7 @@ public class TableExportToLuaHelper
                 }
             default:
                 {
-                    Utils.LogErrorAndExit("错误：用_WriteBaseValue函数解析了非基础类型的数据");
+                    Utils.LogErrorAndExit("错误：用_WriteBaseValue函数导出非基础类型的数据");
                     break;
                 }
         }
@@ -543,6 +567,97 @@ public class TableExportToLuaHelper
                 content.Append("\"\"");
             else
                 content.Append("nil");
+        }
+
+        return content.ToString();
+    }
+
+    private static string _GetDateValue(FieldInfo fieldInfo, int row, int level)
+    {
+        StringBuilder content = new StringBuilder();
+
+        DateFormatType dateFormatType = TableAnalyzeHelper.GetDateFormatType(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_LUA_FORMAT].ToString());
+        switch (dateFormatType)
+        {
+            case DateFormatType.FormatString:
+                {
+                    if (fieldInfo.Data[row] == null)
+                        content.Append("nil");
+                    else
+                        content.Append("\"").Append(((DateTime)(fieldInfo.Data[row])).ToString(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_LUA_FORMAT].ToString())).Append("\"");
+
+                    break;
+                }
+            case DateFormatType.ReferenceDateSec:
+                {
+                    if (fieldInfo.Data[row] == null)
+                        content.Append("nil");
+                    else
+                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalSeconds);
+
+                    break;
+                }
+            case DateFormatType.ReferenceDateMsec:
+                {
+                    if (fieldInfo.Data[row] == null)
+                        content.Append("nil");
+                    else
+                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalMilliseconds);
+
+                    break;
+                }
+            case DateFormatType.DataTable:
+                {
+                    if (fieldInfo.Data[row] == null)
+                        content.Append("nil");
+                    else
+                    {
+                        double totalSeconds = ((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalSeconds;
+                        content.Append("os.date(\"!*t\", ").Append(totalSeconds).Append(")");
+                    }
+
+                    break;
+                }
+            default:
+                {
+                    Utils.LogErrorAndExit("错误：用_GetDateValue函数导出的date型的DateFormatType非法");
+                    break;
+                }
+        }
+
+        return content.ToString();
+    }
+
+    private static string _GetTimeValue(FieldInfo fieldInfo, int row, int level)
+    {
+        StringBuilder content = new StringBuilder();
+
+        TimeFormatType timeFormatType = TableAnalyzeHelper.GetTimeFormatType(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_LUA_FORMAT].ToString());
+        switch (timeFormatType)
+        {
+            case TimeFormatType.FormatString:
+                {
+                    if (fieldInfo.Data[row] == null)
+                        content.Append("nil");
+                    else
+                        content.Append("\"").Append(((DateTime)(fieldInfo.Data[row])).ToString(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_LUA_FORMAT].ToString())).Append("\"");
+
+                    break;
+                }
+            case TimeFormatType.ReferenceTimeSec:
+                {
+                    if (fieldInfo.Data[row] == null)
+                        content.Append("nil");
+                    else
+                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalSeconds);
+
+                    break;
+                }
+            default:
+                {
+                    Utils.LogErrorAndExit("错误：用_GetTimeValue函数导出的time型的TimeFormatType非法");
+                    break;
+                }
         }
 
         return content.ToString();
@@ -606,12 +721,12 @@ public class TableExportToLuaHelper
             // 根据key的格式定义生成key
             switch (fieldInfo.TableStringFormatDefine.KeyDefine.KeyType)
             {
-                case TABLE_STRING_KEY_TYPE.SEQ:
+                case TableStringKeyType.Seq:
                     {
                         content.AppendFormat("[{0}]", i + 1);
                         break;
                     }
-                case TABLE_STRING_KEY_TYPE.DATA_IN_INDEX:
+                case TableStringKeyType.DataInIndex:
                     {
                         string value = _GetDataInIndexType(fieldInfo.TableStringFormatDefine.KeyDefine.DataInIndexDefine, allDataString[i], out errorString);
                         if (errorString == null)
@@ -671,12 +786,12 @@ public class TableExportToLuaHelper
             // 根据value的格式定义生成value
             switch (fieldInfo.TableStringFormatDefine.ValueDefine.ValueType)
             {
-                case TABLE_STRING_VALUE_TYPE.TRUE:
+                case TableStringValueType.True:
                     {
                         content.Append("true");
                         break;
                     }
-                case TABLE_STRING_VALUE_TYPE.DATA_IN_INDEX:
+                case TableStringValueType.DataInIndex:
                     {
                         string value = _GetDataInIndexType(fieldInfo.TableStringFormatDefine.ValueDefine.DataInIndexDefine, allDataString[i], out errorString);
                         if (errorString == null)
@@ -690,7 +805,7 @@ public class TableExportToLuaHelper
 
                         break;
                     }
-                case TABLE_STRING_VALUE_TYPE.TABLE:
+                case TableStringValueType.Table:
                     {
                         content.AppendLine("{");
                         ++level;

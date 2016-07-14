@@ -11,13 +11,13 @@ public class XlsxReader
     public static DataSet ReadXlsxFile(string filePath, out string errorString)
     {
         // 检查文件是否存在且没被打开
-        FILE_STATE fileState = Utils.GetFileState(filePath);
-        if (fileState == FILE_STATE.INEXIST)
+        FileState fileState = Utils.GetFileState(filePath);
+        if (fileState == FileState.Inexist)
         {
             errorString = string.Format("{0}文件不存在", filePath);
             return null;
         }
-        else if (fileState == FILE_STATE.IS_OPEN)
+        else if (fileState == FileState.IsOpen)
         {
             errorString = string.Format("{0}文件正在被其他软件打开，请关闭后重新运行本工具", filePath);
             return null;

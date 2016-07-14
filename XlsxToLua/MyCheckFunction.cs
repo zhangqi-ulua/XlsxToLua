@@ -16,51 +16,51 @@ public static class MyCheckFunction
     {
         // 道具类型对应的type
         int PROP_TYPE;
-        string propTypeConfigKey = "propType";
-        if (AppValues.ConfigData.ContainsKey(propTypeConfigKey))
+        const string PROP_TYPE_CONFIG_KEY = "propType";
+        if (AppValues.ConfigData.ContainsKey(PROP_TYPE_CONFIG_KEY))
         {
-            string configValue = AppValues.ConfigData[propTypeConfigKey];
+            string configValue = AppValues.ConfigData[PROP_TYPE_CONFIG_KEY];
             if (int.TryParse(configValue, out PROP_TYPE) == false)
             {
-                errorString = string.Format("config配置中用于表示道具类型对应数字（名为\"{0}\"）的配置项所填值不是合法的数字（你填的为\"{1}\"），无法进行奖励列表字段的检查，请修正配置后再重试\n", propTypeConfigKey, configValue);
+                errorString = string.Format("config配置中用于表示道具类型对应数字（名为\"{0}\"）的配置项所填值不是合法的数字（你填的为\"{1}\"），无法进行奖励列表字段的检查，请修正配置后再重试\n", PROP_TYPE_CONFIG_KEY, configValue);
                 return false;
             }
         }
         else
         {
-            errorString = string.Format("config配置文件找不到名为\"{0}\"的表示道具类型对应数字的配置，无法进行奖励列表字段的检查，请填写配置后再重试\n", propTypeConfigKey);
+            errorString = string.Format("config配置文件找不到名为\"{0}\"的表示道具类型对应数字的配置，无法进行奖励列表字段的检查，请填写配置后再重试\n", PROP_TYPE_CONFIG_KEY);
             return false;
         }
         // 合法奖励类型检查规则
         List<FieldCheckRule> CHECK_TYPE_RULES;
-        string typeConfigKey = "$type";
-        if (AppValues.ConfigData.ContainsKey(typeConfigKey))
+        const string TYPE_CONFIG_KEY = "$type";
+        if (AppValues.ConfigData.ContainsKey(TYPE_CONFIG_KEY))
         {
-            CHECK_TYPE_RULES = TableCheckHelper.GetCheckRules(AppValues.ConfigData[typeConfigKey], out errorString);
+            CHECK_TYPE_RULES = TableCheckHelper.GetCheckRules(AppValues.ConfigData[TYPE_CONFIG_KEY], out errorString);
             if (errorString != null)
             {
-                errorString = string.Format("config文件中用于检查奖励类型是否合法的规则\"{0}\"有误，{1}\n", typeConfigKey, errorString);
+                errorString = string.Format("config文件中用于检查奖励类型是否合法的规则\"{0}\"有误，{1}\n", TYPE_CONFIG_KEY, errorString);
                 return false;
             }
             if (CHECK_TYPE_RULES == null)
             {
-                errorString = string.Format("config文件中用于检查奖励类型是否合法的规则\"{0}\"为空，无法进行奖励列表字段的检查，请填写配置后再重试\n", typeConfigKey, errorString);
+                errorString = string.Format("config文件中用于检查奖励类型是否合法的规则\"{0}\"为空，无法进行奖励列表字段的检查，请填写配置后再重试\n", TYPE_CONFIG_KEY, errorString);
                 return false;
             }
         }
         else
         {
-            errorString = string.Format("config配置文件找不到名为\"{0}\"的表示合法奖励类型对应数字数组的配置，无法进行奖励列表字段的检查，请填写配置后再重试\n", typeConfigKey);
+            errorString = string.Format("config配置文件找不到名为\"{0}\"的表示合法奖励类型对应数字数组的配置，无法进行奖励列表字段的检查，请填写配置后再重试\n", TYPE_CONFIG_KEY);
             return false;
         }
         // 读取Prop表的主键id字段，用于填写道具id的值引用检查
         List<object> PROP_KEYS = null;
-        string propTableName = "Prop";
-        if (AppValues.TableInfo.ContainsKey(propTableName))
-            PROP_KEYS = AppValues.TableInfo[propTableName].GetKeyColumnFieldInfo().Data;
+        const string PROP_TABLE_NAME = "Prop";
+        if (AppValues.TableInfo.ContainsKey(PROP_TABLE_NAME))
+            PROP_KEYS = AppValues.TableInfo[PROP_TABLE_NAME].GetKeyColumnFieldInfo().Data;
         else
         {
-            errorString = string.Format("找不到名为\"{0}\"用于配置道具属性的表格，无法进行奖励列表字段的检查\n", propTableName);
+            errorString = string.Format("找不到名为\"{0}\"用于配置道具属性的表格，无法进行奖励列表字段的检查\n", PROP_TABLE_NAME);
             return false;
         }
 
@@ -72,10 +72,10 @@ public static class MyCheckFunction
         }
 
         // 标识组成一个奖励项的三个字段的名称（type、id、count）
-        List<string> fieldNames = new List<string>();
-        fieldNames.Add("type");
-        fieldNames.Add("id");
-        fieldNames.Add("count");
+        List<string> FIELD_NAMES = new List<string>();
+        FIELD_NAMES.Add("type");
+        FIELD_NAMES.Add("id");
+        FIELD_NAMES.Add("count");
         // 要求定义一种奖励类型的三个int型字段分别叫type、id、count
         foreach (FieldInfo childDictField in fieldInfo.ChildField)
         {
@@ -86,7 +86,7 @@ public static class MyCheckFunction
             }
             foreach (FieldInfo childBaseField in childDictField.ChildField)
             {
-                if (!fieldNames.Contains(childBaseField.FieldName.ToLower()))
+                if (!FIELD_NAMES.Contains(childBaseField.FieldName.ToLower()))
                 {
                     errorString = string.Format("一个奖励项的dict必须由type、id、count三个int型字段组成，而你填写的奖励项中含有名为\"{0}\"的字段，出错的dict列号为{1}", childBaseField.FieldName, Utils.GetExcelColumnName(childDictField.ColumnSeq + 1));
                     return false;
@@ -217,23 +217,23 @@ public static class MyCheckFunction
         // 从配置文件中读取英雄的所有品阶（key：品阶， value：恒为true）
         Dictionary<int, bool> HERO_QUALITY = new Dictionary<int, bool>();
         // 每品阶英雄所需穿戴的装备数量
-        int HERO_EQUIPMENTCOUNT = 4;
+        const int HERO_EQUIPMENT_COUNT = 4;
 
-        string heroQualityConfigKey = "$heroQuality";
-        if (AppValues.ConfigData.ContainsKey(heroQualityConfigKey))
+        const string HERO_QUALITY_CONFIG_KEY = "$heroQuality";
+        if (AppValues.ConfigData.ContainsKey(HERO_QUALITY_CONFIG_KEY))
         {
-            string configString = AppValues.ConfigData[heroQualityConfigKey];
+            string configString = AppValues.ConfigData[HERO_QUALITY_CONFIG_KEY];
             // 去除首尾花括号后，通过英文逗号分隔每个有效值即可
             if (!(configString.StartsWith("{") && configString.EndsWith("}")))
             {
-                errorString = string.Format("表示英雄所有品阶的配置{0}错误，必须在首尾用一对花括号包裹整个定义内容，请修正后重试\n", heroQualityConfigKey);
+                errorString = string.Format("表示英雄所有品阶的配置{0}错误，必须在首尾用一对花括号包裹整个定义内容，请修正后重试\n", HERO_QUALITY_CONFIG_KEY);
                 return false;
             }
             string temp = configString.Substring(1, configString.Length - 2).Trim();
             string[] values = temp.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             if (values.Length < 1)
             {
-                errorString = string.Format("表示英雄所有品阶的配置{0}错误，不允许为空值，请修正后重试\n", heroQualityConfigKey);
+                errorString = string.Format("表示英雄所有品阶的配置{0}错误，不允许为空值，请修正后重试\n", HERO_QUALITY_CONFIG_KEY);
                 return false;
             }
 
@@ -244,27 +244,27 @@ public static class MyCheckFunction
                 if (int.TryParse(oneValueString, out oneValue) == true)
                 {
                     if (HERO_QUALITY.ContainsKey(oneValue))
-                        Utils.LogWarning(string.Format("警告：表示英雄所有品阶的配置{0}错误，出现了相同的品阶\"{1}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", heroQualityConfigKey, oneValue));
+                        Utils.LogWarning(string.Format("警告：表示英雄所有品阶的配置{0}错误，出现了相同的品阶\"{1}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", HERO_QUALITY_CONFIG_KEY, oneValue));
                     else
                         HERO_QUALITY.Add(oneValue, true);
                 }
                 else
                 {
-                    errorString = string.Format("表示英雄所有品阶的配置{0}错误，出现了非int型有效值的规则定义，其为\"{1}\"，请修正后重试\n", heroQualityConfigKey, oneValueString);
+                    errorString = string.Format("表示英雄所有品阶的配置{0}错误，出现了非int型有效值的规则定义，其为\"{1}\"，请修正后重试\n", HERO_QUALITY_CONFIG_KEY, oneValueString);
                     return false;
                 }
             }
         }
         else
         {
-            errorString = string.Format("config配置文件找不到名为\"{0}\"的表示英雄所有品阶的配置，无法进行HeroEquipment整表的检查，请填写配置后再重试\n", heroQualityConfigKey);
+            errorString = string.Format("config配置文件找不到名为\"{0}\"的表示英雄所有品阶的配置，无法进行HeroEquipment整表的检查，请填写配置后再重试\n", HERO_QUALITY_CONFIG_KEY);
             return false;
         }
 
         // 获取检查涉及的字段数据
-        string HERO_ID_FIELD_NAME = "heroId";
-        string HERO_QUALITY_FIELD_NAME = "heroQuality";
-        string SEQ_FIELD_NAME = "seq";
+        const string HERO_ID_FIELD_NAME = "heroId";
+        const string HERO_QUALITY_FIELD_NAME = "heroQuality";
+        const string SEQ_FIELD_NAME = "seq";
         List<object> heroIdList = null;
         List<object> heroQualityList = null;
         List<object> equipmentSeqList = null;
@@ -294,7 +294,7 @@ public static class MyCheckFunction
         if (AppValues.IsAllowedNullNumber == true)
         {
             FieldCheckRule numberNotEmptyCheckRule = new FieldCheckRule();
-            numberNotEmptyCheckRule.CheckType = TABLE_CHECK_TYPE.NOT_EMPTY;
+            numberNotEmptyCheckRule.CheckType = TableCheckType.NotEmpty;
             numberNotEmptyCheckRule.CheckRuleString = "notEmpty";
 
             TableCheckHelper.CheckNotEmpty(tableInfo.GetFieldInfoByFieldName(HERO_ID_FIELD_NAME), numberNotEmptyCheckRule, out errorString);
@@ -365,7 +365,7 @@ public static class MyCheckFunction
             {
                 var seqInfo = oneQualityInfo.Value;
                 List<int> seqList = new List<int>(seqInfo.Keys);
-                for (int seq = 1; seq <= HERO_EQUIPMENTCOUNT; ++seq)
+                for (int seq = 1; seq <= HERO_EQUIPMENT_COUNT; ++seq)
                 {
                     if (!seqList.Contains(seq) && LEGAL_QUALITY_LIST.Contains(oneQualityInfo.Key))
                         errorStringBuilder.AppendFormat("英雄（heroId={0}）在品质为{1}下缺少第{2}个槽位的装备配置\n", heroInfo.Key, oneQualityInfo.Key, seq);

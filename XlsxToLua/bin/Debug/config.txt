@@ -2,6 +2,18 @@
 
 ####连接MySQL数据库的参数字符串
 connectMySQLString:server=127.0.0.1;port=3306;uid=root;password=root;database=mydb;
+####未声明date型的输入格式时所采用的默认格式（支持以下几种：1、符合C#类库要求的标准时间格式。2、#1970sec表示距离1970年1月1日的秒数，#1970msec则为毫秒数）
+defaultDateInputFormat:yyyy-MM-dd HH:mm:ss
+####未声明date型导出至lua文件的格式时所采用的默认格式（支持以下几种：1、string型的时间格式。2、#1970sec或#1970msec。3、#dateTable表示生成os.date("!*t",xxx)这样的代码）
+defaultDateToLuaFormat:yyyy-MM-dd HH:mm:ss
+####未声明date型导出至MySQL数据库的格式时所采用的默认格式（支持以下几种：1、符合C#类库要求的标准时间格式。2、#1970sec或#1970msec）
+defaultDateToDatabaseFormat:yyyy-MM-dd HH:mm:ss
+####未声明time型的输入格式时所采用的默认格式（支持以下几种：1、符合C#类库要求的标准时间格式。2、#sec表示距离0点的秒数）
+defaultTimeInputFormat:HH:mm:ss
+####未声明time型导出至lua文件的格式时所采用的默认格式（支持以下几种：1、string型的时间格式。2、#sec）
+defaultTimeToLuaFormat:HH:mm:ss
+####未声明time型导出至MySQL数据库的格式时所采用的默认格式（支持以下几种：1、符合C#类库要求的标准时间格式。2、#sec）
+defaultTimeToDatabaseFormat:HH:mm:ss
 
 ####以下为表格检查规则
 
@@ -23,6 +35,7 @@ $heroQuality:{10,20,21,30,31,32,40,41,42,43}
 $heroEquipmentSeq:[1,4]
 ####英雄等级范围
 $heroRank:[1,60]
+
 
 ####以下为常量配置
 

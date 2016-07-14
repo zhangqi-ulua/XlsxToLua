@@ -19,17 +19,19 @@ public class AppValues
 
     // config配置文件中的配置项key名
     // MySQL连接字符串
-    public const string APP_CONFIG_MYSQL_CONNECT_STRING_KEY = "connectMySQLString";
+    public const string APP_CONFIG_KEY_MYSQL_CONNECT_STRING = "connectMySQLString";
     // 导出Excel文件所在路径
-    public const string APP_CONFIG_EXPORT_EXCEL_PATH_KEY = "exportExcelPath";
+    public const string APP_CONFIG_KEY_EXPORT_EXCEL_PATH = "exportExcelPath";
     // 需导出的数据表的表名
-    public const string APP_CONFIG_EXPORT_DATA_TABLE_NAMES_KEY = "exportDataTableNames";
+    public const string APP_CONFIG_KEY_EXPORT_DATA_TABLE_NAMES = "exportDataTableNames";
+    // 生成的Excel文件中列的最大宽度
+    public const string APP_CONFIG_KEY_EXCEL_COLUMN_MAX_WIDTH = "columnMaxWidth";
     // 各列背景色的ColorIndex
-    public const string APP_CONFIG_COLUMN_BACKGROUND_COLOR_KEY = "columnBackgroundColor";
+    public const string APP_CONFIG_KEY_COLUMN_BACKGROUND_COLOR = "columnBackgroundColor";
     // data表标签按钮背景色的ColorIndex
-    public const string APP_CONFIG_DATA_SHEET_TAB_COLOR_KEY = "dataSheetTabColor";
+    public const string APP_CONFIG_KEY_DATA_SHEET_TAB_COLOR = "dataSheetTabColor";
     // config表标签按钮背景色的ColorIndex
-    public const string APP_CONFIG_CONFIG_SHEET_TAB_COLOR_KEY = "configSheetTabColor";
+    public const string APP_CONFIG_KEY_CONFIG_SHEET_TAB_COLOR = "configSheetTabColor";
 
     // 每张Excel表格中，名为data的Sheet表前五行分别声明字段描述、字段变量名、字段数据类型、字段检查规则、导出到数据库中的字段名及类型（行编号从1开始）
     public const int DATA_FIELD_DESC_INDEX = 1;
@@ -42,6 +44,11 @@ public class AppValues
     // 每张Excel表格中，名为config的Sheet表可用的配置参数
     // 声明某张表格导出到数据库中的表名
     public const string CONFIG_NAME_EXPORT_DATABASE_TABLE_NAME = "exportDatabaseTableName";
+
+    // MySQL中datetime、date、time三种类型的默认格式
+    public const string DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public const string DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+    public const string DEFAULT_TIME_FORMAT = "HH:mm:ss";
 
     /// <summary>
     /// 本工具所在目录，不能用System.Environment.CurrentDirectory因为当本工具被其他程序调用时取得的CurrentDirectory将是调用者的路径
@@ -57,6 +64,11 @@ public class AppValues
     /// 设置的导出Excel文件的存储路径
     /// </summary>
     public static string ExportExcelPath = null;
+
+    /// <summary>
+    /// 设置的Excel文件中列的最大宽度
+    /// </summary>
+    public static double ExcelColumnMaxWidth = -1;
 
     /// <summary>
     /// 设置的各列背景色的ColorIndex

@@ -19,10 +19,10 @@ public class MySQLOperateHelper
 
     public static bool ConnectToDatabase(out string errorString)
     {
-        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_MYSQL_CONNECT_STRING_KEY))
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_MYSQL_CONNECT_STRING))
         {
             // 提取MySQL连接字符串中的Schema名
-            string connectString = AppValues.ConfigData[AppValues.APP_CONFIG_MYSQL_CONNECT_STRING_KEY];
+            string connectString = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_MYSQL_CONNECT_STRING];
             foreach (string legalSchemaNameParam in _DEFINE_SCHEMA_NAME_PARAM)
             {
                 int defineStartIndex = connectString.IndexOf(legalSchemaNameParam, StringComparison.CurrentCultureIgnoreCase);
@@ -99,7 +99,7 @@ public class MySQLOperateHelper
         }
         else
         {
-            errorString = string.Format("未在config配置文件中以名为\"{0}\"的key声明连接MySQL的字符串", AppValues.APP_CONFIG_MYSQL_CONNECT_STRING_KEY);
+            errorString = string.Format("未在config配置文件中以名为\"{0}\"的key声明连接MySQL的字符串", AppValues.APP_CONFIG_KEY_MYSQL_CONNECT_STRING);
             return false;
         }
     }

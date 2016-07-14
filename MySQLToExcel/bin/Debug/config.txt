@@ -5,7 +5,10 @@ connectMySQLString:server=127.0.0.1;port=3306;uid=root;password=root;database=my
 exportExcelPath:ExportExcel
 
 ####需要导出的数据表名（用|分隔）
-exportDataTableNames:hero|hero_equipment|prop|system
+exportDataTableNames:hero|hero_equipment|prop|system|test_export_time_type_to_mysql
+
+####生成的Excel文件中列的最大宽度
+columnMaxWidth:25
 
 ####各列背景色的ColorIndex（用英文逗号分隔，本工具将循环设置，颜色编号参看https://msdn.microsoft.com/en-us/library/cc296089.aspx）
 columnBackgroundColor:34,36,40,24

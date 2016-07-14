@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -96,37 +97,42 @@ public class TableCheckHelper
         {
             switch (checkRule.CheckType)
             {
-                case TABLE_CHECK_TYPE.UNIQUE:
+                case TableCheckType.Unique:
                     {
                         CheckUnique(fieldInfo, checkRule, out errorString);
                         break;
                     }
-                case TABLE_CHECK_TYPE.NOT_EMPTY:
+                case TableCheckType.NotEmpty:
                     {
                         CheckNotEmpty(fieldInfo, checkRule, out errorString);
                         break;
                     }
-                case TABLE_CHECK_TYPE.REF:
+                case TableCheckType.Ref:
                     {
                         CheckRef(fieldInfo, checkRule, out errorString);
                         break;
                     }
-                case TABLE_CHECK_TYPE.RANGE:
+                case TableCheckType.Range:
                     {
                         CheckRange(fieldInfo, checkRule, out errorString);
                         break;
                     }
-                case TABLE_CHECK_TYPE.EFFECTIVE:
+                case TableCheckType.Effective:
                     {
                         CheckEffective(fieldInfo, checkRule, out errorString);
                         break;
                     }
-                case TABLE_CHECK_TYPE.FILE:
+                case TableCheckType.GreaterThan:
+                    {
+                        CheckGreaterThan(fieldInfo, checkRule, out errorString);
+                        break;
+                    }
+                case TableCheckType.File:
                     {
                         CheckFile(fieldInfo, checkRule, out errorString);
                         break;
                     }
-                case TABLE_CHECK_TYPE.FUNC:
+                case TableCheckType.Func:
                     {
                         CheckFunc(fieldInfo, checkRule, out errorString);
                         break;
@@ -203,35 +209,42 @@ public class TableCheckHelper
         if (ruleString.StartsWith("notEmpty", StringComparison.CurrentCultureIgnoreCase))
         {
             FieldCheckRule checkRule = new FieldCheckRule();
-            checkRule.CheckType = TABLE_CHECK_TYPE.NOT_EMPTY;
+            checkRule.CheckType = TableCheckType.NotEmpty;
             checkRule.CheckRuleString = ruleString;
             oneCheckRule.Add(checkRule);
         }
         else if (ruleString.StartsWith("unique", StringComparison.CurrentCultureIgnoreCase))
         {
             FieldCheckRule checkRule = new FieldCheckRule();
-            checkRule.CheckType = TABLE_CHECK_TYPE.UNIQUE;
+            checkRule.CheckType = TableCheckType.Unique;
             checkRule.CheckRuleString = ruleString;
             oneCheckRule.Add(checkRule);
         }
         else if (ruleString.StartsWith("ref", StringComparison.CurrentCultureIgnoreCase))
         {
             FieldCheckRule checkRule = new FieldCheckRule();
-            checkRule.CheckType = TABLE_CHECK_TYPE.REF;
+            checkRule.CheckType = TableCheckType.Ref;
+            checkRule.CheckRuleString = ruleString;
+            oneCheckRule.Add(checkRule);
+        }
+        else if (ruleString.StartsWith(">") || ruleString.StartsWith(">="))
+        {
+            FieldCheckRule checkRule = new FieldCheckRule();
+            checkRule.CheckType = TableCheckType.GreaterThan;
             checkRule.CheckRuleString = ruleString;
             oneCheckRule.Add(checkRule);
         }
         else if (ruleString.StartsWith("func", StringComparison.CurrentCultureIgnoreCase))
         {
             FieldCheckRule checkRule = new FieldCheckRule();
-            checkRule.CheckType = TABLE_CHECK_TYPE.FUNC;
+            checkRule.CheckType = TableCheckType.Func;
             checkRule.CheckRuleString = ruleString;
             oneCheckRule.Add(checkRule);
         }
         else if (ruleString.StartsWith("file", StringComparison.CurrentCultureIgnoreCase))
         {
             FieldCheckRule checkRule = new FieldCheckRule();
-            checkRule.CheckType = TABLE_CHECK_TYPE.FILE;
+            checkRule.CheckType = TableCheckType.File;
             checkRule.CheckRuleString = ruleString;
             oneCheckRule.Add(checkRule);
         }
@@ -269,14 +282,14 @@ public class TableCheckHelper
         else if (ruleString.StartsWith("{"))
         {
             FieldCheckRule checkRule = new FieldCheckRule();
-            checkRule.CheckType = TABLE_CHECK_TYPE.EFFECTIVE;
+            checkRule.CheckType = TableCheckType.Effective;
             checkRule.CheckRuleString = ruleString;
             oneCheckRule.Add(checkRule);
         }
         else if (ruleString.StartsWith("(") || ruleString.StartsWith("["))
         {
             FieldCheckRule checkRule = new FieldCheckRule();
-            checkRule.CheckType = TABLE_CHECK_TYPE.RANGE;
+            checkRule.CheckType = TableCheckType.Range;
             checkRule.CheckRuleString = ruleString;
             oneCheckRule.Add(checkRule);
         }
@@ -290,7 +303,7 @@ public class TableCheckHelper
     }
 
     /// <summary>
-    /// 用于输入数据的非空检查，适用于int、float、string或lang型
+    /// 用于输入数据的非空检查，适用于int、long、float、string、lang、date或time型
     /// 注意：string类型要求字符串不能为空但允许为连续空格字符串，如果也不允许为连续空格字符串，需要声明为notEmpty[trim]
     /// 注意：lang类型声明notEmpty[key]只检查是否填写了key值，声明notEmpty[value]只检查填写的key在相应的lang文件中能找到对应的value，声明notEmpty[key|value]或notEmpty则包含这两个要求
     /// </summary>
@@ -352,13 +365,13 @@ public class TableCheckHelper
                 return false;
             }
         }
-        else if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Float)
+        else if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float)
         {
             if (AppValues.IsAllowedNullNumber == true)
             {
                 for (int i = 0; i < fieldInfo.Data.Count; ++i)
                 {
-                    // 如果int、float型字段下取值为null，可能填写的为空值，也可能是父集合类型标为无效
+                    // 如果int、long、float型字段下取值为null，可能填写的为空值，也可能是父集合类型标为无效
                     if (fieldInfo.ParentField != null)
                     {
                         if ((bool)fieldInfo.ParentField.Data[i] == false)
@@ -371,9 +384,25 @@ public class TableCheckHelper
                 }
             }
         }
+        else if (fieldInfo.DataType == DataType.Date || fieldInfo.DataType == DataType.Time)
+        {
+            for (int i = 0; i < fieldInfo.Data.Count; ++i)
+            {
+                // 如果date、time型字段下取值为null，可能填写的为空值，也可能是父集合类型标为无效
+                if (fieldInfo.ParentField != null)
+                {
+                    if ((bool)fieldInfo.ParentField.Data[i] == false)
+                        continue;
+                    else if (fieldInfo.ParentField.ParentField != null && (bool)fieldInfo.ParentField.ParentField.Data[i] == false)
+                        continue;
+                }
+                else if (fieldInfo.Data[i] == null)
+                    emptyDataLines.Add(i);
+            }
+        }
         else
         {
-            errorString = string.Format("数据非空检查规则只适用于string或lang类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
+            errorString = string.Format("数据非空检查规则只适用于int、long、float、string、lang、date或time类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
             return false;
         }
 
@@ -434,15 +463,15 @@ public class TableCheckHelper
     }
 
     /// <summary>
-    /// 用于数据唯一性检查，适用于string、int、float或lang类型
+    /// 用于数据唯一性检查，适用于string、int、long、float或lang类型
     /// 注意：string型、lang型如果填写或者找到的value为空字符串，允许出现多次为空的情况
     /// 注意：lang型默认只检查key不能重复，如果还想检查不同key对应的value也不能相同则需要声明为unique[value]
     /// </summary>
     public static bool CheckUnique(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
     {
-        if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.String)
+        if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.String || fieldInfo.DataType == DataType.Date || fieldInfo.DataType == DataType.Time)
         {
-            _CheckInputDataUnique(fieldInfo.Data, out errorString);
+            _CheckInputDataUnique(fieldInfo.DataType, fieldInfo.Data, out errorString);
             if (errorString == null)
                 return true;
             else
@@ -456,7 +485,7 @@ public class TableCheckHelper
             // 只检查key则与string、int、float型的操作相同
             if ("unique".Equals(checkRule.CheckRuleString, StringComparison.CurrentCultureIgnoreCase))
             {
-                _CheckInputDataUnique(fieldInfo.LangKeys, out errorString);
+                _CheckInputDataUnique(fieldInfo.DataType, fieldInfo.LangKeys, out errorString);
                 if (errorString == null)
                     return true;
                 else
@@ -467,7 +496,7 @@ public class TableCheckHelper
             }
             else if ("unique[value]".Equals(checkRule.CheckRuleString, StringComparison.CurrentCultureIgnoreCase))
             {
-                _CheckInputDataUnique(fieldInfo.Data, out errorString);
+                _CheckInputDataUnique(fieldInfo.DataType, fieldInfo.Data, out errorString);
                 if (errorString == null)
                     return true;
                 else
@@ -484,16 +513,16 @@ public class TableCheckHelper
         }
         else
         {
-            errorString = string.Format("唯一性检查规则只适用于string、int、float或lang类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
+            errorString = string.Format("唯一性检查规则只适用于string、int、long、float、lang、date或time类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
             return false;
         }
     }
 
     /// <summary>
-    /// 用于检查List中的数据（类型为int、float或string）是否唯一
+    /// 用于检查List中的数据（类型为int、long、reffloat或string）是否唯一
     /// 该函数需传入List而不直接传入FieldInfo是因为对于lang型的检查分为只检查key和一并检查value不能重复，传List则可针对两种情况灵活处理
     /// </summary>
-    private static bool _CheckInputDataUnique(List<object> data, out string errorString)
+    private static bool _CheckInputDataUnique(DataType dataType, List<object> data, out string errorString)
     {
         // 存储每个数据对应的index（key：data， value：index）
         Dictionary<object, int> dataToIndex = new Dictionary<object, int>();
@@ -531,12 +560,17 @@ public class TableCheckHelper
             StringBuilder repeatedLineInfo = new StringBuilder();
             foreach (var item in repeatedDataInfo)
             {
-                repeatedLineInfo.AppendFormat("数据\"{0}\"重复，重复的行号为：", item.Key);
+                if (dataType == DataType.Date)
+                    repeatedLineInfo.AppendFormat("数据\"{0}\"重复，重复的行号为：", ((DateTime)(item.Key)).ToString(AppValues.APP_DEFAULT_DATE_FORMAT));
+                if (dataType == DataType.Time)
+                    repeatedLineInfo.AppendFormat("数据\"{0}\"重复，重复的行号为：", ((DateTime)(item.Key)).ToString(AppValues.APP_DEFAULT_TIME_FORMAT));
+                else
+                    repeatedLineInfo.AppendFormat("数据\"{0}\"重复，重复的行号为：", item.Key);
+
                 List<int> lineIndex = item.Value;
                 foreach (int lineNum in lineIndex)
-                {
                     repeatedLineInfo.Append(lineNum + AppValues.DATA_FIELD_DATA_START_INDEX + 1 + ", ");
-                }
+
                 // 去掉最后多余的", "
                 repeatedLineInfo.Remove(repeatedLineInfo.Length - 2, 2);
                 // 换行
@@ -554,14 +588,15 @@ public class TableCheckHelper
     }
 
     /// <summary>
-    /// 用于int或float两种值类型范围的检查
+    /// 用于int、long、float三种数值类型或date、time两种时间类型的范围检查
     /// </summary>
     public static bool CheckRange(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
     {
-        // 首先要求字段类型只能为int或float型
-        if (!(fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Float))
+        bool isNumberDataType = fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float;
+        bool isTimeDataType = fieldInfo.DataType == DataType.Date || fieldInfo.DataType == DataType.Time;
+        if (isNumberDataType == false && isTimeDataType == false)
         {
-            errorString = string.Format("值范围检查定义只能用于int或float型的字段，而该字段为{0}型\n", fieldInfo.DataType);
+            errorString = string.Format("值范围检查只能用于int、long、float三种数值类型或date、time两种时间类型的字段，而该字段为{0}型\n", fieldInfo.DataType);
             return false;
         }
         // 检查填写的检查规则是否正确
@@ -569,8 +604,10 @@ public class TableCheckHelper
         bool isIncludeCeil;
         bool isCheckFloor;
         bool isCheckCeil;
-        float floorValue = 0;
-        float ceilValue = 0;
+        double floorValue = 0;
+        double ceilValue = 0;
+        DateTime floorDateTime = AppValues.REFERENCE_DATE;
+        DateTime ceilDateTime = AppValues.REFERENCE_DATE;
         // 规则首位必须为方括号或者圆括号
         if (checkRule.CheckRuleString.StartsWith("("))
             isIncludeFloor = false;
@@ -597,7 +634,7 @@ public class TableCheckHelper
         string[] floorAndCeilString = temp.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         if (floorAndCeilString.Length != 2)
         {
-            errorString = "值范围检查定义错误：必须用英文逗号分隔值范围的上下限\n";
+            errorString = "值范围检查定义错误：必须用一个英文逗号分隔值范围的上下限\n";
             return false;
         }
         string floorString = floorAndCeilString[0].Trim();
@@ -608,10 +645,46 @@ public class TableCheckHelper
         else
         {
             isCheckFloor = true;
-            if (float.TryParse(floorString, out floorValue) == false)
+            if (isNumberDataType == true)
             {
-                errorString = string.Format("值范围检查定义错误：下限不是合法的数字，你输入的为{0}\n", floorString);
-                return false;
+                if (double.TryParse(floorString, out floorValue) == false)
+                {
+                    errorString = string.Format("值范围检查定义错误：下限不是合法的数字，你输入的为{0}\n", floorString);
+                    return false;
+                }
+            }
+            else
+            {
+                if (fieldInfo.DataType == DataType.Date)
+                {
+                    try
+                    {
+                        DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
+                        dateTimeFormat.ShortDatePattern = AppValues.APP_DEFAULT_DATE_FORMAT;
+                        floorDateTime = Convert.ToDateTime(floorString, dateTimeFormat);
+                    }
+                    catch
+                    {
+                        errorString = string.Format("值范围检查定义错误：date型下限声明不合法，必须按{0}的形式填写，你输入的为{1}\n", AppValues.APP_DEFAULT_DATE_FORMAT, floorString);
+                        return false;
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
+                        dateTimeFormat.ShortTimePattern = AppValues.APP_DEFAULT_TIME_FORMAT;
+                        // 此函数会将DateTime的日期部分自动赋值为当前时间
+                        DateTime tempDateTime = Convert.ToDateTime(floorString, dateTimeFormat);
+                        floorDateTime = new DateTime(AppValues.REFERENCE_DATE.Year, AppValues.REFERENCE_DATE.Month, AppValues.REFERENCE_DATE.Day, tempDateTime.Hour, tempDateTime.Minute, tempDateTime.Second);
+                    }
+                    catch
+                    {
+                        errorString = string.Format("值范围检查定义错误：time型下限声明不合法，必须按{0}的形式填写，你输入的为{1}\n", AppValues.APP_DEFAULT_TIME_FORMAT, floorString);
+                        return false;
+                    }
+                }
             }
         }
         // 提取上限数值
@@ -620,22 +693,69 @@ public class TableCheckHelper
         else
         {
             isCheckCeil = true;
-            if (float.TryParse(ceilString, out ceilValue) == false)
+            if (isNumberDataType == true)
             {
-                errorString = string.Format("值范围检查定义错误：上限不是合法的数字，你输入的为{0}\n", ceilString);
-                return false;
+                if (double.TryParse(ceilString, out ceilValue) == false)
+                {
+                    errorString = string.Format("值范围检查定义错误：上限不是合法的数字，你输入的为{0}\n", ceilString);
+                    return false;
+                }
+            }
+            else
+            {
+                if (fieldInfo.DataType == DataType.Date)
+                {
+                    try
+                    {
+                        DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
+                        dateTimeFormat.ShortDatePattern = AppValues.APP_DEFAULT_DATE_FORMAT;
+                        ceilDateTime = Convert.ToDateTime(ceilString, dateTimeFormat);
+                    }
+                    catch
+                    {
+                        errorString = string.Format("值范围检查定义错误：date型上限声明不合法，必须按{0}的形式填写，你输入的为{1}\n", AppValues.APP_DEFAULT_DATE_FORMAT, ceilString);
+                        return false;
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
+                        dateTimeFormat.ShortDatePattern = AppValues.APP_DEFAULT_TIME_FORMAT;
+                        // 此函数会将DateTime的日期部分自动赋值为当前时间
+                        DateTime tempDateTime = Convert.ToDateTime(ceilString, dateTimeFormat);
+                        ceilDateTime = new DateTime(AppValues.REFERENCE_DATE.Year, AppValues.REFERENCE_DATE.Month, AppValues.REFERENCE_DATE.Day, tempDateTime.Hour, tempDateTime.Minute, tempDateTime.Second);
+                    }
+                    catch
+                    {
+                        errorString = string.Format("值范围检查定义错误：time型上限声明不合法，必须按{0}的形式填写，你输入的为{1}\n", AppValues.APP_DEFAULT_TIME_FORMAT, ceilString);
+                        return false;
+                    }
+                }
             }
         }
         // 判断上限是否大于下限
-        if (isCheckFloor == true && isCheckCeil == true && floorValue >= ceilValue)
+        if (isNumberDataType == true)
         {
-            errorString = string.Format("值范围检查定义错误：上限值必须大于下限值，你输入的下限为{0}，上限为{1}\n", floorValue, ceilString);
-            return false;
+            if (isCheckFloor == true && isCheckCeil == true && floorValue >= ceilValue)
+            {
+                errorString = string.Format("值范围检查定义错误：上限值必须大于下限值，你输入的下限为{0}，上限为{1}\n", floorString, ceilString);
+                return false;
+            }
+        }
+        else
+        {
+            if (isCheckFloor == true && isCheckCeil == true && floorDateTime >= ceilDateTime)
+            {
+                errorString = string.Format("值范围检查定义错误：上限值必须大于下限值，你输入的下限为{0}，上限为{1}\n", floorDateTime.ToString(AppValues.APP_DEFAULT_DATE_FORMAT), ceilDateTime.ToString(AppValues.APP_DEFAULT_DATE_FORMAT));
+                return false;
+            }
         }
 
         // 进行检查
         // 存储检查出的非法值（key：数据索引， value：填写值）
-        Dictionary<int, float> illegalValue = new Dictionary<int, float>();
+        Dictionary<int, object> illegalValue = new Dictionary<int, object>();
         if (isCheckFloor == true && isCheckCeil == false)
         {
             if (isIncludeFloor == true)
@@ -646,9 +766,18 @@ public class TableCheckHelper
                     if (fieldInfo.Data[i] == null)
                         continue;
 
-                    float inputValue = Convert.ToSingle(fieldInfo.Data[i]);
-                    if (inputValue < floorValue)
-                        illegalValue.Add(i, inputValue);
+                    if (isNumberDataType == true)
+                    {
+                        double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
+                        if (inputValue < floorValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else
+                    {
+                        DateTime inputValue = (DateTime)fieldInfo.Data[i];
+                        if (inputValue < floorDateTime)
+                            illegalValue.Add(i, inputValue);
+                    }
                 }
             }
             else
@@ -658,9 +787,18 @@ public class TableCheckHelper
                     if (fieldInfo.Data[i] == null)
                         continue;
 
-                    float inputValue = Convert.ToSingle(fieldInfo.Data[i]);
-                    if (inputValue <= floorValue)
-                        illegalValue.Add(i, inputValue);
+                    if (isNumberDataType == true)
+                    {
+                        double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
+                        if (inputValue <= floorValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else
+                    {
+                        DateTime inputValue = (DateTime)fieldInfo.Data[i];
+                        if (inputValue <= floorDateTime)
+                            illegalValue.Add(i, inputValue);
+                    }
                 }
             }
         }
@@ -673,9 +811,18 @@ public class TableCheckHelper
                     if (fieldInfo.Data[i] == null)
                         continue;
 
-                    float inputValue = Convert.ToSingle(fieldInfo.Data[i]);
-                    if (inputValue > ceilValue)
-                        illegalValue.Add(i, inputValue);
+                    if (isNumberDataType == true)
+                    {
+                        double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
+                        if (inputValue > ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else
+                    {
+                        DateTime inputValue = (DateTime)fieldInfo.Data[i];
+                        if (inputValue > ceilDateTime)
+                            illegalValue.Add(i, inputValue);
+                    }
                 }
             }
             else
@@ -685,9 +832,18 @@ public class TableCheckHelper
                     if (fieldInfo.Data[i] == null)
                         continue;
 
-                    float inputValue = Convert.ToSingle(fieldInfo.Data[i]);
-                    if (inputValue >= ceilValue)
-                        illegalValue.Add(i, inputValue);
+                    if (isNumberDataType == true)
+                    {
+                        double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
+                        if (inputValue >= ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else
+                    {
+                        DateTime inputValue = (DateTime)fieldInfo.Data[i];
+                        if (inputValue >= ceilDateTime)
+                            illegalValue.Add(i, inputValue);
+                    }
                 }
             }
         }
@@ -700,9 +856,18 @@ public class TableCheckHelper
                     if (fieldInfo.Data[i] == null)
                         continue;
 
-                    float inputValue = Convert.ToSingle(fieldInfo.Data[i]);
-                    if (inputValue <= floorValue || inputValue >= ceilValue)
-                        illegalValue.Add(i, inputValue);
+                    if (isNumberDataType == true)
+                    {
+                        double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
+                        if (inputValue <= floorValue || inputValue >= ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else
+                    {
+                        DateTime inputValue = (DateTime)fieldInfo.Data[i];
+                        if (inputValue <= floorDateTime || inputValue >= ceilDateTime)
+                            illegalValue.Add(i, inputValue);
+                    }
                 }
             }
             else if (isIncludeFloor == true && isIncludeCeil == false)
@@ -712,9 +877,18 @@ public class TableCheckHelper
                     if (fieldInfo.Data[i] == null)
                         continue;
 
-                    float inputValue = Convert.ToSingle(fieldInfo.Data[i]);
-                    if (inputValue < floorValue || inputValue >= ceilValue)
-                        illegalValue.Add(i, inputValue);
+                    if (isNumberDataType == true)
+                    {
+                        double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
+                        if (inputValue < floorValue || inputValue >= ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else
+                    {
+                        DateTime inputValue = (DateTime)fieldInfo.Data[i];
+                        if (inputValue < floorDateTime || inputValue >= ceilDateTime)
+                            illegalValue.Add(i, inputValue);
+                    }
                 }
             }
             else if (isIncludeFloor == false && isIncludeCeil == true)
@@ -724,9 +898,18 @@ public class TableCheckHelper
                     if (fieldInfo.Data[i] == null)
                         continue;
 
-                    float inputValue = Convert.ToSingle(fieldInfo.Data[i]);
-                    if (inputValue <= floorValue || inputValue > ceilValue)
-                        illegalValue.Add(i, inputValue);
+                    if (isNumberDataType == true)
+                    {
+                        double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
+                        if (inputValue <= floorValue || inputValue > ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else
+                    {
+                        DateTime inputValue = (DateTime)fieldInfo.Data[i];
+                        if (inputValue <= floorDateTime || inputValue > ceilDateTime)
+                            illegalValue.Add(i, inputValue);
+                    }
                 }
             }
             else if (isIncludeFloor == true && isIncludeCeil == true)
@@ -736,9 +919,18 @@ public class TableCheckHelper
                     if (fieldInfo.Data[i] == null)
                         continue;
 
-                    float inputValue = Convert.ToSingle(fieldInfo.Data[i]);
-                    if (inputValue < floorValue || inputValue > ceilValue)
-                        illegalValue.Add(i, inputValue);
+                    if (isNumberDataType == true)
+                    {
+                        double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
+                        if (inputValue < floorValue || inputValue > ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else
+                    {
+                        DateTime inputValue = (DateTime)fieldInfo.Data[i];
+                        if (inputValue < floorDateTime || inputValue > ceilDateTime)
+                            illegalValue.Add(i, inputValue);
+                    }
                 }
             }
         }
@@ -746,8 +938,21 @@ public class TableCheckHelper
         if (illegalValue.Count > 0)
         {
             StringBuilder illegalValueInfo = new StringBuilder();
-            foreach (var item in illegalValue)
-                illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不满足要求\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
+            if (isNumberDataType == true)
+            {
+                foreach (var item in illegalValue)
+                    illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不满足要求\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
+            }
+            else if (fieldInfo.DataType == DataType.Date)
+            {
+                foreach (var item in illegalValue)
+                    illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不满足要求\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, ((DateTime)(item.Value)).ToString(AppValues.APP_DEFAULT_DATE_FORMAT));
+            }
+            else if (fieldInfo.DataType == DataType.Time)
+            {
+                foreach (var item in illegalValue)
+                    illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不满足要求\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, ((DateTime)(item.Value)).ToString(AppValues.APP_DEFAULT_TIME_FORMAT));
+            }
 
             errorString = illegalValueInfo.ToString();
             return false;
@@ -760,11 +965,11 @@ public class TableCheckHelper
     }
 
     /// <summary>
-    /// 用于int、float或string型取值必须为指定有效取值中的一个的检查
+    /// 用于int、long、float、string、date或time型取值必须为指定有效取值中的一个的检查
     /// </summary>
     public static bool CheckEffective(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
     {
-        if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Float)
+        if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.Date || fieldInfo.DataType == DataType.Time)
         {
             // 去除首尾花括号后，通过英文逗号分隔每个有效值即可
             if (!(checkRule.CheckRuleString.StartsWith("{") && checkRule.CheckRuleString.EndsWith("}")))
@@ -781,15 +986,15 @@ public class TableCheckHelper
 
             string[] values = temp.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            if (fieldInfo.DataType == DataType.Int)
+            if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long)
             {
                 // 存储读取的用户设置的有效值（key：有效值， value：恒为true）
-                Dictionary<int, bool> effectiveValues = new Dictionary<int, bool>();
+                Dictionary<long, bool> effectiveValues = new Dictionary<long, bool>();
                 for (int i = 0; i < values.Length; ++i)
                 {
                     string oneValueString = values[i].Trim();
-                    int oneValue;
-                    if (int.TryParse(oneValueString, out oneValue) == true)
+                    long oneValue;
+                    if (long.TryParse(oneValueString, out oneValue) == true)
                     {
                         if (effectiveValues.ContainsKey(oneValue))
                             Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue));
@@ -798,20 +1003,20 @@ public class TableCheckHelper
                     }
                     else
                     {
-                        errorString = string.Format("值有效性检查定义错误：出现了非int型有效值的规则定义，其为\"{0}\"\n", oneValueString);
+                        errorString = string.Format("值有效性检查定义错误：出现了非{0}型有效值的规则定义，其为\"{1}\"\n", fieldInfo.DataType, oneValueString);
                         return false;
                     }
                 }
                 // 对本列所有数据进行检查
                 // 存储检查出的非法值（key：数据索引， value：填写值）
-                Dictionary<int, int> illegalValue = new Dictionary<int, int>();
+                Dictionary<int, long> illegalValue = new Dictionary<int, long>();
                 for (int i = 0; i < fieldInfo.Data.Count; ++i)
                 {
                     // 忽略无效集合元素下属子类型的空值或本身为空值
                     if (fieldInfo.Data[i] == null)
                         continue;
 
-                    int inputData = Convert.ToInt32(fieldInfo.Data[i]);
+                    long inputData = Convert.ToInt64(fieldInfo.Data[i]);
                     if (!effectiveValues.ContainsKey(inputData))
                         illegalValue.Add(i, inputData);
                 }
@@ -831,7 +1036,7 @@ public class TableCheckHelper
                     return true;
                 }
             }
-            else
+            else if (fieldInfo.DataType == DataType.Float)
             {
                 // 存储读取的用户设置的有效值（key：有效值， value：恒为true）
                 Dictionary<float, bool> effectiveValues = new Dictionary<float, bool>();
@@ -880,6 +1085,118 @@ public class TableCheckHelper
                     errorString = null;
                     return true;
                 }
+            }
+            else if (fieldInfo.DataType == DataType.Date)
+            {
+                DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
+                dateTimeFormat.ShortDatePattern = AppValues.APP_DEFAULT_DATE_FORMAT;
+                // 存储读取的用户设置的有效值（key：有效值， value：恒为true）
+                Dictionary<DateTime, bool> effectiveValues = new Dictionary<DateTime, bool>();
+                for (int i = 0; i < values.Length; ++i)
+                {
+                    string oneValueString = values[i].Trim();
+                    try
+                    {
+                        DateTime oneValue = Convert.ToDateTime(oneValueString, dateTimeFormat);
+                        if (effectiveValues.ContainsKey(oneValue))
+                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT)));
+                        else
+                            effectiveValues.Add(oneValue, true);
+                    }
+                    catch
+                    {
+                        errorString = string.Format("值有效性检查定义错误：出现了非法的date型有效值定义，其为\"{0}\"，请按{1}的形式填写", oneValueString, AppValues.APP_DEFAULT_DATE_FORMAT);
+                        return false;
+                    }
+                }
+                // 对本列所有数据进行检查
+                // 存储检查出的非法值（key：数据索引， value：填写值）
+                Dictionary<int, DateTime> illegalValue = new Dictionary<int, DateTime>();
+                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                {
+                    // 忽略无效集合元素下属子类型的空值或本身为空值
+                    if (fieldInfo.Data[i] == null)
+                        continue;
+
+                    DateTime inputData = (DateTime)fieldInfo.Data[i];
+                    if (!effectiveValues.ContainsKey(inputData))
+                        illegalValue.Add(i, inputData);
+                }
+
+                if (illegalValue.Count > 0)
+                {
+                    StringBuilder illegalValueInfo = new StringBuilder();
+                    foreach (var item in illegalValue)
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, ((DateTime)(item.Value)).ToString(AppValues.APP_DEFAULT_DATE_FORMAT));
+
+                    errorString = illegalValueInfo.ToString();
+                    return false;
+                }
+                else
+                {
+                    errorString = null;
+                    return true;
+                }
+            }
+            else if (fieldInfo.DataType == DataType.Time)
+            {
+                DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
+                dateTimeFormat.ShortTimePattern = AppValues.APP_DEFAULT_TIME_FORMAT;
+                // 存储读取的用户设置的有效值（key：有效值， value：恒为true）
+                Dictionary<DateTime, bool> effectiveValues = new Dictionary<DateTime, bool>();
+                for (int i = 0; i < values.Length; ++i)
+                {
+                    string oneValueString = values[i].Trim();
+                    try
+                    {
+                        // 此函数会将DateTime的日期部分自动赋值为当前时间
+                        DateTime tempDateTime = Convert.ToDateTime(oneValueString, dateTimeFormat);
+                        DateTime oneValue = new DateTime(AppValues.REFERENCE_DATE.Year, AppValues.REFERENCE_DATE.Month, AppValues.REFERENCE_DATE.Day, tempDateTime.Hour, tempDateTime.Minute, tempDateTime.Second);
+                        if (effectiveValues.ContainsKey(oneValue))
+                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT)));
+                        else
+                            effectiveValues.Add(oneValue, true);
+                    }
+                    catch
+                    {
+                        errorString = string.Format("值有效性检查定义错误：出现了非法的time型有效值定义，其为\"{0}\"，请按{1}的形式填写", oneValueString, AppValues.APP_DEFAULT_TIME_FORMAT);
+                        return false;
+                    }
+                }
+                // 对本列所有数据进行检查
+                // 存储检查出的非法值（key：数据索引， value：填写值）
+                Dictionary<int, DateTime> illegalValue = new Dictionary<int, DateTime>();
+                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                {
+                    // 忽略无效集合元素下属子类型的空值或本身为空值
+                    if (fieldInfo.Data[i] == null)
+                        continue;
+
+                    DateTime inputData = (DateTime)fieldInfo.Data[i];
+                    if (!effectiveValues.ContainsKey(inputData))
+                        illegalValue.Add(i, inputData);
+                }
+
+                if (illegalValue.Count > 0)
+                {
+                    StringBuilder illegalValueInfo = new StringBuilder();
+                    foreach (var item in illegalValue)
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, ((DateTime)(item.Value)).ToString(AppValues.APP_DEFAULT_TIME_FORMAT));
+
+                    errorString = illegalValueInfo.ToString();
+                    return false;
+                }
+                else
+                {
+                    errorString = null;
+                    return true;
+                }
+            }
+            else
+            {
+                errorString = "用CheckEffective函数检查了非int、long、float、date、time型的字段";
+                Utils.LogErrorAndExit(errorString);
+                return false;
             }
         }
         else if (fieldInfo.DataType == DataType.String)
@@ -974,8 +1291,418 @@ public class TableCheckHelper
         }
         else
         {
-            errorString = string.Format("值有效性检查定义只能用于int、float或string型的字段，而该字段为{0}型\n", fieldInfo.DataType);
+            errorString = string.Format("值有效性检查定义只能用于int、long、float、string、date或time型的字段，而该字段为{0}型\n", fieldInfo.DataType);
             return false;
+        }
+    }
+
+    /// <summary>
+    /// 通过索引定义字符串，找到某张表格中的指定字段，若字段为dict的子元素，用“.”进行层层索引，若为array的子元素，用进行[x]索引
+    /// </summary>
+    public static FieldInfo GetFieldByIndexDefineString(string indexDefineString, TableInfo tableInfo, out string errorString)
+    {
+        FieldInfo fieldInfo = null;
+        if (string.IsNullOrEmpty(indexDefineString.Trim()))
+        {
+            errorString = "输入的索引定义字符串不允许为空";
+            return null;
+        }
+        indexDefineString = indexDefineString.Trim();
+        // 如果是独立字段
+        if (indexDefineString.IndexOf('.') == -1 && indexDefineString.IndexOf('[') == -1)
+        {
+            fieldInfo = tableInfo.GetFieldInfoByFieldName(indexDefineString);
+            if (fieldInfo == null)
+            {
+                errorString = string.Format("此表格中不存在名为\"{0}\"的字段，若此字段为dict或array的子元素，请通过.或[x]的形式索引到该子字段", indexDefineString);
+                return null;
+            }
+        }
+        else
+        {
+            StringBuilder tempFieldNameBuilder = new StringBuilder();
+            StringBuilder tempArrayIndexBuilder = new StringBuilder();
+            bool isInBracket = false;
+            bool isAfterDot = false;
+            for (int i = 0; i < indexDefineString.Length; ++i)
+            {
+                char currentChar = indexDefineString[i];
+                if (currentChar == '.')
+                {
+                    if (isInBracket == true)
+                    {
+                        errorString = string.Format("索引array的[]中不允许出现小数点，截止到出错位置的定义字符串为{0}", indexDefineString.Substring(0, i + 1));
+                        return null;
+                    }
+                    if (i - 1 >= 0 && indexDefineString[i - 1] == '.')
+                    {
+                        errorString = string.Format("索引定义字符串中出现了连续的小数点，截止到出错位置的定义字符串为{0}", indexDefineString.Substring(0, i + 1));
+                        return null;
+                    }
+
+                    string tempFieldName = tempFieldNameBuilder.ToString();
+                    // 处理array嵌套dict，形如rewardList[1].rewardType的情况
+                    if (string.IsNullOrEmpty(tempFieldName))
+                    {
+                        if (fieldInfo == null)
+                        {
+                            errorString = string.Format("小数点必须声明在dict型字段的变量名之后，用于索引dict型字段，截止到出错位置的定义字符串为{0}", indexDefineString.Substring(0, i + 1));
+                            return null;
+                        }
+                        if (fieldInfo.DataType != DataType.Dict)
+                        {
+                            if (fieldInfo.DataType == DataType.Array)
+                                errorString = string.Format("用小数点只能索引dict型字段，而你索引的是array型字段\"{0}\"，请使用[]来索引array型字段", fieldInfo.FieldName);
+                            else
+                                errorString = string.Format("用小数点只能索引dict型字段，而你索引的是{0}型字段\"{1}\"", fieldInfo.DataType, fieldInfo.FieldName);
+
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        // 处理dict嵌套dict，形如systemConfigDict.audioConfigDict.isOpen的情况
+                        if (fieldInfo != null && fieldInfo.DataType == DataType.Dict)
+                        {
+                            bool isFoundDictChildField = false;
+                            foreach (FieldInfo dictChildField in fieldInfo.ChildField)
+                            {
+                                if (tempFieldName.Equals(dictChildField.FieldName))
+                                {
+                                    fieldInfo = dictChildField;
+                                    isFoundDictChildField = true;
+                                    break;
+                                }
+                            }
+                            if (isFoundDictChildField == false)
+                            {
+                                errorString = string.Format("dict型字段中不存在名为\"{0}\"的子元素，截止到出错位置的定义字符串为{1}", tempFieldName, indexDefineString.Substring(0, i + 1));
+                                return null;
+                            }
+                        }
+                        else
+                        {
+                            fieldInfo = tableInfo.GetFieldInfoByFieldName(tempFieldName);
+                            if (fieldInfo == null)
+                            {
+                                errorString = string.Format("此表格中不存在名为\"{0}\"的字段，截止到出错位置的定义字符串为{1}", tempFieldName, indexDefineString.Substring(0, i + 1));
+                                return null;
+                            }
+                            if (fieldInfo.DataType != DataType.Dict)
+                            {
+                                if (fieldInfo.DataType == DataType.Array)
+                                    errorString = string.Format("用小数点只能索引dict型字段，而你索引的是array型字段\"{0}\"，请使用[]来索引array型字段", tempFieldName);
+                                else
+                                    errorString = string.Format("用小数点只能索引dict型字段，而你索引的是{0}型字段\"{1}\"", fieldInfo.DataType, tempFieldName);
+
+                                return null;
+                            }
+                        }
+                    }
+
+                    isAfterDot = true;
+                    tempFieldNameBuilder = new StringBuilder();
+                }
+                else if (currentChar == '[')
+                {
+                    if (isInBracket == true)
+                    {
+                        errorString = string.Format("索引定义中括号不匹配，截止到出错位置的定义字符串为{0}", indexDefineString.Substring(0, i + 1));
+                        return null;
+                    }
+                    // 排除array嵌套array，形如array[1][1]的情况
+                    if (!(fieldInfo != null && fieldInfo.DataType == DataType.Array))
+                    {
+                        // 处理dict嵌套array，形如pveBattleConfig.eliteBattleConfig[1]的情况
+                        if (fieldInfo != null && fieldInfo.DataType == DataType.Dict)
+                        {
+                            string tempFieldName = tempFieldNameBuilder.ToString();
+                            bool isFoundDictChildField = false;
+                            foreach (FieldInfo dictChildField in fieldInfo.ChildField)
+                            {
+                                if (tempFieldName.Equals(dictChildField.FieldName))
+                                {
+                                    fieldInfo = dictChildField;
+                                    isFoundDictChildField = true;
+                                    break;
+                                }
+                            }
+                            if (isFoundDictChildField == false)
+                            {
+                                errorString = string.Format("dict型字段\"{0}\"中不存在名为\"{1}\"的子元素", fieldInfo.FieldName, tempFieldName);
+                                return null;
+                            }
+                        }
+                        else
+                        {
+                            string tempFieldName = tempFieldNameBuilder.ToString();
+                            fieldInfo = tableInfo.GetFieldInfoByFieldName(tempFieldName);
+                            if (fieldInfo == null)
+                            {
+                                errorString = string.Format("此表格中不存在名为\"{0}\"的字段，截止到出错位置的定义字符串为{1}", tempFieldName, indexDefineString.Substring(0, i + 1));
+                                return null;
+                            }
+                            if (fieldInfo.DataType != DataType.Array)
+                            {
+                                if (fieldInfo.DataType == DataType.Dict)
+                                    errorString = string.Format("用[]只能索引array型字段，而你索引的是dict型字段\"{0}\"，请使用小数点来索引dict型字段", tempFieldName);
+                                else
+                                    errorString = string.Format("用[]只能索引array型字段，而你索引的是{0}型字段\"{1}\"", fieldInfo.DataType, tempFieldName);
+
+                                return null;
+                            }
+                        }
+                    }
+
+                    isInBracket = true;
+                    isAfterDot = false;
+                    tempFieldNameBuilder = new StringBuilder();
+                }
+                else if (currentChar == ']')
+                {
+                    if (isInBracket == false)
+                    {
+                        errorString = string.Format("索引定义中括号不匹配，截止到出错位置的定义字符串为{0}", indexDefineString.Substring(0, i + 1));
+                        return null;
+                    }
+                    string arrayIndexString = tempArrayIndexBuilder.ToString();
+                    int arrayIndex = -1;
+                    if (int.TryParse(arrayIndexString, out arrayIndex) == true)
+                    {
+                        if (arrayIndex > 0)
+                        {
+                            int arrayChildCount = fieldInfo.ChildField.Count;
+                            if (arrayIndex > arrayChildCount)
+                            {
+                                errorString = string.Format("对array型字段\"{0}\"进行索引的数字非法，其只有{1}个子元素，而你要取第{2}个子元素", fieldInfo.FieldName, arrayChildCount, arrayIndex);
+                                return null;
+                            }
+                            else
+                                fieldInfo = fieldInfo.ChildField[arrayIndex - 1];
+                        }
+                        else
+                        {
+                            errorString = string.Format("对array型字段\"{0}\"进行索引的数字非法必须为大于0的数字，你输入的为{1}", fieldInfo.FieldName, arrayIndexString);
+                            return null;
+                        }
+                    }
+                    else
+                    {
+                        errorString = string.Format("对array型字段\"{0}\"进行索引的数字非法，你输入的为{1}", fieldInfo.FieldName, arrayIndexString);
+                        return null;
+                    }
+
+                    isInBracket = false;
+                    tempArrayIndexBuilder = new StringBuilder();
+                }
+                else
+                {
+                    if (isInBracket == false)
+                        tempFieldNameBuilder.Append(currentChar);
+                    else
+                        tempArrayIndexBuilder.Append(currentChar);
+                }
+            }
+            if (isAfterDot == true)
+            {
+                string tempFieldName = tempFieldNameBuilder.ToString();
+                // 处理最后通过小数点索引Dict中子元素的情况
+                if (fieldInfo != null && fieldInfo.DataType == DataType.Dict)
+                {
+                    bool isFoundDictChildField = false;
+                    foreach (FieldInfo dictChildField in fieldInfo.ChildField)
+                    {
+                        if (tempFieldName.Equals(dictChildField.FieldName))
+                        {
+                            fieldInfo = dictChildField;
+                            isFoundDictChildField = true;
+                            break;
+                        }
+                    }
+                    if (isFoundDictChildField == false)
+                    {
+                        if (fieldInfo.ParentField != null && fieldInfo.ParentField.DataType == DataType.Array)
+                            errorString = string.Format("dict型字段\"{0}\"中不存在名为\"{1}\"的子元素", string.Concat(fieldInfo.ParentField.FieldName, fieldInfo.FieldName), tempFieldName);
+                        else
+                            errorString = string.Format("dict型字段\"{0}\"中不存在名为\"{1}\"的子元素", fieldInfo.FieldName, tempFieldName);
+
+                        return null;
+                    }
+                }
+            }
+            if (isInBracket == true)
+            {
+                errorString = string.Format("索引定义中括号不匹配，你输入的索引定义字符串为{0}", indexDefineString);
+                return null;
+            }
+        }
+
+        errorString = null;
+        return fieldInfo;
+    }
+
+    /// <summary>
+    /// 用于int、long、float、date或time型同一行某字段值必须大于等于或大于另一字段值的检查
+    /// 注意：要进行比较的两个字段可以为同种数据类型，也可以任意比较int、long、float三种数值型大小
+    /// </summary>
+    public static bool CheckGreaterThan(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
+    {
+        bool isNumberDataType = false;
+        if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float)
+            isNumberDataType = true;
+        else if (fieldInfo.DataType == DataType.Date || fieldInfo.DataType == DataType.Time)
+            isNumberDataType = false;
+        else
+        {
+            errorString = string.Format("值大小比较检查规则只能用于int、long、float三种数值类型或date、time两种时间类型的字段，而该字段为{0}型\n", fieldInfo.DataType);
+            return false;
+        }
+
+        bool isContainsEqual = checkRule.CheckRuleString.StartsWith(">=");
+        TableInfo tableInfo = AppValues.TableInfo[fieldInfo.TableName];
+        string comparedFieldString = null;
+        if (isContainsEqual == true)
+            comparedFieldString = checkRule.CheckRuleString.Substring(2).Trim();
+        else
+            comparedFieldString = checkRule.CheckRuleString.Substring(1).Trim();
+
+        // 根据索引字符串定义，找到要与其比较的字段
+        FieldInfo comparedField = GetFieldByIndexDefineString(comparedFieldString, tableInfo, out errorString);
+        if (errorString != null)
+        {
+            errorString = string.Format("值大小比较检查规则定义错误：{0}\n", errorString);
+            return false;
+        }
+        // 检查与其比较的字段是否类型匹配
+        if (comparedField.DataType == DataType.Int || comparedField.DataType == DataType.Long || comparedField.DataType == DataType.Float)
+        {
+            if (isNumberDataType == false)
+            {
+                errorString = string.Format("值大小比较检查规则定义错误：该字段为{0}型，而声明的与其进行比较的字段为{1}型，不支持数值型与时间型的比较\n", fieldInfo.DataType, comparedField.DataType);
+                return false;
+            }
+        }
+        else if (comparedField.DataType == DataType.Date || comparedField.DataType == DataType.Time)
+        {
+            if (isNumberDataType == true)
+            {
+                errorString = string.Format("值大小比较检查规则定义错误：该字段为{0}型，而声明的与其进行比较的字段为{1}型，不支持数值型与时间型的比较\n", fieldInfo.DataType, comparedField.DataType);
+                return false;
+            }
+            if (comparedField.DataType != fieldInfo.DataType)
+            {
+                errorString = string.Format("值大小比较检查规则定义错误：该字段为{0}型，而声明的与其进行比较的字段为{1}型，date型无法与time型进行比较\n", fieldInfo.DataType, comparedField.DataType);
+                return false;
+            }
+        }
+        // 对这两个字段中的每行数据进行值大小比较检查（任一字段中某行数据为无效数据则忽略对该行两字段数值的比较）
+        // 记录检查出的不满足要求的数据，其中object数组含3个元素，分别为未通过检查的数据所在Excel的行号、该字段的值、与其比较的字段的值
+        List<object[]> illegalValue = new List<object[]>();
+        if (isNumberDataType == true)
+        {
+            if (isContainsEqual == true)
+            {
+                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                {
+                    if (fieldInfo.Data[i] == null || comparedField.Data[i] == null)
+                        continue;
+
+                    double fieldDataValue = Convert.ToDouble(fieldInfo.Data[i]);
+                    double comparedFieldDataValue = Convert.ToDouble(comparedField.Data[i]);
+                    if (fieldDataValue < comparedFieldDataValue)
+                        illegalValue.Add(new object[3] { i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, fieldInfo.Data[i], comparedField.Data[i] });
+                }
+            }
+            else
+            {
+                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                {
+                    if (fieldInfo.Data[i] == null || comparedField.Data[i] == null)
+                        continue;
+
+                    double fieldDataValue = Convert.ToDouble(fieldInfo.Data[i]);
+                    double comparedFieldDataValue = Convert.ToDouble(comparedField.Data[i]);
+                    if (fieldDataValue <= comparedFieldDataValue)
+                        illegalValue.Add(new object[3] { i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, fieldInfo.Data[i], comparedField.Data[i] });
+                }
+            }
+        }
+        else if (fieldInfo.DataType == DataType.Date)
+        {
+            if (isContainsEqual == true)
+            {
+                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                {
+                    if (fieldInfo.Data[i] == null || comparedField.Data[i] == null)
+                        continue;
+
+                    DateTime fieldDataValue = (DateTime)fieldInfo.Data[i];
+                    DateTime comparedFieldDataValue = (DateTime)comparedField.Data[i];
+                    if (fieldDataValue < comparedFieldDataValue)
+                        illegalValue.Add(new object[3] { i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, fieldDataValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT), comparedFieldDataValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT) });
+                }
+            }
+            else
+            {
+                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                {
+                    if (fieldInfo.Data[i] == null || comparedField.Data[i] == null)
+                        continue;
+
+                    DateTime fieldDataValue = (DateTime)fieldInfo.Data[i];
+                    DateTime comparedFieldDataValue = (DateTime)comparedField.Data[i];
+                    if (fieldDataValue <= comparedFieldDataValue)
+                        illegalValue.Add(new object[3] { i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, fieldDataValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT), comparedFieldDataValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT) });
+                }
+            }
+        }
+        else if (fieldInfo.DataType == DataType.Time)
+        {
+            if (isContainsEqual == true)
+            {
+                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                {
+                    if (fieldInfo.Data[i] == null || comparedField.Data[i] == null)
+                        continue;
+
+                    DateTime fieldDataValue = (DateTime)fieldInfo.Data[i];
+                    DateTime comparedFieldDataValue = (DateTime)comparedField.Data[i];
+                    if (fieldDataValue < comparedFieldDataValue)
+                        illegalValue.Add(new object[3] { i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, fieldDataValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT), comparedFieldDataValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT) });
+                }
+            }
+            else
+            {
+                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                {
+                    if (fieldInfo.Data[i] == null || comparedField.Data[i] == null)
+                        continue;
+
+                    DateTime fieldDataValue = (DateTime)fieldInfo.Data[i];
+                    DateTime comparedFieldDataValue = (DateTime)comparedField.Data[i];
+                    if (fieldDataValue <= comparedFieldDataValue)
+                        illegalValue.Add(new object[3] { i + AppValues.DATA_FIELD_DATA_START_INDEX + 1, fieldDataValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT), comparedFieldDataValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT) });
+                }
+            }
+        }
+
+        if (illegalValue.Count > 0)
+        {
+            StringBuilder errorStringBuilder = new StringBuilder();
+            errorStringBuilder.AppendFormat("以下行中数据不满足{0}的值大小比较检查规则\n", isContainsEqual == true ? ">=" : ">");
+            for (int i = 0; i < illegalValue.Count; ++i)
+            {
+                object[] oneIllegalValue = illegalValue[i];
+                errorStringBuilder.AppendFormat("第{0}行中，本字段所填值为\"{1}\"，与其比较的的字段所填值为\"{2}\"\n", oneIllegalValue[0], oneIllegalValue[1], oneIllegalValue[2]);
+            }
+
+            errorString = errorStringBuilder.ToString();
+            return false;
+        }
+        else
+        {
+            errorString = null;
+            return true;
         }
     }
 
@@ -1014,8 +1741,8 @@ public class TableCheckHelper
                     return false;
                 }
                 // 提取file和冒号之间的字符串，判断是否声明扩展名
-                string startString = "file";
-                string extensionString = checkRule.CheckRuleString.Substring(startString.Length, colonIndex - startString.Length).Trim();
+                const string START_STRING = "file";
+                string extensionString = checkRule.CheckRuleString.Substring(START_STRING.Length, colonIndex - START_STRING.Length).Trim();
                 // 如果声明了扩展名，则遍历出目标目录下所有该扩展名的文件，然后逐行判断文件是否存在
                 if (!string.IsNullOrEmpty(extensionString))
                 {
@@ -1129,68 +1856,102 @@ public class TableCheckHelper
     }
 
     /// <summary>
-    /// 用于int、float或string型取值必须在另一字段（可能还是这张表格也可能跨表）中有对应值的检查
+    /// 用于int、long、float或string型取值必须在另一字段（可能还是这张表格也可能跨表）中有对应值的检查
     /// </summary>
     public static bool CheckRef(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
     {
-        // 首先要求字段类型只能为int、float或string型
-        if (!(fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.String))
+        // 首先要求字段类型只能为int、long、float或string型
+        if (!(fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.String))
         {
-            errorString = string.Format("值引用检查规则只适用于int、float或string类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
+            errorString = string.Format("值引用检查规则只适用于int、long、float或string类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
             return false;
         }
         else
         {
             string tableName;
-            string fieldName;
+            string fieldIndexDefine;
 
             // 解析ref规则中目标列所在表格以及字段名
-            string startString = "ref:";
-            if (!checkRule.CheckRuleString.StartsWith(startString, StringComparison.CurrentCultureIgnoreCase))
+            const string START_STRING = "ref:";
+            if (!checkRule.CheckRuleString.StartsWith(START_STRING, StringComparison.CurrentCultureIgnoreCase))
             {
-                errorString = string.Format("值引用检查规则声明错误，必须以\"{0}\"开头，后面跟表格名-字段名\n", startString);
+                errorString = string.Format("值引用检查规则声明错误，必须以\"{0}\"开头，后面跟表格名-字段名\n", START_STRING);
                 return false;
             }
             else
             {
-                string temp = checkRule.CheckRuleString.Substring(startString.Length).Trim();
+                string temp = checkRule.CheckRuleString.Substring(START_STRING.Length).Trim();
                 if (string.IsNullOrEmpty(temp))
                 {
-                    errorString = string.Format("值引用检查规则声明错误，\"{0}\"的后面必须跟表格名-字段名\n", startString);
+                    errorString = string.Format("值引用检查规则声明错误，\"{0}\"的后面必须跟表格名-字段名\n", START_STRING);
                     return false;
                 }
                 else
                 {
+                    // 判断是否在最后以(except{xx,xx})的格式声明无需ref规则检查的特殊值
+                    List<object> exceptValues = new List<object>();
+                    int leftBracketIndex = temp.IndexOf('(');
+                    int rightBracketIndex = temp.LastIndexOf(')');
+                    if (leftBracketIndex != -1 && rightBracketIndex > leftBracketIndex)
+                    {
+                        // 取出括号中的排除值声明
+                        const string EXCEPT_DEFINE_START_STRING = "except";
+                        string exceptDefineString = temp.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
+                        if (!exceptDefineString.StartsWith(EXCEPT_DEFINE_START_STRING, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            errorString = string.Format("值引用检查规则声明错误，若要声明ref检查所忽略的特殊值，需在最后以(except{xx,xx})的形式声明，而你在括号中声明为\"{0}\"\n", exceptDefineString);
+                            return false;
+                        }
+                        else
+                        {
+                            // 检查排除值的声明（即有效值声明格式）是否合法
+                            string exceptValuesDefine = exceptDefineString.Substring(EXCEPT_DEFINE_START_STRING.Length).Trim();
+                            exceptValues = Utils.GetEffectiveValue(exceptValuesDefine, fieldInfo.DataType, out errorString);
+                            if (errorString != null)
+                            {
+                                errorString = string.Format("值引用检查规则声明错误，排除值的声明非法，{0}\n", errorString);
+                                return false;
+                            }
+
+                            // 将定义字符串去掉except声明部分
+                            temp = temp.Substring(0, leftBracketIndex).Trim();
+                        }
+                    }
+                    // 解析参考表名、列名声明
+                    FieldInfo targetFieldInfo = null;
                     int hyphenIndex = temp.LastIndexOf('-');
                     if (hyphenIndex == -1)
                     {
                         tableName = temp;
-                        fieldName = null;
+                        fieldIndexDefine = null;
                     }
                     else
                     {
                         tableName = temp.Substring(0, hyphenIndex).Trim();
-                        fieldName = temp.Substring(hyphenIndex + 1, temp.Length - hyphenIndex - 1);
+                        fieldIndexDefine = temp.Substring(hyphenIndex + 1, temp.Length - hyphenIndex - 1);
                     }
 
                     if (!AppValues.TableInfo.ContainsKey(tableName))
                     {
-                        errorString = string.Format("值引用检查规则声明错误，找不到名为{0}的表格\n", startString);
+                        errorString = string.Format("值引用检查规则声明错误，找不到名为{0}的表格\n", START_STRING);
                         return false;
                     }
-                    if (fieldName == null)
-                        fieldName = AppValues.TableInfo[tableName].GetKeyColumnFieldInfo().FieldName;
-                    else if (AppValues.TableInfo[tableName].GetFieldInfoByFieldName(fieldName) == null)
+                    if (string.IsNullOrEmpty(fieldIndexDefine))
+                        targetFieldInfo = AppValues.TableInfo[tableName].GetKeyColumnFieldInfo();
+                    else
                     {
-                        errorString = string.Format("值引用检查规则声明错误，表格\"{0}\"中找不到名为\"{1}\"的字段，注意不支持引用dict或array下属字段\n", tableName, fieldName);
-                        return false;
+                        TableInfo targetTableInfo = AppValues.TableInfo[tableName];
+                        targetFieldInfo = GetFieldByIndexDefineString(fieldIndexDefine, targetTableInfo, out errorString);
+                        if (errorString != null)
+                        {
+                            errorString = string.Format("值引用检查规则声明错误，表格\"{0}\"中无法根据索引字符串\"{1}\"找到要参考的字段，错误信息为：{2}\n", tableName, fieldIndexDefine, errorString);
+                            return false;
+                        }
                     }
-
-                    FieldInfo targetFieldInfo = AppValues.TableInfo[tableName].GetFieldInfoByFieldName(fieldName);
                     // 检查目标字段必须为相同的数据类型
                     if (fieldInfo.DataType != targetFieldInfo.DataType)
                     {
-                        errorString = string.Format("值引用检查规则声明错误，表格\"{0}\"中名为\"{1}\"的字段的数据类型为{2}，而要检查字段的数据类型为{3}，无法进行不同数据类型字段的引用检查\n", tableName, fieldName, targetFieldInfo.DataType.ToString(), fieldInfo.DataType.ToString());
+                        errorString = string.Format("值引用检查规则声明错误，表格\"{0}\"中通过索引字符串\"{1}\"找到的参考字段的数据类型为{2}，而要检查字段的数据类型为{3}，无法进行不同数据类型字段的引用检查\n", tableName, fieldIndexDefine, targetFieldInfo.DataType.ToString(), fieldInfo.DataType.ToString());
                         return false;
                     }
                     else
@@ -1199,12 +1960,15 @@ public class TableCheckHelper
                         // 存储找不到引用对应关系的数据信息（key：行号， value：填写的数据）
                         Dictionary<int, object> unreferencedInfo = new Dictionary<int, object>();
 
-                        if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Float)
+                        if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float)
                         {
                             for (int i = 0; i < fieldInfo.Data.Count; ++i)
                             {
                                 // 忽略无效集合元素下属子类型的空值或本身为空值
                                 if (fieldInfo.Data[i] == null)
+                                    continue;
+                                // 忽略不进行ref检查的排除值
+                                else if (exceptValues.Contains(fieldInfo.Data[i]))
                                     continue;
 
                                 if (!targetFieldData.Contains(fieldInfo.Data[i]))
@@ -1217,6 +1981,9 @@ public class TableCheckHelper
                             {
                                 // 忽略无效集合元素下属子类型的空值以及空字符串
                                 if (fieldInfo.Data[i] == null || string.IsNullOrEmpty(fieldInfo.Data[i].ToString()))
+                                    continue;
+                                // 忽略不进行ref检查的排除值
+                                else if (exceptValues.Contains(fieldInfo.Data[i]))
                                     continue;
 
                                 if (!targetFieldData.Contains(fieldInfo.Data[i]))
@@ -1251,15 +2018,15 @@ public class TableCheckHelper
     public static bool CheckFunc(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
     {
         // 提取func:后声明的自定义函数名
-        string startString = "func:";
-        if (!checkRule.CheckRuleString.StartsWith(startString, StringComparison.CurrentCultureIgnoreCase))
+        const string START_STRING = "func:";
+        if (!checkRule.CheckRuleString.StartsWith(START_STRING, StringComparison.CurrentCultureIgnoreCase))
         {
-            errorString = string.Format("自定义函数检查规则声明错误，必须以\"{0}\"开头，后面跟MyCheckFunction.cs中声明的函数名\n", startString);
+            errorString = string.Format("自定义函数检查规则声明错误，必须以\"{0}\"开头，后面跟MyCheckFunction.cs中声明的函数名\n", START_STRING);
             return false;
         }
         else
         {
-            string funcName = checkRule.CheckRuleString.Substring(startString.Length, checkRule.CheckRuleString.Length - startString.Length).Trim();
+            string funcName = checkRule.CheckRuleString.Substring(START_STRING.Length, checkRule.CheckRuleString.Length - START_STRING.Length).Trim();
             Type myCheckFunctionClassType = typeof(MyCheckFunction);
             if (myCheckFunctionClassType != null)
             {
@@ -1278,9 +2045,9 @@ public class TableCheckHelper
                     {
                         checkResult = (bool)dynMethod.Invoke(null, inputParams);
                     }
-                    catch (Exception e)
+                    catch (Exception exception)
                     {
-                        errorString = string.Format("运行自定义检查函数{0}错误，请修正代码后重试\n{1}", funcName, e);
+                        errorString = string.Format("运行自定义检查函数{0}错误，请修正代码后重试\n{1}", funcName, exception);
                         return false;
                     }
                     if (inputParams[1] != null)
@@ -1344,9 +2111,9 @@ public class TableCheckHelper
                 {
                     checkResult = (bool)dynMethod.Invoke(null, inputParams);
                 }
-                catch (Exception e)
+                catch (Exception exception)
                 {
-                    errorString = string.Format("运行自定义整表检查函数{0}错误，请修正代码后重试\n{1}", funcName, e);
+                    errorString = string.Format("运行自定义整表检查函数{0}错误，请修正代码后重试\n{1}", funcName, exception);
                     return false;
                 }
                 if (inputParams[1] != null)
@@ -1482,26 +2249,121 @@ public class TableCheckHelper
         errorString = null;
         return true;
     }
+
+    /// <summary>
+    /// 检查date型的输入格式定义
+    /// </summary>
+    public static bool CheckDateInputDefine(string defineString, out string errorString)
+    {
+        defineString = defineString.Trim();
+        if (string.IsNullOrEmpty(defineString))
+        {
+            errorString = "未进行格式声明";
+            return false;
+        }
+        DateFormatType formatType = TableAnalyzeHelper.GetDateFormatType(defineString);
+        if (!(formatType == DateFormatType.FormatString || formatType == DateFormatType.ReferenceDateMsec || formatType == DateFormatType.ReferenceDateSec))
+        {
+            errorString = "不属于合法的date型输入格式类型";
+            return false;
+        }
+
+        errorString = null;
+        return true;
+    }
+
+    /// <summary>
+    /// 检查date型导出至lua文件的格式定义
+    /// </summary>
+    public static bool CheckDateToLuaDefine(string defineString, out string errorString)
+    {
+        defineString = defineString.Trim();
+        if (string.IsNullOrEmpty(defineString))
+        {
+            errorString = "未进行格式声明";
+            return false;
+        }
+
+        errorString = null;
+        return true;
+    }
+
+    /// <summary>
+    /// 检查date型导出至MySQL数据库的格式定义
+    /// </summary>
+    public static bool CheckDateToDatabaseDefine(string defineString, out string errorString)
+    {
+        defineString = defineString.Trim();
+        if (string.IsNullOrEmpty(defineString))
+        {
+            errorString = "未进行格式声明";
+            return false;
+        }
+        DateFormatType formatType = TableAnalyzeHelper.GetDateFormatType(defineString);
+        if (!(formatType == DateFormatType.FormatString || formatType == DateFormatType.ReferenceDateMsec || formatType == DateFormatType.ReferenceDateSec))
+        {
+            errorString = "不属于合法的date型导出至MySQL数据库的格式类型";
+            return false;
+        }
+
+        errorString = null;
+        return true;
+    }
+
+    /// <summary>
+    /// 检查time型的格式定义
+    /// </summary>
+    public static bool CheckTimeDefine(string defineString, out string errorString)
+    {
+        defineString = defineString.Trim();
+        if (string.IsNullOrEmpty(defineString))
+        {
+            errorString = "未进行格式声明";
+            return false;
+        }
+        TimeFormatType formatType = TableAnalyzeHelper.GetTimeFormatType(defineString);
+        if (formatType == TimeFormatType.FormatString)
+        {
+            // 检查time型的格式字符串声明，不允许出现代表年月日的y、M、d
+            List<string> errorInfo = new List<string>();
+            if (defineString.IndexOf('y') != -1)
+                errorInfo.Add("代表年的y");
+            if (defineString.IndexOf('M') != -1)
+                errorInfo.Add("代表月的M");
+            if (defineString.IndexOf('d') != -1)
+                errorInfo.Add("代表日的d");
+
+            if (errorInfo.Count > 0)
+            {
+                errorString = string.Format("time类型的格式定义中不允许出现以下与年月日相关的日期型格式定义字符：{0}", Utils.CombineString(errorInfo, "，"));
+                return false;
+            }
+        }
+
+        errorString = null;
+        return true;
+    }
 }
 
 /// <summary>
 /// 表格检查规则类型
 /// </summary>
-public enum TABLE_CHECK_TYPE
+public enum TableCheckType
 {
     Invalid,
 
-    RANGE,        // 数值范围检查
-    EFFECTIVE,    // 值有效性检查（填写值必须是几个合法值中的一个）
-    NOT_EMPTY,    // 值非空检查
-    UNIQUE,       // 值唯一性检查
-    REF,          // 值引用检查（某个数值必须为另一个表格中某字段中存在的值）
-    FUNC,         // 自定义检查函数
-    FILE,         // 文件存在性检查
+    Range,        // 数值范围检查
+    Effective,    // 值有效性检查（填写值必须是几个合法值中的一个）
+    NotEmpty,     // 值非空检查
+    Unique,       // 值唯一性检查
+    Ref,          // 值引用检查（某个数值必须为另一个表格中某字段中存在的值）
+    GreaterThan,  // 值大小比较检查（同一行中某个字段的值必须大于另一字段的值）
+    Func,         // 自定义检查函数
+    File,         // 文件存在性检查
 }
 
 public struct FieldCheckRule
 {
-    public TABLE_CHECK_TYPE CheckType;
+    public TableCheckType CheckType;
     public string CheckRuleString;
 }

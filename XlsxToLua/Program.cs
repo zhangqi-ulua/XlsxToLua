@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Text;
 
 // 注意：要在本项目属性的“生成”选项卡中将“目标平台”由默认的“Any CPU”改为“x86”，
 // 否则即便安装了AccessDatabaseEngine，在64位系统安装32位Office（Microsoft.ACE.OLEDB.12.0也就是32位的），然后64位的VS默认编译为64位程序仍将导致无法连接Excel，提示本机未注册Microsoft.ACE.OLEDB.12.0提供程序
@@ -133,7 +134,7 @@ public class Program
             else if (param.StartsWith(AppValues.ALLOWED_NULL_NUMBER_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
             {
                 AppValues.IsAllowedNullNumber = true;
-                Utils.LogWarning("警告：你选择了允许int、float字段中存在空值，建议为逻辑上不允许为空的数值型字段声明使用notEmpty检查规则");
+                Utils.LogWarning("警告：你选择了允许int、long、float字段中存在空值，建议为逻辑上不允许为空的数值型字段声明使用notEmpty检查规则");
             }
             else
                 Utils.LogErrorAndExit(string.Format("错误：未知的指令参数{0}", param));
@@ -157,6 +158,47 @@ public class Program
         }
         else
             Utils.LogWarning(string.Format("警告：找不到本工具所在路径下的{0}配置文件，请确定是否真的不需要自定义配置", AppValues.CONFIG_FILE_NAME));
+
+        // 读取部分配置项并进行检查
+        const string ERROR_STRING_FORMAT = "配置项\"{0}\"所设置的值\"{1}\"非法：{2}\n";
+        StringBuilder errorStringBuilder = new StringBuilder();
+        string tempErrorString = null;
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_DEFAULT_DATE_INPUT_FORMAT))
+        {
+            AppValues.DefaultDateInputFormat = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_DEFAULT_DATE_INPUT_FORMAT].Trim();
+            if (TableCheckHelper.CheckDateInputDefine(AppValues.DefaultDateInputFormat, out tempErrorString) == false)
+                errorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, AppValues.APP_CONFIG_KEY_DEFAULT_DATE_INPUT_FORMAT, AppValues.DefaultDateInputFormat, tempErrorString);
+        }
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_DEFAULT_DATE_TO_LUA_FORMAT))
+        {
+            AppValues.DefaultDateToLuaFormat = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_DEFAULT_DATE_TO_LUA_FORMAT].Trim();
+            if (TableCheckHelper.CheckDateToLuaDefine(AppValues.DefaultDateToLuaFormat, out tempErrorString) == false)
+                errorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, AppValues.APP_CONFIG_KEY_DEFAULT_DATE_TO_LUA_FORMAT, AppValues.DefaultDateToLuaFormat, tempErrorString);
+        }
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_DEFAULT_DATE_TO_DATABASE_FORMAT))
+        {
+            AppValues.DefaultDateToDatabaseFormat = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_DEFAULT_DATE_TO_DATABASE_FORMAT].Trim();
+            if (TableCheckHelper.CheckDateToDatabaseDefine(AppValues.DefaultDateToDatabaseFormat, out tempErrorString) == false)
+                errorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, AppValues.APP_CONFIG_KEY_DEFAULT_DATE_TO_DATABASE_FORMAT, AppValues.DefaultDateToDatabaseFormat, tempErrorString);
+        }
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_DEFAULT_TIME_INPUT_FORMAT))
+        {
+            AppValues.DefaultTimeInputFormat = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_DEFAULT_TIME_INPUT_FORMAT].Trim();
+            if (TableCheckHelper.CheckTimeDefine(AppValues.DefaultTimeInputFormat, out tempErrorString) == false)
+                errorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, AppValues.APP_CONFIG_KEY_DEFAULT_TIME_INPUT_FORMAT, AppValues.DefaultTimeInputFormat, tempErrorString);
+        }
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_DEFAULT_TIME_TO_LUA_FORMAT))
+        {
+            AppValues.DefaultTimeToLuaFormat = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_DEFAULT_TIME_TO_LUA_FORMAT].Trim();
+            if (TableCheckHelper.CheckTimeDefine(AppValues.DefaultTimeToLuaFormat, out tempErrorString) == false)
+                errorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, AppValues.APP_CONFIG_KEY_DEFAULT_TIME_TO_LUA_FORMAT, AppValues.DefaultTimeToLuaFormat, tempErrorString);
+        }
+        if (AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_DEFAULT_TIME_TO_DATABASE_FORMAT))
+        {
+            AppValues.DefaultTimeToDatabaseFormat = AppValues.ConfigData[AppValues.APP_CONFIG_KEY_DEFAULT_TIME_TO_DATABASE_FORMAT].Trim();
+            if (TableCheckHelper.CheckTimeDefine(AppValues.DefaultTimeToDatabaseFormat, out tempErrorString) == false)
+                errorStringBuilder.AppendFormat(ERROR_STRING_FORMAT, AppValues.APP_CONFIG_KEY_DEFAULT_TIME_TO_DATABASE_FORMAT, AppValues.DefaultTimeToDatabaseFormat, tempErrorString);
+        }
 
         // 读取给定的Excel所在目录下的所有Excel文件，然后解析成本工具所需的数据结构
         foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
