@@ -44,6 +44,8 @@ public class AppValues
     // 每张Excel表格中，名为config的Sheet表可用的配置参数
     // 声明某张表格导出到数据库中的表名
     public const string CONFIG_NAME_EXPORT_DATABASE_TABLE_NAME = "exportDatabaseTableName";
+    // 声明某张表格导出到数据库中的说明信息
+    public const string CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT = "exportDatabaseTableComment";
 
     // MySQL中datetime、date、time三种类型的默认格式
     public const string DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";

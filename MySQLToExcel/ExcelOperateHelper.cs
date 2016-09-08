@@ -40,11 +40,12 @@ public class ExcelOperateHelper
 
         System.Data.DataTable data = MySQLOperateHelper.ReadDatabaseTable(tableName);
         System.Data.DataTable columnInfo = MySQLOperateHelper.GetColumnInfo(tableName);
-        int columnCount = columnInfo.Rows.Count;
+        string tableComment = MySQLOperateHelper.GetDatabaseTableComment(tableName);
+        int dataColumnCount = columnInfo.Rows.Count;
 
         // 按XlsxToLua工具规定的格式导出配置参数及数据
         // 注意Excel中左上角单元格下标为[1,1]，而DataTable中为[0,0]
-        for (int columnIndex = 1; columnIndex <= columnCount; ++columnIndex)
+        for (int columnIndex = 1; columnIndex <= dataColumnCount; ++columnIndex)
         {
             // 第一行为字段描述
             string desc = columnInfo.Rows[columnIndex - 1]["COLUMN_COMMENT"].ToString();
@@ -92,7 +93,7 @@ public class ExcelOperateHelper
             // 设置表格中所有单元格均自动列宽
             dataWorksheet.Columns.AutoFit();
             // 对于因内容过多而通过自动列宽后超过配置文件中配置的最大列宽的单元格，强制缩小列宽到所允许的最大宽度
-            for (int columnIndex = 1; columnIndex <= columnCount; ++columnIndex)
+            for (int columnIndex = 1; columnIndex <= dataColumnCount; ++columnIndex)
             {
                 double columnWidth = Convert.ToDouble(dataWorksheet.get_Range(Utils.GetExcelColumnName(columnIndex) + "1").EntireColumn.ColumnWidth);
                 if (columnWidth > AppValues.ExcelColumnMaxWidth)
@@ -113,7 +114,7 @@ public class ExcelOperateHelper
         dataWorksheet.Cells.Borders[XlBordersIndex.xlInsideHorizontal].Weight = XlBorderWeight.xlHairline;
         dataWorksheet.Cells.Borders[XlBordersIndex.xlInsideVertical].Weight = XlBorderWeight.xlHairline;
         // 再对前五行配置列添加内外实线边框
-        excelRange = dataWorksheet.get_Range(dataWorksheet.Cells[AppValues.DATA_FIELD_DESC_INDEX, 1], dataWorksheet.Cells[AppValues.DATA_FIELD_EXPORT_DATABASE_FIELD_INFO, columnCount]);
+        excelRange = dataWorksheet.get_Range(dataWorksheet.Cells[AppValues.DATA_FIELD_DESC_INDEX, 1], dataWorksheet.Cells[AppValues.DATA_FIELD_EXPORT_DATABASE_FIELD_INFO, dataColumnCount]);
         excelRange.Borders[XlBordersIndex.xlEdgeLeft].Weight = XlBorderWeight.xlThin;
         excelRange.Borders[XlBordersIndex.xlEdgeRight].Weight = XlBorderWeight.xlThin;
         excelRange.Borders[XlBordersIndex.xlEdgeTop].Weight = XlBorderWeight.xlThin;
@@ -131,11 +132,18 @@ public class ExcelOperateHelper
         // 写入导出到数据库中的字段名及类型配置
         configWorksheet.Cells[1, 1] = AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_NAME;
         configWorksheet.Cells[2, 1] = tableName;
+        // 写入导出到数据库中表格的Comment
+        configWorksheet.Cells[1, 2] = AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT;
+        configWorksheet.Cells[2, 2] = tableComment;
         // 设置表格中所有单元格均自动换行
         configWorksheet.Cells.WrapText = true;
         // 设置列背景色
         if (AppValues.ColumnBackgroundColorIndex != null)
-            configWorksheet.get_Range("A1").EntireColumn.Interior.ColorIndex = AppValues.ColumnBackgroundColorIndex[0];
+        {
+            int configColumnCount = configWorksheet.UsedRange.Columns.Count;
+            for (int columnIndex = 1; columnIndex <= configColumnCount; ++columnIndex)
+                configWorksheet.get_Range(Utils.GetExcelColumnName(columnIndex) + "1").EntireColumn.Interior.ColorIndex = AppValues.ColumnBackgroundColorIndex[(columnIndex - 1) % AppValues.ColumnBackgroundColorIndex.Count];
+        }
         // 对第一行配置名行执行窗口冻结
         excelRange = configWorksheet.get_Range("A2");
         excelRange.Select();

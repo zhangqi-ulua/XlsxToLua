@@ -1,5 +1,5 @@
 ﻿####连接MySQL数据库的参数字符串
-connectMySQLString:server=127.0.0.1;port=3306;uid=root;password=root;database=mydb;
+connectMySQLString:server=127.0.0.1;port=3306;uid=root;password=root;database=mydb;Charset=utf8;
 
 ####导出Excel文件所在目录
 exportExcelPath:ExportExcel

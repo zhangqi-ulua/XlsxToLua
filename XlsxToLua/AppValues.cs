@@ -80,6 +80,8 @@ public class AppValues
     public const string CONFIG_NAME_EXPORT = "tableExportConfig";
     // 声明某张表格导出到数据库中的表名
     public const string CONFIG_NAME_EXPORT_DATABASE_TABLE_NAME = "exportDatabaseTableName";
+    // 声明某张表格导出到数据库中的说明信息
+    public const string CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT = "exportDatabaseTableComment";
 
     // 声明对某张表格不进行默认导出的参数配置
     public const string CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE = "-notExportOriginalTable";
@@ -87,6 +89,8 @@ public class AppValues
     // 以下为config配置文件中配置项的key名
     // MySQL连接字符串
     public const string APP_CONFIG_KEY_MYSQL_CONNECT_STRING = "connectMySQLString";
+    // 创建MySQL数据库表格时额外指定的参数字符串
+    public const string APP_CONFIG_KEY_CREATE_DATABASE_TABLE_EXTRA_PARAM = "createDatabaseTableExtraParam";
     // 未声明date型的输入格式时所采用的默认格式
     public const string APP_CONFIG_KEY_DEFAULT_DATE_INPUT_FORMAT = "defaultDateInputFormat";
     // 未声明date型导出至lua文件的格式时所采用的默认格式

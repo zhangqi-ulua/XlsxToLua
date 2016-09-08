@@ -10,6 +10,7 @@ public class MySQLOperateHelper
 
     private const string _SELECT_ALL_DATA_SQL = "SELECT * FROM {0}";
     private const string _SELECT_COLUMN_INFO_SQL = "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '{0}' AND TABLE_NAME = '{1}'";
+    private const string _SELECT_TABLE_COMMENT_SQL = "SELECT TABLE_COMMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = '{0}' AND TABLE_NAME = '{1}'";
 
     private static MySqlConnection _conn = null;
     private static string _schemaName = null;
@@ -114,6 +115,16 @@ public class MySQLOperateHelper
     {
         MySqlCommand cmd = new MySqlCommand(string.Format(_SELECT_COLUMN_INFO_SQL, _schemaName, tableName), _conn);
         return _ExecuteSqlCommand(cmd);
+    }
+
+    /// <summary>
+    /// 获取数据库某张表格设置的Comment
+    /// </summary>
+    public static string GetDatabaseTableComment(string tableName)
+    {
+        MySqlCommand cmd = new MySqlCommand(string.Format(_SELECT_TABLE_COMMENT_SQL, _schemaName, tableName), _conn);
+        DataTable dt = _ExecuteSqlCommand(cmd);
+        return dt.Rows.Count > 0 ? dt.Rows[0][0].ToString() : string.Empty;
     }
 
     private static DataTable _ExecuteSqlCommand(MySqlCommand cmd)

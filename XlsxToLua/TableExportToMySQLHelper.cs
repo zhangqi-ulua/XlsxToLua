@@ -15,7 +15,7 @@ public class TableExportToMySQLHelper
     // MySQL支持的用于定义Schema名的参数名
     private static string[] _DEFINE_SCHEMA_NAME_PARAM = { "Database", "Initial Catalog" };
 
-    private const string _CREATE_TABLE_SQL = "CREATE TABLE {0} ( {1} PRIMARY KEY (`{2}`));";
+    private const string _CREATE_TABLE_SQL = "CREATE TABLE {0} ( {1} PRIMARY KEY (`{2}`)) COMMENT='{3}' {4};";
     private const string _DROP_TABLE_SQL = "DROP TABLE {0};";
     private const string _INSERT_DATA_SQL = "INSERT INTO {0} ({1}) VALUES {2};";
 
@@ -129,7 +129,8 @@ public class TableExportToMySQLHelper
                 }
             }
             // 按Excel表格中字段定义新建数据库表格
-            _CreateTable(tableName, tableInfo, out errorString);
+            string comment = tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT) && tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT] != null && tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT].Count > 0 ? tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT][0] : string.Empty;
+            _CreateTable(tableName, tableInfo, comment, out errorString);
             if (string.IsNullOrEmpty(errorString))
             {
                 // 将Excel表格中的数据添加至数据库
@@ -175,110 +176,119 @@ public class TableExportToMySQLHelper
         // 逐行生成插入数据的SQL语句中的value定义部分
         StringBuilder valueDefineStringBuilder = new StringBuilder();
         int count = tableInfo.GetKeyColumnFieldInfo().Data.Count;
-        for (int i = 0; i < count; ++i)
+        if (count > 0)
         {
-            List<string> values = new List<string>();
-            foreach (FieldInfo fieldInfo in allDatabaseFieldInfo)
+            for (int i = 0; i < count; ++i)
             {
-                if (fieldInfo.Data[i] == null)
-                    values.Add("NULL");
-                else if (fieldInfo.DataType == DataType.Date)
+                List<string> values = new List<string>();
+                foreach (FieldInfo fieldInfo in allDatabaseFieldInfo)
                 {
-                    string toDatabaseFormatDefine = fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_DATABASE_FORMAT].ToString();
-                    DateFormatType toDatabaseFormatType = TableAnalyzeHelper.GetDateFormatType(toDatabaseFormatDefine);
-                    if (toDatabaseFormatType == DateFormatType.FormatString)
-                    {
-                        // 注意MySQL中的时间型，datetime和time型后面可用括号进行具体设置，date型没有
-                        // MySQL中的date型插入数据时不允许含有时分秒，否则会报错，故这里强制采用MySQL默认的yyyy-MM-dd格式插入
-                        if (fieldInfo.DatabaseFieldType.Equals("date", StringComparison.CurrentCultureIgnoreCase))
-                            values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(AppValues.APP_DEFAULT_ONLY_DATE_FORMAT)));
-                        else if (fieldInfo.DatabaseFieldType.StartsWith("datetime", StringComparison.CurrentCultureIgnoreCase))
-                            values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(AppValues.APP_DEFAULT_DATE_FORMAT)));
-                        // date型导出到MySQL中的其他数据类型字段如varchar，采用声明的指定格式
-                        else
-                            values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_DATABASE_FORMAT].ToString())));
-                    }
-                    else if (toDatabaseFormatType == DateFormatType.ReferenceDateSec)
-                        values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE).TotalSeconds));
-                    else if (toDatabaseFormatType == DateFormatType.ReferenceDateMsec)
-                        values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE).TotalMilliseconds));
-                    else
-                    {
-                        errorString = "date型导出至MySQL的格式定义非法";
-                        Utils.LogErrorAndExit(errorString);
-                        return false;
-                    }
-                }
-                else if (fieldInfo.DataType == DataType.Time)
-                {
-                    string toDatabaseFormatDefine = fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_DATABASE_FORMAT].ToString();
-                    TimeFormatType toDatabaseFormatType = TableAnalyzeHelper.GetTimeFormatType(toDatabaseFormatDefine);
-                    if (toDatabaseFormatType == TimeFormatType.FormatString)
-                    {
-                        if (fieldInfo.DatabaseFieldType.StartsWith("time", StringComparison.CurrentCultureIgnoreCase))
-                            values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(AppValues.APP_DEFAULT_TIME_FORMAT)));
-                        else
-                            values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_DATABASE_FORMAT].ToString())));
-                    }
-                    else if (toDatabaseFormatType == TimeFormatType.ReferenceTimeSec)
-                        values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE).TotalSeconds));
-                    else
-                    {
-                        errorString = "time型导出至MySQL的格式定义非法";
-                        Utils.LogErrorAndExit(errorString);
-                        return false;
-                    }
-                }
-                // 这里需要自行处理向数据库中某些数据类型如datetime的列不允许插入空字符串的情况
-                else if (string.IsNullOrEmpty(fieldInfo.Data[i].ToString()))
-                {
-                    if (fieldInfo.DatabaseFieldType.StartsWith("datetime", StringComparison.CurrentCultureIgnoreCase))
+                    if (fieldInfo.Data[i] == null)
                         values.Add("NULL");
+                    else if (fieldInfo.DataType == DataType.Date)
+                    {
+                        string toDatabaseFormatDefine = fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_DATABASE_FORMAT].ToString();
+                        DateFormatType toDatabaseFormatType = TableAnalyzeHelper.GetDateFormatType(toDatabaseFormatDefine);
+                        if (toDatabaseFormatType == DateFormatType.FormatString)
+                        {
+                            // 注意MySQL中的时间型，datetime和time型后面可用括号进行具体设置，date型没有
+                            // MySQL中的date型插入数据时不允许含有时分秒，否则会报错，故这里强制采用MySQL默认的yyyy-MM-dd格式插入
+                            if (fieldInfo.DatabaseFieldType.Equals("date", StringComparison.CurrentCultureIgnoreCase))
+                                values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(AppValues.APP_DEFAULT_ONLY_DATE_FORMAT)));
+                            else if (fieldInfo.DatabaseFieldType.StartsWith("datetime", StringComparison.CurrentCultureIgnoreCase))
+                                values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(AppValues.APP_DEFAULT_DATE_FORMAT)));
+                            // date型导出到MySQL中的其他数据类型字段如varchar，采用声明的指定格式
+                            else
+                                values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_DATABASE_FORMAT].ToString())));
+                        }
+                        else if (toDatabaseFormatType == DateFormatType.ReferenceDateSec)
+                            values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE).TotalSeconds));
+                        else if (toDatabaseFormatType == DateFormatType.ReferenceDateMsec)
+                            values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE).TotalMilliseconds));
+                        else
+                        {
+                            errorString = "date型导出至MySQL的格式定义非法";
+                            Utils.LogErrorAndExit(errorString);
+                            return false;
+                        }
+                    }
+                    else if (fieldInfo.DataType == DataType.Time)
+                    {
+                        string toDatabaseFormatDefine = fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_DATABASE_FORMAT].ToString();
+                        TimeFormatType toDatabaseFormatType = TableAnalyzeHelper.GetTimeFormatType(toDatabaseFormatDefine);
+                        if (toDatabaseFormatType == TimeFormatType.FormatString)
+                        {
+                            if (fieldInfo.DatabaseFieldType.StartsWith("time", StringComparison.CurrentCultureIgnoreCase))
+                                values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(AppValues.APP_DEFAULT_TIME_FORMAT)));
+                            else
+                                values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_DATABASE_FORMAT].ToString())));
+                        }
+                        else if (toDatabaseFormatType == TimeFormatType.ReferenceTimeSec)
+                            values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE).TotalSeconds));
+                        else
+                        {
+                            errorString = "time型导出至MySQL的格式定义非法";
+                            Utils.LogErrorAndExit(errorString);
+                            return false;
+                        }
+                    }
+                    // 这里需要自行处理向数据库中某些数据类型如datetime的列不允许插入空字符串的情况
+                    else if (string.IsNullOrEmpty(fieldInfo.Data[i].ToString()))
+                    {
+                        if (fieldInfo.DatabaseFieldType.StartsWith("datetime", StringComparison.CurrentCultureIgnoreCase))
+                            values.Add("NULL");
+                        else
+                            values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
+                    }
+                    else if (fieldInfo.DataType == DataType.Bool)
+                    {
+                        string inputData = fieldInfo.Data[i].ToString();
+                        // 如果数据库用tinyint(1)数据类型表示bool型，比如要写入true，SQL语句中可以写为'1'或者不带单引号的true
+                        if ("true".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
+                            values.Add("'1'");
+                        else if ("false".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
+                            values.Add("'0'");
+                        else
+                            values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
+                    }
                     else
                         values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
                 }
-                else if (fieldInfo.DataType == DataType.Bool)
+
+                valueDefineStringBuilder.AppendFormat("({0}),", Utils.CombineString(values, ","));
+            }
+            // 去掉末尾多余的逗号
+            string valueDefineString = valueDefineStringBuilder.ToString();
+            valueDefineString = valueDefineString.Substring(0, valueDefineString.Length - 1);
+
+            string insertSqlString = string.Format(_INSERT_DATA_SQL, _CombineDatabaseTableFullName(tableName), fieldNameDefineString, valueDefineString);
+
+            // 执行插入操作
+            try
+            {
+                MySqlCommand cmd = new MySqlCommand(insertSqlString, _conn);
+                int insertCount = cmd.ExecuteNonQuery();
+                if (insertCount < count)
                 {
-                    string inputData = fieldInfo.Data[i].ToString();
-                    // 如果数据库用tinyint(1)数据类型表示bool型，比如要写入true，SQL语句中可以写为'1'或者不带单引号的true
-                    if ("true".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
-                        values.Add("'1'");
-                    else if ("false".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
-                        values.Add("'0'");
-                    else
-                        values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
+                    errorString = string.Format("需要插入{0}条数据但仅插入了{1}条");
+                    return false;
                 }
                 else
-                    values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
+                {
+                    errorString = null;
+                    return true;
+                }
             }
-            valueDefineStringBuilder.AppendFormat("({0}),", Utils.CombineString(values, ","));
-        }
-        // 去掉末尾多余的逗号
-        string valueDefineString = valueDefineStringBuilder.ToString();
-        valueDefineString = valueDefineString.Substring(0, valueDefineString.Length - 1);
-
-        string insertSqlString = string.Format(_INSERT_DATA_SQL, _CombineDatabaseTableFullName(tableName), fieldNameDefineString, valueDefineString);
-
-        // 执行插入操作
-        try
-        {
-            MySqlCommand cmd = new MySqlCommand(insertSqlString, _conn);
-            int insertCount = cmd.ExecuteNonQuery();
-            if (insertCount < count)
+            catch (MySqlException exception)
             {
-                errorString = string.Format("需要插入{0}条数据但仅插入了{1}条");
+                errorString = exception.Message;
                 return false;
             }
-            else
-            {
-                errorString = null;
-                return true;
-            }
         }
-        catch (MySqlException exception)
+        else
         {
-            errorString = exception.Message;
-            return false;
+            errorString = null;
+            return true;
         }
     }
 
@@ -313,7 +323,7 @@ public class TableExportToMySQLHelper
         return string.Format("`{0}`.`{1}`", _schemaName, tableName);
     }
 
-    private static bool _CreateTable(string tableName, TableInfo tableInfo, out string errorString)
+    private static bool _CreateTable(string tableName, TableInfo tableInfo, string comment, out string errorString)
     {
         // 生成在创建数据表时所有字段的声明
         StringBuilder fieldDefineStringBuilder = new StringBuilder();
@@ -357,7 +367,8 @@ public class TableExportToMySQLHelper
             fieldDefineStringBuilder.AppendFormat("`{0}` {1} COMMENT '{2}',", fieldInfo.DatabaseFieldName, fieldInfo.DatabaseFieldType, fieldInfo.Desc);
         }
 
-        string createTableSql = string.Format(_CREATE_TABLE_SQL, _CombineDatabaseTableFullName(tableName), fieldDefineStringBuilder.ToString(), tableInfo.GetKeyColumnFieldInfo().DatabaseFieldName);
+        string createTableExtraParam = AppValues.ConfigData.ContainsKey(AppValues.APP_CONFIG_KEY_CREATE_DATABASE_TABLE_EXTRA_PARAM) ? AppValues.ConfigData[AppValues.APP_CONFIG_KEY_CREATE_DATABASE_TABLE_EXTRA_PARAM] : string.Empty;
+        string createTableSql = string.Format(_CREATE_TABLE_SQL, _CombineDatabaseTableFullName(tableName), fieldDefineStringBuilder.ToString(), tableInfo.GetKeyColumnFieldInfo().DatabaseFieldName, comment, createTableExtraParam);
 
         try
         {

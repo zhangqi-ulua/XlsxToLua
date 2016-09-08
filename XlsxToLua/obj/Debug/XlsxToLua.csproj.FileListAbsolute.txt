@@ -1,5 +1,0 @@
-D:\表格导出工具\XlsxToLua\bin\Debug\XlsxToLua.exe
-D:\表格导出工具\XlsxToLua\bin\Debug\XlsxToLua.pdb
-D:\表格导出工具\XlsxToLua\bin\Debug\MySql.Data.dll
-D:\表格导出工具\XlsxToLua\obj\Debug\XlsxToLua.exe
-D:\表格导出工具\XlsxToLua\obj\Debug\XlsxToLua.pdb

@@ -1,6 +1,0 @@
-D:\表格导出工具\XlsxToLua\bin\Release\XlsxToLua.exe
-D:\表格导出工具\XlsxToLua\bin\Release\XlsxToLua.pdb
-D:\表格导出工具\XlsxToLua\bin\Release\MySql.Data.dll
-D:\表格导出工具\XlsxToLua\obj\Release\XlsxToLua.csprojResolveAssemblyReference.cache
-D:\表格导出工具\XlsxToLua\obj\Release\XlsxToLua.exe
-D:\表格导出工具\XlsxToLua\obj\Release\XlsxToLua.pdb

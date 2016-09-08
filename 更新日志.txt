@@ -1,6 +1,12 @@
 ﻿本文件仅列举版本新增功能的大致介绍，详细使用请参考“XlsxToLua工具说明.txt”
 辅助工具的说明请参考“辅助工具说明.txt”
 
+======= V5.1 2016.9.8 ======
+
+1、导出Excel文件到MySQL数据库创建表格时允许自定义额外参数，如设定Charset等
+2、Excel文件中增加exportDatabaseTableComment配置，可将说明信息作为导出的MySQL数据库表格的Comment。MySQLToExcel工具同步增加直接将数据库表Comment导出为exportDatabaseTableComment配置的功能
+3、增加非法值检查规则，与有效值检查相反
+
 ======= V5.0 2016.7.14 ======
 
 1、ref检查规则允许声明不进行ref检查的排除值（现在在进行ref检查时，可以很方便地排除那些具有特殊含义的不需要进行检查的数值）

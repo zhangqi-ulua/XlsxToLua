@@ -96,151 +96,185 @@ Client目录完整路径：D:\表格导出工具\XlsxToLua\bin\Debug\ClientVirtu
 字段"testEffectiveForTime"（列号：W）未通过"{00:00:00,01:01:01}"的检查规则
 第8行数据"01:00:00"不属于有效取值中的一个
 
-字段"testNotEmptyForString1"（列号：X）未通过"notEmpty"的检查规则
+字段"testIllegalForInt"（列号：X）未通过"!{1,3,5}"的检查规则
+第7行数据"1"属于非法取值中的一个
+第9行数据"5"属于非法取值中的一个
+
+字段"testIllegalForFloat"（列号：Y）未通过"!{1.2,3.7,5.0}"的检查规则
+第6行数据"1.2"属于非法取值中的一个
+第8行数据"3.7"属于非法取值中的一个
+第9行数据"5"属于非法取值中的一个
+
+字段"testIllegalForLong"（列号：Z）未通过"! {-1467331200000, 1467331200000, 1470009600000}"的检查规则
+第6行数据"-1467331200000"属于非法取值中的一个
+第7行数据"1467331200000"属于非法取值中的一个
+第8行数据"1470009600000"属于非法取值中的一个
+
+字段"testIllegalForString1"（列号：AA）未通过"!{ a ,b,cd}"的检查规则
+第7行数据"b"属于非法取值中的一个
+第8行数据" a "属于非法取值中的一个
+第9行数据"cd"属于非法取值中的一个
+
+字段"testIllegalForString2"（列号：AB）未通过"! { a b c } ( )"的检查规则
+第6行数据"a"属于非法取值中的一个
+第7行数据"b"属于非法取值中的一个
+第8行数据"c"属于非法取值中的一个
+
+字段"testIllegalForDate"（列号：AC）未通过"!{2016-07-01 00:00:00,2016-07-01 01:01:01}"的检查规则
+第6行数据"2016-07-01 00:00:00"属于非法取值中的一个
+第7行数据"2016-07-01 00:00:00"属于非法取值中的一个
+第9行数据"2016-07-01 01:01:01"属于非法取值中的一个
+
+字段"testIllegalForTime"（列号：AD）未通过"! {00:00:00,01:01:01}"的检查规则
+第6行数据"00:00:00"属于非法取值中的一个
+第7行数据"00:00:00"属于非法取值中的一个
+第9行数据"01:01:01"属于非法取值中的一个
+
+字段"testNotEmptyForString1"（列号：AE）未通过"notEmpty"的检查规则
 存在以下空数据，行号分别为：6
 
-字段"testNotEmptyForString2"（列号：Y）未通过"notEmpty[trim]"的检查规则
+字段"testNotEmptyForString2"（列号：AF）未通过"notEmpty[trim]"的检查规则
 存在以下空数据，行号分别为：6, 8, 9
 
-字段"testNotEmptyForLang1"（列号：Z）未通过"notEmpty[key]"的检查规则
+字段"testNotEmptyForLang1"（列号：AG）未通过"notEmpty[key]"的检查规则
 存在以下空数据，行号分别为：6, 7
 
-字段"testNotEmptyForLang2"（列号：AA）未通过"notEmpty[value]"的检查规则
+字段"testNotEmptyForLang2"（列号：AH）未通过"notEmpty[value]"的检查规则
 存在以下空数据，行号分别为：8
 
-字段"testNotEmptyForLang3"（列号：AB）未通过"notEmpty"的检查规则
+字段"testNotEmptyForLang3"（列号：AI）未通过"notEmpty"的检查规则
 存在以下空数据，行号分别为：6, 7, 8
 
-字段"testNotEmptyForLang4"（列号：AC）未通过"notEmpty"的检查规则
+字段"testNotEmptyForLang4"（列号：AJ）未通过"notEmpty"的检查规则
 存在以下空数据，行号分别为：6
 
-字段"testNotEmptyForDate"（列号：AD）未通过"notEmpty"的检查规则
+字段"testNotEmptyForDate"（列号：AK）未通过"notEmpty"的检查规则
 存在以下空数据，行号分别为：6, 7
 
-字段"testNotEmptyForTime"（列号：AE）未通过"notEmpty"的检查规则
+字段"testNotEmptyForTime"（列号：AL）未通过"notEmpty"的检查规则
 存在以下空数据，行号分别为：6, 7
 
-字段"testUniqueForInt"（列号：AF）未通过"unique"的检查规则
+字段"testUniqueForInt"（列号：AM）未通过"unique"的检查规则
 数据类型为Int的字段中，存在以下重复数据：
 数据"0"重复，重复的行号为：6, 8
 
-字段"testUniqueForFloat"（列号：AG）未通过"unique"的检查规则
+字段"testUniqueForFloat"（列号：AN）未通过"unique"的检查规则
 数据类型为Float的字段中，存在以下重复数据：
 数据"1"重复，重复的行号为：6, 7, 8
 
-字段"testUniqueForLong"（列号：AH）未通过"unique"的检查规则
+字段"testUniqueForLong"（列号：AO）未通过"unique"的检查规则
 数据类型为Long的字段中，存在以下重复数据：
 数据"-1467331200000"重复，重复的行号为：7, 9
 
-字段"testUniqueForString"（列号：AI）未通过"unique"的检查规则
+字段"testUniqueForString"（列号：AP）未通过"unique"的检查规则
 数据类型为String的字段中，存在以下重复数据：
 数据" a"重复，重复的行号为：8, 9
 
-字段"testUniqueForLang1"（列号：AK）未通过"unique"的检查规则
+字段"testUniqueForLang1"（列号：AR）未通过"unique"的检查规则
 要求仅检查lang型数据的key值不重复，但存在以下重复key：
 数据"itemName100001"重复，重复的行号为：8, 9
 
-字段"testUniqueForLang2"（列号：AL）未通过"unique[value]"的检查规则
+字段"testUniqueForLang2"（列号：AS）未通过"unique[value]"的检查规则
 要求检查lang型数据的key值与Value值均不重复，但存在以下重复数据：
 数据"小号经验药水"重复，重复的行号为：6, 7
 
-字段"testUniqueForDate"（列号：AM）未通过"unique"的检查规则
+字段"testUniqueForDate"（列号：AT）未通过"unique"的检查规则
 数据类型为Date的字段中，存在以下重复数据：
 数据"2016-07-01 00:00:00"重复，重复的行号为：数据"2016/7/1 0:00:00"重复，重复的行号为：6, 7, 8
 
-字段"testUniqueForTime"（列号：AN）未通过"unique"的检查规则
+字段"testUniqueForTime"（列号：AU）未通过"unique"的检查规则
 数据类型为Time的字段中，存在以下重复数据：
 数据"00:00:00"重复，重复的行号为：6, 7
 
-字段"testRefForInt"（列号：AO）未通过"ref:TestChecker"的检查规则
+字段"testRefForInt"（列号：AV）未通过"ref:TestChecker"的检查规则
 存在以下未找到引用关系的数据行：
 第9行数据"4"在对应参考列不存在
 
-字段"testRefForInt2"（列号：AP）未通过"ref:TestChecker(except{3})"的检查规则
+字段"testRefForInt2"（列号：AW）未通过"ref:TestChecker(except{3})"的检查规则
 存在以下未找到引用关系的数据行：
 第9行数据"4"在对应参考列不存在
 
-字段"testRefForFloat"（列号：AQ）未通过"ref:TestChecker-testRange1ForFloat1"的检查规则
+字段"testRefForFloat"（列号：AX）未通过"ref:TestChecker-testRange1ForFloat1"的检查规则
 值引用检查规则声明错误，表格"TestChecker"中无法根据索引字符串"testRange1ForFloat1"找到要参考的字段，错误信息为：此表格中不存在名为"testRange1ForFloat1"的字段，若此字段为dict或array的子元素，请通过.或[x]的形式索引到该子字段
 
-字段"testRefForString"（列号：AR）未通过"ref:TestChecker-testEffectiveForString1"的检查规则
+字段"testRefForString"（列号：AY）未通过"ref:TestChecker-testEffectiveForString1"的检查规则
 存在以下未找到引用关系的数据行：
 第6行数据"a"在对应参考列不存在
 第7行数据" a"在对应参考列不存在
 第8行数据" a  "在对应参考列不存在
 
-字段"testRefForSet"（列号：AS）未通过"ref:TestChecker-testFunc[1].id(except{101})"的检查规则
+字段"testRefForSet"（列号：AZ）未通过"ref:TestChecker-testFunc[1].id(except{101})"的检查规则
 存在以下未找到引用关系的数据行：
 第7行数据"3"在对应参考列不存在
 
-字段"testGreaterThanForInt"（列号：AU）未通过">=testGreaterThanNumberAsReference"的检查规则
+字段"testGreaterThanForInt"（列号：BB）未通过">=testGreaterThanNumberAsReference"的检查规则
 以下行中数据不满足>=的值大小比较检查规则
 第9行中，本字段所填值为"50"，与其比较的的字段所填值为"50.6"
 
-字段"testGreaterThanForLong"（列号：AV）未通过">testGreaterThanNumberAsReference"的检查规则
+字段"testGreaterThanForLong"（列号：BC）未通过">testGreaterThanNumberAsReference"的检查规则
 以下行中数据不满足>的值大小比较检查规则
 第7行中，本字段所填值为"0"，与其比较的的字段所填值为"0"
 第8行中，本字段所填值为"20"，与其比较的的字段所填值为"20"
 第9行中，本字段所填值为"50"，与其比较的的字段所填值为"50.6"
 
-字段"testGreaterThanForFloat"（列号：AW）未通过">testGreaterThanNumberAsReference"的检查规则
+字段"testGreaterThanForFloat"（列号：BD）未通过">testGreaterThanNumberAsReference"的检查规则
 以下行中数据不满足>的值大小比较检查规则
 第6行中，本字段所填值为"-10.5"，与其比较的的字段所填值为"-10.5"
 第7行中，本字段所填值为"0"，与其比较的的字段所填值为"0"
 
-字段"testGreaterThanForDate"（列号：AY）未通过">=testGreaterThanDateAsReference"的检查规则
+字段"testGreaterThanForDate"（列号：BF）未通过">=testGreaterThanDateAsReference"的检查规则
 以下行中数据不满足>=的值大小比较检查规则
 第7行中，本字段所填值为"2016-07-01 00:00:00"，与其比较的的字段所填值为"2016-07-01 00:00:01"
 第8行中，本字段所填值为"2016-07-02 00:00:59"，与其比较的的字段所填值为"2016-07-02 01:00:00"
 
-字段"testGreaterThanForTime"（列号：BA）未通过">testGreaterThanTimeAsReference"的检查规则
+字段"testGreaterThanForTime"（列号：BH）未通过">testGreaterThanTimeAsReference"的检查规则
 以下行中数据不满足>的值大小比较检查规则
 第6行中，本字段所填值为"00:00:00"，与其比较的的字段所填值为"00:00:00"
 第9行中，本字段所填值为"01:01:01"，与其比较的的字段所填值为"01:01:01"
 
-字段"testGreaterThanForSet"（列号：BB）未通过">testFunc[1].id"的检查规则
+字段"testGreaterThanForSet"（列号：BI）未通过">testFunc[1].id"的检查规则
 以下行中数据不满足>的值大小比较检查规则
 第6行中，本字段所填值为"1"，与其比较的的字段所填值为"100001"
 第7行中，本字段所填值为"0"，与其比较的的字段所填值为"0"
 
-字段"testConfigRule"（列号：BC）未通过"{1,2,3}"的检查规则
+字段"testConfigRule"（列号：BJ）未通过"{1,2,3}"的检查规则
 第9行数据"4"不属于有效取值中的一个
 
-字段"testFile1"（列号：BD）未通过"file(png):\Assert\Resources\Texture\PropIcon"的检查规则
+字段"testFile1"（列号：BK）未通过"file(png):\Assert\Resources\Texture\PropIcon"的检查规则
 存在以下找不到的文件：
 第6行数据，填写的文件名为
 第8行数据，填写的文件名为item2
 
-字段"testFile2"（列号：BE）未通过"file:\Assert\Resources\Texture\PropIcon"的检查规则
+字段"testFile2"（列号：BL）未通过"file:\Assert\Resources\Texture\PropIcon"的检查规则
 存在以下找不到的文件：
 第7行数据，填写的文件名为item1.jpg
 第8行数据，填写的文件名为item2
 
-字段"testFunc"（列号：BF）未通过"func:CheckRewardListField"的检查规则
+字段"testFunc"（列号：BM）未通过"func:CheckRewardListField"的检查规则
 未通过自定义函数规则检查，存在以下错误：
 第7行的奖励列表中含有同种奖励类型（3）
-第7行第BK列的奖励项中所填的奖励数量低于1
-第8行第BG列的奖励项中所填的奖励道具（id=100）在道具表中不存在
+第7行第BR列的奖励项中所填的奖励数量低于1
+第8行第BN列的奖励项中所填的奖励道具（id=100）在道具表中不存在
 第9行的奖励列表中含有同种道具（id=100001）类型
 检查type列发现以下无效type类型：
-字段"type"（列号：BL）未通过"[1,10]"的检查规则
+字段"type"（列号：BS）未通过"[1,10]"的检查规则
 第8行数据"11"不满足要求
 
 
 
-字段"type"（列号：BH）未通过"{1,2}"的检查规则
+字段"type"（列号：BO）未通过"{1,2}"的检查规则
 第7行数据"3"不属于有效取值中的一个
 
-字段"count"（列号：BJ）未通过"[1,50]"的检查规则
+字段"count"（列号：BQ）未通过"[1,50]"的检查规则
 第9行数据"55"不满足要求
 
-字段"count"（列号：BN）未通过"[1,50]"的检查规则
+字段"count"（列号：BU）未通过"[1,50]"的检查规则
 第7行数据"0"不满足要求
 
-字段"testMultipleCheckRule"（列号：BO）未通过"notEmpty[trim]"的检查规则
+字段"testMultipleCheckRule"（列号：BV）未通过"notEmpty[trim]"的检查规则
 存在以下空数据，行号分别为：6, 7
 
-字段"testMultipleCheckRule"（列号：BO）未通过"unique"的检查规则
+字段"testMultipleCheckRule"（列号：BV）未通过"unique"的检查规则
 数据类型为String的字段中，存在以下重复数据：
 数据" a"重复，重复的行号为：8, 9
 

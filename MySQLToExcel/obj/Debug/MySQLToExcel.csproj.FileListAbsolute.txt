@@ -1,8 +1,0 @@
-D:\表格导出工具\MySQLToExcel\obj\Debug\Interop.VBIDE.dll
-D:\表格导出工具\MySQLToExcel\obj\Debug\MySQLToExcel.csproj.ResolveComReference.cache
-D:\表格导出工具\MySQLToExcel\bin\Debug\MySQLToExcel.exe
-D:\表格导出工具\MySQLToExcel\bin\Debug\MySQLToExcel.pdb
-D:\表格导出工具\MySQLToExcel\bin\Debug\MySql.Data.dll
-D:\表格导出工具\MySQLToExcel\bin\Debug\Interop.VBIDE.dll
-D:\表格导出工具\MySQLToExcel\obj\Debug\MySQLToExcel.exe
-D:\表格导出工具\MySQLToExcel\obj\Debug\MySQLToExcel.pdb

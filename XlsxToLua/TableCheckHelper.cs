@@ -122,6 +122,11 @@ public class TableCheckHelper
                         CheckEffective(fieldInfo, checkRule, out errorString);
                         break;
                     }
+                case TableCheckType.Illegal:
+                    {
+                        CheckIllegal(fieldInfo, checkRule, out errorString);
+                        break;
+                    }
                 case TableCheckType.GreaterThan:
                     {
                         CheckGreaterThan(fieldInfo, checkRule, out errorString);
@@ -278,6 +283,13 @@ public class TableCheckHelper
                 errorString = string.Format("config文件中找不到名为\"{0}\"的检查规则配置", ruleString);
                 return null;
             }
+        }
+        else if (ruleString.StartsWith("!") && ruleString.IndexOf("{") > 0)
+        {
+            FieldCheckRule checkRule = new FieldCheckRule();
+            checkRule.CheckType = TableCheckType.Illegal;
+            checkRule.CheckRuleString = ruleString;
+            oneCheckRule.Add(checkRule);
         }
         else if (ruleString.StartsWith("{"))
         {
@@ -965,185 +977,188 @@ public class TableCheckHelper
     }
 
     /// <summary>
-    /// 用于int、long、float、string、date或time型取值必须为指定有效取值中的一个的检查
+    /// 获取某字段的所有数据中属于或不属于指定集合中取值的数据所在索引
     /// </summary>
-    public static bool CheckEffective(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
+    /// <param name="data">字段数据</param>
+    /// <param name="dataType">字段数据类型</param>
+    /// <param name="setValueDefineString">集合取值的定义字符串</param>
+    /// <param name="isInSet">获取属于还是不属于集合中数据所在索引</param>
+    /// <param name="repeatedSetValue">集合定义字符串中存在的重复定义值</param>
+    /// <param name="errorDataIndex">不满足属于或不属于要求的数据所在索引</param>
+    /// <param name="errorString">检查规则定义错误信息</param>
+    private static void _GetValueIsInSet(List<object> data, DataType dataType, string setValueDefineString, bool isInSet, out List<object> repeatedSetValue, out List<int> errorDataIndex, out string errorString)
     {
-        if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.Date || fieldInfo.DataType == DataType.Time)
+        repeatedSetValue = new List<object>();
+        errorDataIndex = new List<int>();
+        errorString = null;
+
+        if (dataType == DataType.Int || dataType == DataType.Long || dataType == DataType.Float || dataType == DataType.Date || dataType == DataType.Time)
         {
-            // 去除首尾花括号后，通过英文逗号分隔每个有效值即可
-            if (!(checkRule.CheckRuleString.StartsWith("{") && checkRule.CheckRuleString.EndsWith("}")))
+            // 去除首尾花括号后，通过英文逗号分隔每个集合值即可
+            if (!(setValueDefineString.StartsWith("{") && setValueDefineString.EndsWith("}")))
             {
-                errorString = "值有效性检查定义错误：必须在首尾用一对花括号包裹整个定义内容\n";
-                return false;
+                errorString = "集合值定义错误：必须在首尾用一对花括号包裹整个定义内容";
+                return;
             }
-            string temp = checkRule.CheckRuleString.Substring(1, checkRule.CheckRuleString.Length - 2).Trim();
+            string temp = setValueDefineString.Substring(1, setValueDefineString.Length - 2).Trim();
             if (string.IsNullOrEmpty(temp))
             {
-                errorString = "值有效性检查定义错误：至少需要输入一个有效值\n";
-                return false;
+                errorString = "集合值定义错误：至少需要输入一个值";
+                return;
             }
 
             string[] values = temp.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long)
+            if (dataType == DataType.Int || dataType == DataType.Long)
             {
-                // 存储读取的用户设置的有效值（key：有效值， value：恒为true）
-                Dictionary<long, bool> effectiveValues = new Dictionary<long, bool>();
+                // 存储用户设置的取值集合（key：取值， value：恒为true）
+                Dictionary<long, bool> setValues = new Dictionary<long, bool>();
                 for (int i = 0; i < values.Length; ++i)
                 {
                     string oneValueString = values[i].Trim();
                     long oneValue;
                     if (long.TryParse(oneValueString, out oneValue) == true)
                     {
-                        if (effectiveValues.ContainsKey(oneValue))
-                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue));
+                        // 记录集合定义字符串中的重复值
+                        if (setValues.ContainsKey(oneValue))
+                            repeatedSetValue.Add(oneValue);
                         else
-                            effectiveValues.Add(oneValue, true);
+                            setValues.Add(oneValue, true);
                     }
                     else
                     {
-                        errorString = string.Format("值有效性检查定义错误：出现了非{0}型有效值的规则定义，其为\"{1}\"\n", fieldInfo.DataType, oneValueString);
-                        return false;
+                        errorString = string.Format("集合值定义中出现了非{0}型数据，其为\"{1}\"\n", dataType, oneValueString);
+                        return;
                     }
                 }
                 // 对本列所有数据进行检查
-                // 存储检查出的非法值（key：数据索引， value：填写值）
-                Dictionary<int, long> illegalValue = new Dictionary<int, long>();
-                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+                if (isInSet == true)
                 {
-                    // 忽略无效集合元素下属子类型的空值或本身为空值
-                    if (fieldInfo.Data[i] == null)
-                        continue;
+                    for (int i = 0; i < data.Count; ++i)
+                    {
+                        // 忽略无效集合元素下属子类型的空值或本身为空值
+                        if (data[i] == null)
+                            continue;
 
-                    long inputData = Convert.ToInt64(fieldInfo.Data[i]);
-                    if (!effectiveValues.ContainsKey(inputData))
-                        illegalValue.Add(i, inputData);
-                }
-
-                if (illegalValue.Count > 0)
-                {
-                    StringBuilder illegalValueInfo = new StringBuilder();
-                    foreach (var item in illegalValue)
-                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
-
-                    errorString = illegalValueInfo.ToString();
-                    return false;
+                        long inputData = Convert.ToInt64(data[i]);
+                        if (!setValues.ContainsKey(inputData))
+                            errorDataIndex.Add(i);
+                    }
                 }
                 else
                 {
-                    errorString = null;
-                    return true;
+                    for (int i = 0; i < data.Count; ++i)
+                    {
+                        if (data[i] == null)
+                            continue;
+
+                        long inputData = Convert.ToInt64(data[i]);
+                        if (setValues.ContainsKey(inputData))
+                            errorDataIndex.Add(i);
+                    }
                 }
             }
-            else if (fieldInfo.DataType == DataType.Float)
+            else if (dataType == DataType.Float)
             {
-                // 存储读取的用户设置的有效值（key：有效值， value：恒为true）
-                Dictionary<float, bool> effectiveValues = new Dictionary<float, bool>();
+                Dictionary<float, bool> setValues = new Dictionary<float, bool>();
                 for (int i = 0; i < values.Length; ++i)
                 {
                     string oneValueString = values[i].Trim();
                     float oneValue;
                     if (float.TryParse(oneValueString, out oneValue) == true)
                     {
-                        if (effectiveValues.ContainsKey(oneValue))
-                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue));
+                        if (setValues.ContainsKey(oneValue))
+                            repeatedSetValue.Add(oneValue);
                         else
-                            effectiveValues.Add(oneValue, true);
+                            setValues.Add(oneValue, true);
                     }
                     else
                     {
-                        errorString = string.Format("值有效性检查定义错误：出现了非float型有效值的规则定义，其为\"{0}\"", oneValueString);
-                        return false;
+                        errorString = string.Format("集合值定义中出现了非float型数据，其为\"{0}\"", oneValueString);
+                        return;
                     }
                 }
-                // 对本列所有数据进行检查
-                // 存储检查出的非法值（key：数据索引， value：填写值）
-                Dictionary<int, float> illegalValue = new Dictionary<int, float>();
-                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+
+                if (isInSet == true)
                 {
-                    // 忽略无效集合元素下属子类型的空值或本身为空值
-                    if (fieldInfo.Data[i] == null)
-                        continue;
+                    for (int i = 0; i < data.Count; ++i)
+                    {
+                        if (data[i] == null)
+                            continue;
 
-                    float inputData = Convert.ToSingle(fieldInfo.Data[i]);
-                    if (!effectiveValues.ContainsKey(inputData))
-                        illegalValue.Add(i, inputData);
-                }
-
-                if (illegalValue.Count > 0)
-                {
-                    StringBuilder illegalValueInfo = new StringBuilder();
-                    foreach (var item in illegalValue)
-                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
-
-                    errorString = illegalValueInfo.ToString();
-                    return false;
+                        float inputData = Convert.ToSingle(data[i]);
+                        if (!setValues.ContainsKey(inputData))
+                            errorDataIndex.Add(i);
+                    }
                 }
                 else
                 {
-                    errorString = null;
-                    return true;
+                    for (int i = 0; i < data.Count; ++i)
+                    {
+                        if (data[i] == null)
+                            continue;
+
+                        float inputData = Convert.ToSingle(data[i]);
+                        if (setValues.ContainsKey(inputData))
+                            errorDataIndex.Add(i);
+                    }
                 }
             }
-            else if (fieldInfo.DataType == DataType.Date)
+            else if (dataType == DataType.Date)
             {
                 DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
                 dateTimeFormat.ShortDatePattern = AppValues.APP_DEFAULT_DATE_FORMAT;
-                // 存储读取的用户设置的有效值（key：有效值， value：恒为true）
-                Dictionary<DateTime, bool> effectiveValues = new Dictionary<DateTime, bool>();
+
+                Dictionary<DateTime, bool> setValues = new Dictionary<DateTime, bool>();
                 for (int i = 0; i < values.Length; ++i)
                 {
                     string oneValueString = values[i].Trim();
                     try
                     {
                         DateTime oneValue = Convert.ToDateTime(oneValueString, dateTimeFormat);
-                        if (effectiveValues.ContainsKey(oneValue))
-                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT)));
+                        if (setValues.ContainsKey(oneValue))
+                            repeatedSetValue.Add(oneValue);
                         else
-                            effectiveValues.Add(oneValue, true);
+                            setValues.Add(oneValue, true);
                     }
                     catch
                     {
-                        errorString = string.Format("值有效性检查定义错误：出现了非法的date型有效值定义，其为\"{0}\"，请按{1}的形式填写", oneValueString, AppValues.APP_DEFAULT_DATE_FORMAT);
-                        return false;
+                        errorString = string.Format("集合值定义中出现了非法的date型数据，其为\"{0}\"，请按{1}的形式填写", oneValueString, AppValues.APP_DEFAULT_DATE_FORMAT);
+                        return;
                     }
                 }
-                // 对本列所有数据进行检查
-                // 存储检查出的非法值（key：数据索引， value：填写值）
-                Dictionary<int, DateTime> illegalValue = new Dictionary<int, DateTime>();
-                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+
+                if (isInSet == true)
                 {
-                    // 忽略无效集合元素下属子类型的空值或本身为空值
-                    if (fieldInfo.Data[i] == null)
-                        continue;
+                    for (int i = 0; i < data.Count; ++i)
+                    {
+                        if (data[i] == null)
+                            continue;
 
-                    DateTime inputData = (DateTime)fieldInfo.Data[i];
-                    if (!effectiveValues.ContainsKey(inputData))
-                        illegalValue.Add(i, inputData);
-                }
-
-                if (illegalValue.Count > 0)
-                {
-                    StringBuilder illegalValueInfo = new StringBuilder();
-                    foreach (var item in illegalValue)
-                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, ((DateTime)(item.Value)).ToString(AppValues.APP_DEFAULT_DATE_FORMAT));
-
-                    errorString = illegalValueInfo.ToString();
-                    return false;
+                        DateTime inputData = (DateTime)data[i];
+                        if (!setValues.ContainsKey(inputData))
+                            errorDataIndex.Add(i);
+                    }
                 }
                 else
                 {
-                    errorString = null;
-                    return true;
+                    for (int i = 0; i < data.Count; ++i)
+                    {
+                        if (data[i] == null)
+                            continue;
+
+                        DateTime inputData = (DateTime)data[i];
+                        if (setValues.ContainsKey(inputData))
+                            errorDataIndex.Add(i);
+                    }
                 }
             }
-            else if (fieldInfo.DataType == DataType.Time)
+            else if (dataType == DataType.Time)
             {
                 DateTimeFormatInfo dateTimeFormat = new DateTimeFormatInfo();
                 dateTimeFormat.ShortTimePattern = AppValues.APP_DEFAULT_TIME_FORMAT;
-                // 存储读取的用户设置的有效值（key：有效值， value：恒为true）
-                Dictionary<DateTime, bool> effectiveValues = new Dictionary<DateTime, bool>();
+
+                Dictionary<DateTime, bool> setValues = new Dictionary<DateTime, bool>();
                 for (int i = 0; i < values.Length; ++i)
                 {
                     string oneValueString = values[i].Trim();
@@ -1152,146 +1167,264 @@ public class TableCheckHelper
                         // 此函数会将DateTime的日期部分自动赋值为当前时间
                         DateTime tempDateTime = Convert.ToDateTime(oneValueString, dateTimeFormat);
                         DateTime oneValue = new DateTime(AppValues.REFERENCE_DATE.Year, AppValues.REFERENCE_DATE.Month, AppValues.REFERENCE_DATE.Day, tempDateTime.Hour, tempDateTime.Minute, tempDateTime.Second);
-                        if (effectiveValues.ContainsKey(oneValue))
-                            Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), oneValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT)));
+                        if (setValues.ContainsKey(oneValue))
+                            repeatedSetValue.Add(oneValue);
                         else
-                            effectiveValues.Add(oneValue, true);
+                            setValues.Add(oneValue, true);
                     }
                     catch
                     {
-                        errorString = string.Format("值有效性检查定义错误：出现了非法的time型有效值定义，其为\"{0}\"，请按{1}的形式填写", oneValueString, AppValues.APP_DEFAULT_TIME_FORMAT);
-                        return false;
+                        errorString = string.Format("集合值定义中出现了非法的time型数据，其为\"{0}\"，请按{1}的形式填写", oneValueString, AppValues.APP_DEFAULT_TIME_FORMAT);
+                        return;
                     }
                 }
-                // 对本列所有数据进行检查
-                // 存储检查出的非法值（key：数据索引， value：填写值）
-                Dictionary<int, DateTime> illegalValue = new Dictionary<int, DateTime>();
-                for (int i = 0; i < fieldInfo.Data.Count; ++i)
+
+                if (isInSet == true)
                 {
-                    // 忽略无效集合元素下属子类型的空值或本身为空值
-                    if (fieldInfo.Data[i] == null)
-                        continue;
+                    for (int i = 0; i < data.Count; ++i)
+                    {
+                        if (data[i] == null)
+                            continue;
 
-                    DateTime inputData = (DateTime)fieldInfo.Data[i];
-                    if (!effectiveValues.ContainsKey(inputData))
-                        illegalValue.Add(i, inputData);
-                }
-
-                if (illegalValue.Count > 0)
-                {
-                    StringBuilder illegalValueInfo = new StringBuilder();
-                    foreach (var item in illegalValue)
-                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, ((DateTime)(item.Value)).ToString(AppValues.APP_DEFAULT_TIME_FORMAT));
-
-                    errorString = illegalValueInfo.ToString();
-                    return false;
+                        DateTime inputData = (DateTime)data[i];
+                        if (!setValues.ContainsKey(inputData))
+                            errorDataIndex.Add(i);
+                    }
                 }
                 else
                 {
-                    errorString = null;
-                    return true;
+                    for (int i = 0; i < data.Count; ++i)
+                    {
+                        if (data[i] == null)
+                            continue;
+
+                        DateTime inputData = (DateTime)data[i];
+                        if (setValues.ContainsKey(inputData))
+                            errorDataIndex.Add(i);
+                    }
                 }
             }
             else
             {
-                errorString = "用CheckEffective函数检查了非int、long、float、date、time型的字段";
+                errorString = "用_GetValueIsInSet函数检查了非int、long、float、date、time型的字段";
                 Utils.LogErrorAndExit(errorString);
-                return false;
+                return;
             }
         }
-        else if (fieldInfo.DataType == DataType.String)
+        else if (dataType == DataType.String)
         {
-            // 用于分隔有效值定义的字符，默认为英文逗号
+            // 用于分隔集合值定义的字符，默认为英文逗号
             char separator = ',';
-            // 去除首尾花括号后整个有效值定义内容
-            string effectiveDefineString = checkRule.CheckRuleString;
+            // 去除首尾花括号后整个集合值定义内容
+            string tempSetValueDefineString = setValueDefineString;
 
             // 右边花括号的位置
-            int rightBraceIndex = checkRule.CheckRuleString.LastIndexOf('}');
+            int rightBraceIndex = setValueDefineString.LastIndexOf('}');
             if (rightBraceIndex == -1)
             {
-                errorString = "string型值有效性检查定义错误：必须用一对花括号包裹整个定义内容\n";
-                return false;
+                errorString = "string型集合值定义错误：必须用一对花括号包裹整个定义内容";
+                return;
             }
-            // 如果声明了分隔有效值的字符
-            if (rightBraceIndex != checkRule.CheckRuleString.Length - 1)
+            // 如果声明了分隔集合值的字符
+            if (rightBraceIndex != setValueDefineString.Length - 1)
             {
-                int leftBracketIndex = checkRule.CheckRuleString.LastIndexOf('(');
-                int rightBracketIndex = checkRule.CheckRuleString.LastIndexOf(')');
+                int leftBracketIndex = setValueDefineString.LastIndexOf('(');
+                int rightBracketIndex = setValueDefineString.LastIndexOf(')');
                 if (leftBracketIndex < rightBraceIndex || rightBracketIndex < leftBracketIndex)
                 {
-                    errorString = "string型值有效性检查定义错误：需要在最后面的括号中声明分隔各个有效值的一个字符，如果使用默认的英文逗号作为分隔符，则不必在最后面用括号声明自定义分隔字符\n";
-                    return false;
+                    errorString = "string型集合值定义错误：需要在最后面的括号中声明分隔各个集合值的一个字符，如果使用默认的英文逗号作为分隔符，则不必在最后面用括号声明自定义分隔字符";
+                    return;
                 }
-                string separatorString = checkRule.CheckRuleString.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1);
+                string separatorString = setValueDefineString.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1);
                 if (separatorString.Length > 1)
                 {
-                    errorString = string.Format("string型值有效性检查定义错误：自定义有效值的分隔字符只能为一个字符，而你输入的为\"{0}\"\n", separatorString);
-                    return false;
+                    errorString = string.Format("string型集合值定义错误：自定义集合值的分隔字符只能为一个字符，而你输入的为\"{0}\"", separatorString);
+                    return;
                 }
                 separator = separatorString[0];
 
-                // 取得前面用花括号包裹的有效值定义
-                effectiveDefineString = checkRule.CheckRuleString.Substring(0, rightBraceIndex + 1).Trim();
+                // 取得前面用花括号包裹的集合值定义
+                tempSetValueDefineString = setValueDefineString.Substring(0, rightBraceIndex + 1).Trim();
             }
 
             // 去除花括号
-            effectiveDefineString = effectiveDefineString.Substring(1, effectiveDefineString.Length - 2);
-            if (string.IsNullOrEmpty(effectiveDefineString))
+            tempSetValueDefineString = tempSetValueDefineString.Substring(1, tempSetValueDefineString.Length - 2);
+            if (string.IsNullOrEmpty(tempSetValueDefineString))
             {
-                errorString = "string型值有效性检查定义错误：至少需要输入一个有效值\n";
-                return false;
+                errorString = "string型集合值定义错误：至少需要输入一个集合值";
+                return;
             }
 
-            string[] effectiveValueDefine = effectiveDefineString.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
-            if (effectiveValueDefine.Length == 0)
+            string[] setValueDefine = tempSetValueDefineString.Split(new char[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+            if (setValueDefine.Length == 0)
             {
-                errorString = "string型值有效性检查定义错误：至少需要输入一个有效值\n";
-                return false;
+                errorString = "string型集合值定义错误：至少需要输入一个集合值";
+                return;
             }
 
-            // 存储定义的有效值（key：有效值， value：恒为true）
-            Dictionary<string, bool> effectiveValues = new Dictionary<string, bool>();
-            foreach (string effectiveValue in effectiveValueDefine)
+            // 存储定义的集合值（key：集合值， value：恒为true）
+            Dictionary<string, bool> setValues = new Dictionary<string, bool>();
+            foreach (string setValue in setValueDefine)
             {
-                if (effectiveValues.ContainsKey(effectiveValue))
-                    Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), effectiveValue));
+                if (setValues.ContainsKey(setValue))
+                    repeatedSetValue.Add(setValue);
                 else
-                    effectiveValues.Add(effectiveValue, true);
+                    setValues.Add(setValue, true);
             }
 
             // 对本列所有数据进行检查
-            // 存储检查出的非法值（key：数据索引， value：填写值）
-            Dictionary<int, string> illegalValue = new Dictionary<int, string>();
-            for (int i = 0; i < fieldInfo.Data.Count; ++i)
+            if (isInSet == true)
             {
-                // 忽略无效集合元素下属子类型的空值
-                if (fieldInfo.Data[i] == null)
-                    continue;
+                for (int i = 0; i < data.Count; ++i)
+                {
+                    // 忽略无效集合元素下属子类型的空值
+                    if (data[i] == null)
+                        continue;
 
-                string inputData = fieldInfo.Data[i].ToString();
-                if (!effectiveValues.ContainsKey(inputData))
-                    illegalValue.Add(i, inputData);
+                    string inputData = data[i].ToString();
+                    if (!setValues.ContainsKey(inputData))
+                        errorDataIndex.Add(i);
+                }
             }
+            else
+            {
+                for (int i = 0; i < data.Count; ++i)
+                {
+                    if (data[i] == null)
+                        continue;
 
-            if (illegalValue.Count > 0)
+                    string inputData = data[i].ToString();
+                    if (setValues.ContainsKey(inputData))
+                        errorDataIndex.Add(i);
+                }
+            }
+        }
+        else
+        {
+            errorString = string.Format("该检查只能用于int、long、float、string、date或time型的字段，而该字段为{0}型", dataType);
+            return;
+        }
+    }
+
+    /// <summary>
+    /// 用于int、long、float、string、date或time型取值必须为指定有效取值中的一个的检查
+    /// </summary>
+    public static bool CheckEffective(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
+    {
+        List<object> repeatedSetValue = null;
+        List<int> errorDataIndex = null;
+        _GetValueIsInSet(fieldInfo.Data, fieldInfo.DataType, checkRule.CheckRuleString, true, out repeatedSetValue, out errorDataIndex, out errorString);
+
+        if (errorString == null)
+        {
+            if (repeatedSetValue.Count > 0)
+            {
+                foreach (object setValue in repeatedSetValue)
+                {
+                    if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.String)
+                        Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), setValue));
+                    else if (fieldInfo.DataType == DataType.Date)
+                    {
+                        DateTime dataTimeSetValue = (DateTime)setValue;
+                        Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), dataTimeSetValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT)));
+                    }
+                    else if (fieldInfo.DataType == DataType.Time)
+                    {
+                        DateTime dataTimeSetValue = (DateTime)setValue;
+                        Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的值有效性检查规则定义中，出现了相同的有效值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), dataTimeSetValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT)));
+                    }
+                }
+            }
+            if (errorDataIndex.Count > 0)
             {
                 StringBuilder illegalValueInfo = new StringBuilder();
-                foreach (var item in illegalValue)
-                    illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
+                foreach (int dataIndex in errorDataIndex)
+                {
+                    if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.String)
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", dataIndex + AppValues.DATA_FIELD_DATA_START_INDEX + 1, fieldInfo.Data[dataIndex]);
+                    else if (fieldInfo.DataType == DataType.Date)
+                    {
+                        DateTime dataTimeValue = (DateTime)fieldInfo.Data[dataIndex];
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", dataIndex + AppValues.DATA_FIELD_DATA_START_INDEX + 1, dataTimeValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT));
+                    }
+                    else if (fieldInfo.DataType == DataType.Time)
+                    {
+                        DateTime dataTimeValue = (DateTime)fieldInfo.Data[dataIndex];
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不属于有效取值中的一个\n", dataIndex + AppValues.DATA_FIELD_DATA_START_INDEX + 1, dataTimeValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT));
+                    }
+                }
 
                 errorString = illegalValueInfo.ToString();
                 return false;
             }
             else
-            {
-                errorString = null;
                 return true;
-            }
         }
         else
         {
-            errorString = string.Format("值有效性检查定义只能用于int、long、float、string、date或time型的字段，而该字段为{0}型\n", fieldInfo.DataType);
+            errorString = errorString + "\n";
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 用于int、long、float、string、date或time型取值不允许为指定集合值中的一个的检查
+    /// </summary>
+    public static bool CheckIllegal(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
+    {
+        List<object> repeatedSetValue = null;
+        List<int> errorDataIndex = null;
+        string setValueDefineString = checkRule.CheckRuleString.Substring(1).Trim();
+        _GetValueIsInSet(fieldInfo.Data, fieldInfo.DataType, setValueDefineString, false, out repeatedSetValue, out errorDataIndex, out errorString);
+
+        if (errorString == null)
+        {
+            if (repeatedSetValue.Count > 0)
+            {
+                foreach (object setValue in repeatedSetValue)
+                {
+                    if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.String)
+                        Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的非法值检查规则定义中，出现了相同的非法值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), setValue));
+                    else if (fieldInfo.DataType == DataType.Date)
+                    {
+                        DateTime dataTimeSetValue = (DateTime)setValue;
+                        Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的非法值检查规则定义中，出现了相同的非法值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), dataTimeSetValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT)));
+                    }
+                    else if (fieldInfo.DataType == DataType.Time)
+                    {
+                        DateTime dataTimeSetValue = (DateTime)setValue;
+                        Utils.LogWarning(string.Format("警告：字段{0}（列号：{1}）的非法值检查规则定义中，出现了相同的非法值\"{2}\"，本工具忽略此问题继续进行检查，需要你之后修正规则定义错误\n", fieldInfo.FieldName, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), dataTimeSetValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT)));
+                    }
+                }
+            }
+            if (errorDataIndex.Count > 0)
+            {
+                StringBuilder illegalValueInfo = new StringBuilder();
+                foreach (int dataIndex in errorDataIndex)
+                {
+                    if (fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float || fieldInfo.DataType == DataType.String)
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"属于非法取值中的一个\n", dataIndex + AppValues.DATA_FIELD_DATA_START_INDEX + 1, fieldInfo.Data[dataIndex]);
+                    else if (fieldInfo.DataType == DataType.Date)
+                    {
+                        DateTime dataTimeValue = (DateTime)fieldInfo.Data[dataIndex];
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"属于非法取值中的一个\n", dataIndex + AppValues.DATA_FIELD_DATA_START_INDEX + 1, dataTimeValue.ToString(AppValues.APP_DEFAULT_DATE_FORMAT));
+                    }
+                    else if (fieldInfo.DataType == DataType.Time)
+                    {
+                        DateTime dataTimeValue = (DateTime)fieldInfo.Data[dataIndex];
+                        illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"属于非法取值中的一个\n", dataIndex + AppValues.DATA_FIELD_DATA_START_INDEX + 1, dataTimeValue.ToString(AppValues.APP_DEFAULT_TIME_FORMAT));
+                    }
+                }
+
+                errorString = illegalValueInfo.ToString();
+                return false;
+            }
+            else
+                return true;
+        }
+        else
+        {
+            errorString = errorString + "\n";
             return false;
         }
     }
@@ -2354,6 +2487,7 @@ public enum TableCheckType
 
     Range,        // 数值范围检查
     Effective,    // 值有效性检查（填写值必须是几个合法值中的一个）
+    Illegal,      // 非法值检查（填写值不允许为几个非法值中的一个）
     NotEmpty,     // 值非空检查
     Unique,       // 值唯一性检查
     Ref,          // 值引用检查（某个数值必须为另一个表格中某字段中存在的值）
