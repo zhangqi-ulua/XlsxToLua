@@ -315,7 +315,7 @@ public class TableCheckHelper
     }
 
     /// <summary>
-    /// 用于输入数据的非空检查，适用于int、long、float、string、lang、date或time型
+    /// 用于输入数据的非空检查，适用于int、long、float、string、lang、date、time、json或tableString型
     /// 注意：string类型要求字符串不能为空但允许为连续空格字符串，如果也不允许为连续空格字符串，需要声明为notEmpty[trim]
     /// 注意：lang类型声明notEmpty[key]只检查是否填写了key值，声明notEmpty[value]只检查填写的key在相应的lang文件中能找到对应的value，声明notEmpty[key|value]或notEmpty则包含这两个要求
     /// </summary>
@@ -412,9 +412,18 @@ public class TableCheckHelper
                     emptyDataLines.Add(i);
             }
         }
+        else if (fieldInfo.DataType == DataType.Json || fieldInfo.DataType == DataType.TableString)
+        {
+            for (int i = 0; i < fieldInfo.Data.Count; ++i)
+            {
+                // json、tableString类型必为独立字段
+                if (fieldInfo.Data[i] == null)
+                    emptyDataLines.Add(i);
+            }
+        }
         else
         {
-            errorString = string.Format("数据非空检查规则只适用于int、long、float、string、lang、date或time类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
+            errorString = string.Format("数据非空检查规则只适用于int、long、float、string、lang、date、time、json或tableString类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
             return false;
         }
 

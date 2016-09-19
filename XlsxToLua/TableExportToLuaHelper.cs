@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LitJson;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -29,6 +30,9 @@ public class TableExportToLuaHelper
         // 当前缩进量
         int currentLevel = 1;
 
+        // 判断是否设置要将主键列的值作为导出的table中的元素
+        bool isAddKeyToLuaTable = tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_ADD_KEY_TO_LUA_TABLE) && tableInfo.TableConfig[AppValues.CONFIG_NAME_ADD_KEY_TO_LUA_TABLE].Count > 0 && "true".Equals(tableInfo.TableConfig[AppValues.CONFIG_NAME_ADD_KEY_TO_LUA_TABLE][0], StringComparison.CurrentCultureIgnoreCase);
+
         // 逐行读取表格内容生成lua table
         for (int row = 0; row < tableInfo.GetKeyColumnFieldInfo().Data.Count; ++row)
         {
@@ -37,13 +41,33 @@ public class TableExportToLuaHelper
             // 将主键列作为key生成
             content.Append(_GetLuaTableIndentation(currentLevel));
             FieldInfo keyColumnField = allField[0];
-            if (keyColumnField.DataType == DataType.Int)
+            if (keyColumnField.DataType == DataType.Int || keyColumnField.DataType == DataType.Long)
                 content.AppendFormat("[{0}]", keyColumnField.Data[row]);
             else if (keyColumnField.DataType == DataType.String)
                 content.Append(keyColumnField.Data[row]);
+            else
+            {
+                errorString = "用ExportTableToLua导出不支持的主键列数据类型";
+                Utils.LogErrorAndExit(errorString);
+                return false;
+            }
 
             content.AppendLine(" = {");
             ++currentLevel;
+
+            // 如果设置了要将主键列的值作为导出的table中的元素
+            if (isAddKeyToLuaTable == true)
+            {
+                content.Append(_GetLuaTableIndentation(currentLevel));
+                content.Append(keyColumnField.FieldName);
+                content.Append(" = ");
+                if (keyColumnField.DataType == DataType.Int || keyColumnField.DataType == DataType.Long)
+                    content.Append(keyColumnField.Data[row]);
+                else if (keyColumnField.DataType == DataType.String)
+                    content.AppendFormat("\"{0}\"", keyColumnField.Data[row]);
+
+                content.AppendLine(",");
+            }
 
             // 将其他列依次作为value生成
             for (int column = 1; column < allField.Count; ++column)
@@ -430,11 +454,11 @@ public class TableExportToLuaHelper
     /// </summary>
     private static string _GetFieldNameIndentation(int level)
     {
-        string indentationString = string.Empty;
+        StringBuilder indentationStringBuilder = new StringBuilder();
         for (int i = 0; i < level; ++i)
-            indentationString = indentationString + _DICT_CHILD_INDENTATION_STRING;
+            indentationStringBuilder.Append(_DICT_CHILD_INDENTATION_STRING);
 
-        return indentationString;
+        return indentationStringBuilder.ToString();
     }
 
     private static string _GetOneField(FieldInfo fieldInfo, int row, int level, out string errorString)
@@ -475,6 +499,11 @@ public class TableExportToLuaHelper
                     value = _GetTimeValue(fieldInfo, row, level);
                     break;
                 }
+            case DataType.Json:
+                {
+                    value = _GetJsonValue(fieldInfo, row, level);
+                    break;
+                }
             case DataType.TableString:
                 {
                     value = _GetTableStringValue(fieldInfo, row, level, out errorString);
@@ -502,7 +531,8 @@ public class TableExportToLuaHelper
 
         content.Append(value);
         // 一个字段结尾加逗号并换行
-        content.AppendLine(",");
+        if (fieldInfo.DataType != DataType.Json)
+            content.AppendLine(",");
 
         return content.ToString();
     }
@@ -692,11 +722,88 @@ public class TableExportToLuaHelper
         return content.ToString();
     }
 
+    private static string _GetJsonValue(FieldInfo fieldInfo, int row, int level)
+    {
+        JsonData jsonData = fieldInfo.Data[row] as JsonData;
+        if (jsonData == null)
+            return "nil";
+        else
+        {
+            StringBuilder content = new StringBuilder();
+            _AnalyzeJsonData(content, jsonData, level);
+            return content.ToString();
+        }
+    }
+
+    private static void _AnalyzeJsonData(StringBuilder content, JsonData jsonData, int level)
+    {
+        if (jsonData.IsObject == true)
+        {
+            content.AppendLine("{");
+            ++level;
+
+            List<string> childKeyNames = new List<string>(jsonData.Keys);
+            int childCount = jsonData.Count;
+            for (int i = 0; i < childCount; ++i)
+            {
+                content.Append(_GetLuaTableIndentation(level));
+                // 如果键名为数字，需要加方括号和引号
+                string keyName = childKeyNames[i];
+                double temp;
+                if (double.TryParse(keyName, out temp) == true)
+                    content.AppendFormat("[\"{0}\"]", keyName);
+                else
+                    content.Append(childKeyNames[i]);
+
+                content.Append(" = ");
+                _AnalyzeJsonData(content, jsonData[i], level);
+            }
+
+            --level;
+            content.Append(_GetLuaTableIndentation(level));
+            content.AppendLine("},");
+        }
+        else if (jsonData.IsArray == true)
+        {
+            content.AppendLine("{");
+            ++level;
+
+            int childCount = jsonData.Count;
+            for (int i = 0; i < childCount; ++i)
+            {
+                content.Append(_GetLuaTableIndentation(level));
+                content.AppendFormat("[{0}] = ", i + 1);
+                _AnalyzeJsonData(content, jsonData[i], level);
+            }
+
+            --level;
+            content.Append(_GetLuaTableIndentation(level));
+            content.AppendLine("},");
+        }
+        else if (jsonData.IsString == true)
+        {
+            content.AppendFormat("\"{0}\"", jsonData.ToString());
+            content.AppendLine(",");
+        }
+        else if (jsonData.IsBoolean == true)
+        {
+            content.AppendFormat(jsonData.ToString().ToLower());
+            content.AppendLine(",");
+        }
+        else if (jsonData.IsInt == true || jsonData.IsLong == true || jsonData.IsDouble == true)
+        {
+            content.AppendFormat(jsonData.ToString());
+            content.AppendLine(",");
+        }
+    }
+
     private static string _GetTableStringValue(FieldInfo fieldInfo, int row, int level, out string errorString)
     {
-        StringBuilder content = new StringBuilder();
         errorString = null;
+        if (fieldInfo.Data[row] == null)
+            return "nil";
 
+        StringBuilder content = new StringBuilder();
         string inputData = fieldInfo.Data[row].ToString();
 
         // tableString字符串中不允许出现英文引号、斜杠

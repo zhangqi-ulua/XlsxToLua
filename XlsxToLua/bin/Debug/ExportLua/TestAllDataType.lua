@@ -60,12 +60,10 @@ return {
 			[1] = "小号经验药水",
 			[2] = "小号经验药水",
 		},
-		testTableString2 = {
-		},
+		testTableString2 = nil,
 		testArrayIncludeDict = nil,
 		testDictIncludeDict = nil,
-		testTableString3 = {
-		},
+		testTableString3 = nil,
 		testDate1 = "2016/07/01 00:00:00",
 		testDate2 = os.date("!*t", 1467331200),
 		testDate3 = "2016年07月01日 00时00分00秒",

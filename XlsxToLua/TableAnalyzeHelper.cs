@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LitJson;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -302,6 +303,11 @@ public class TableAnalyzeHelper
                     _AnalyzeTimeType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
                     break;
                 }
+            case DataType.Json:
+                {
+                    _AnalyzeJsonType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    break;
+                }
             case DataType.TableString:
                 {
                     _AnalyzeTableStringType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
@@ -357,6 +363,8 @@ public class TableAnalyzeHelper
             return DataType.Date;
         else if (typeString.StartsWith("time", StringComparison.CurrentCultureIgnoreCase))
             return DataType.Time;
+        else if (typeString.StartsWith("json", StringComparison.CurrentCultureIgnoreCase))
+            return DataType.Json;
         else if (typeString.StartsWith("tableString", StringComparison.CurrentCultureIgnoreCase))
             return DataType.TableString;
         else if (typeString.StartsWith("array", StringComparison.CurrentCultureIgnoreCase))
@@ -1170,6 +1178,53 @@ public class TableAnalyzeHelper
     }
 
     /// <summary>
+    /// 解析json型数据的定义，将json通过LitJson库解析出来
+    /// </summary>
+    private static bool _AnalyzeJsonType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    {
+        // 因为array和dict在检查子类型时已经禁止子类型为json型，这里便可不必重复检查父类型不能是集合类型
+
+        StringBuilder errorStringBuilder = new StringBuilder();
+        fieldInfo.Data = new List<object>();
+        fieldInfo.JsonString = new List<string>();
+        for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+        {
+            string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+            if (string.IsNullOrEmpty(inputData))
+            {
+                fieldInfo.Data.Add(null);
+                fieldInfo.JsonString.Add(null);
+            }
+            else
+            {
+                fieldInfo.JsonString.Add(inputData);
+                try
+                {
+                    JsonData jsonData = JsonMapper.ToObject(inputData);
+                    fieldInfo.Data.Add(jsonData);
+                }
+                catch (JsonException exception)
+                {
+                    errorStringBuilder.AppendFormat("第{0}行所填json字符串（{1}）非法，原因为：{2}\n", row + AppValues.DATA_FIELD_DATA_START_INDEX + 1, inputData, exception.Message);
+                }
+            }
+        }
+
+        nextFieldColumnIndex = columnIndex + 1;
+        errorString = errorStringBuilder.ToString();
+        if (string.IsNullOrEmpty(errorString))
+        {
+            errorString = null;
+            return true;
+        }
+        else
+        {
+            errorString = string.Concat("以下行中所填json字符串非法：\n", errorString);
+            return false;
+        }
+    }
+
+    /// <summary>
     /// 解析tableString型数据的定义，将其格式解析为TableStringFormatDefine类，但填写的数据直接以字符串形式存在FieldInfo的Data变量中
     /// </summary>
     private static bool _AnalyzeTableStringType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
@@ -1189,7 +1244,10 @@ public class TableAnalyzeHelper
         for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
             string inputData = dt.Rows[row][columnIndex].ToString().Trim();
-            fieldInfo.Data.Add(inputData);
+            if (string.IsNullOrEmpty(inputData))
+                fieldInfo.Data.Add(null);
+            else
+                fieldInfo.Data.Add(inputData);
         }
 
         errorString = null;
@@ -1556,6 +1614,11 @@ public class TableAnalyzeHelper
                     errorString = "array的子元素不允许为tableString型\n";
                     return false;
                 }
+                else if (inputChildDataType == DataType.Json)
+                {
+                    errorString = "array的子元素不允许为json型\n";
+                    return false;
+                }
                 childDataType = inputChildDataType;
                 // 判断个数是否合法
                 int count;
@@ -1629,10 +1692,15 @@ public class TableAnalyzeHelper
                     else
                         inputFieldNames.Add(childFieldInfo.FieldName);
 
-                    // 检查dict下属类型是否合法（不支持tableString的子类型）
+                    // 检查dict下属类型是否合法（不支持tableString、json的子类型）
                     if (childFieldInfo.DataType == DataType.TableString)
                     {
                         errorString = "dict的子元素不允许为tableString型\n";
+                        return false;
+                    }
+                    else if (childFieldInfo.DataType == DataType.Json)
+                    {
+                        errorString = "dict的子元素不允许为json型\n";
                         return false;
                     }
                     else

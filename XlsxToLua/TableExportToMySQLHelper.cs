@@ -129,7 +129,7 @@ public class TableExportToMySQLHelper
                 }
             }
             // 按Excel表格中字段定义新建数据库表格
-            string comment = tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT) && tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT] != null && tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT].Count > 0 ? tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT][0] : string.Empty;
+            string comment = tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT) && tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT].Count > 0 ? tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT][0] : string.Empty;
             _CreateTable(tableName, tableInfo, comment, out errorString);
             if (string.IsNullOrEmpty(errorString))
             {
@@ -232,22 +232,25 @@ public class TableExportToMySQLHelper
                             return false;
                         }
                     }
+                    else if (fieldInfo.DataType == DataType.Bool)
+                    {
+                        bool inputData = (bool)fieldInfo.Data[i];
+                        // 如果数据库用tinyint(1)数据类型表示bool型，比如要写入true，SQL语句中可以写为'1'或者不带单引号的true
+                        if (inputData == true)
+                            values.Add("'1'");
+                        else
+                            values.Add("'0'");
+                    }
+                    else if (fieldInfo.DataType == DataType.Json)
+                    {
+                        // json型直接向数据库写入原始json字符串
+                        values.Add(string.Format("'{0}'", fieldInfo.JsonString[i]));
+                    }
                     // 这里需要自行处理向数据库中某些数据类型如datetime的列不允许插入空字符串的情况
                     else if (string.IsNullOrEmpty(fieldInfo.Data[i].ToString()))
                     {
                         if (fieldInfo.DatabaseFieldType.StartsWith("datetime", StringComparison.CurrentCultureIgnoreCase))
                             values.Add("NULL");
-                        else
-                            values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
-                    }
-                    else if (fieldInfo.DataType == DataType.Bool)
-                    {
-                        string inputData = fieldInfo.Data[i].ToString();
-                        // 如果数据库用tinyint(1)数据类型表示bool型，比如要写入true，SQL语句中可以写为'1'或者不带单引号的true
-                        if ("true".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
-                            values.Add("'1'");
-                        else if ("false".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
-                            values.Add("'0'");
                         else
                             values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
                     }

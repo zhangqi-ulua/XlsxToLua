@@ -69,6 +69,8 @@ public class FieldInfo
     public List<object> Data { get; set; }
     // 如果该字段为lang型，LangKeys中额外存储所填的所有key名，对应的键值则存储在Data中
     public List<object> LangKeys { get; set; }
+    // 如果该字段为json型，JsonString中存储所填的所有json字符串，对应解析后的JsonData存储在Data中
+    public List<string> JsonString { get; set; }
     // 存储额外属性，比如date类型的输入、导出选项等
     public Dictionary<string, object> ExtraParam { get; set; }
     // 如果该字段为tableString型，存储解析之后的格式定义
@@ -103,6 +105,7 @@ public enum DataType
     Lang,
     Date,
     Time,
+    Json,
     TableString,
     Array,
     Dict,
