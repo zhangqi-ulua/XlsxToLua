@@ -53,7 +53,8 @@ return {
 		type = 2,
 		defaultStar = 1,
 		isOpen = true,
-		attributes = nil	},
+		attributes = nil,
+	},
 	[3] = {
 		heroId = 3,
 		name = "英雄牧师",
@@ -61,7 +62,8 @@ return {
 		type = 3,
 		defaultStar = 1,
 		isOpen = false,
-		attributes = nil	},
+		attributes = nil,
+	},
 	[4] = {
 		heroId = 4,
 		name = "英雄勇士",

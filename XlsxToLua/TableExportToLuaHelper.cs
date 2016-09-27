@@ -531,8 +531,7 @@ public class TableExportToLuaHelper
 
         content.Append(value);
         // 一个字段结尾加逗号并换行
-        if (fieldInfo.DataType != DataType.Json)
-            content.AppendLine(",");
+        content.AppendLine(",");
 
         return content.ToString();
     }
@@ -737,7 +736,12 @@ public class TableExportToLuaHelper
 
     private static void _AnalyzeJsonData(StringBuilder content, JsonData jsonData, int level)
     {
-        if (jsonData.IsObject == true)
+        if (jsonData == null)
+        {
+            // 处理键值对中的值为null的情况
+            content.Append("nil");
+        }
+        else if (jsonData.IsObject == true)
         {
             content.AppendLine("{");
             ++level;
@@ -757,11 +761,12 @@ public class TableExportToLuaHelper
 
                 content.Append(" = ");
                 _AnalyzeJsonData(content, jsonData[i], level);
+                content.AppendLine(",");
             }
 
             --level;
             content.Append(_GetLuaTableIndentation(level));
-            content.AppendLine("},");
+            content.Append("}");
         }
         else if (jsonData.IsArray == true)
         {
@@ -774,27 +779,21 @@ public class TableExportToLuaHelper
                 content.Append(_GetLuaTableIndentation(level));
                 content.AppendFormat("[{0}] = ", i + 1);
                 _AnalyzeJsonData(content, jsonData[i], level);
+                content.AppendLine(",");
             }
 
             --level;
             content.Append(_GetLuaTableIndentation(level));
-            content.AppendLine("},");
+            content.Append("}");
         }
         else if (jsonData.IsString == true)
-        {
             content.AppendFormat("\"{0}\"", jsonData.ToString());
-            content.AppendLine(",");
-        }
         else if (jsonData.IsBoolean == true)
-        {
             content.AppendFormat(jsonData.ToString().ToLower());
-            content.AppendLine(",");
-        }
         else if (jsonData.IsInt == true || jsonData.IsLong == true || jsonData.IsDouble == true)
-        {
             content.AppendFormat(jsonData.ToString());
-            content.AppendLine(",");
-        }
+        else
+            Utils.LogErrorAndExit("用_AnalyzeJsonData解析了未知的JsonData类型");
     }
 
     private static string _GetTableStringValue(FieldInfo fieldInfo, int row, int level, out string errorString)
