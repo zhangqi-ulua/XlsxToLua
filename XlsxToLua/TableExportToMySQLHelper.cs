@@ -235,11 +235,22 @@ public class TableExportToMySQLHelper
                     else if (fieldInfo.DataType == DataType.Bool)
                     {
                         bool inputData = (bool)fieldInfo.Data[i];
-                        // 如果数据库用tinyint(1)数据类型表示bool型，比如要写入true，SQL语句中可以写为'1'或者不带单引号的true
-                        if (inputData == true)
-                            values.Add("'1'");
+                        // 如果数据库用bit数据类型表示bool型，比如要写入true，SQL语句中的1不能加单引号
+                        if (fieldInfo.DatabaseFieldType.Equals("bit", StringComparison.CurrentCultureIgnoreCase) || fieldInfo.DatabaseFieldType.StartsWith("bit(", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            if (inputData == true)
+                                values.Add("1");
+                            else
+                                values.Add("0");
+                        }
                         else
-                            values.Add("'0'");
+                        {
+                            // 如果数据库用tinyint(1)数据类型表示bool型，比如要写入true，SQL语句中可以写为'1'或者不带单引号的true
+                            if (inputData == true)
+                                values.Add("'1'");
+                            else
+                                values.Add("'0'");
+                        }
                     }
                     else if (fieldInfo.DataType == DataType.Json)
                     {
