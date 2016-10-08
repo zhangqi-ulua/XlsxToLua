@@ -58,6 +58,66 @@ public class AppValues
     public const string ALLOWED_NULL_NUMBER_PARAM_STRING = "-allowedNullNumber";
 
     /// <summary>
+    /// 声明将指定的Excel文件额外导出为csv文件
+    /// </summary>
+    public const string EXPORT_CSV_PARAM_STRING = "-exportCsv";
+
+    /// <summary>
+    /// 声明导出csv文件时的参数
+    /// </summary>
+    public const string EXPORT_CSV_PARAM_PARAM_STRING = "-exportCsvParam";
+
+    /// <summary>
+    /// 声明将指定的Excel文件额外导出为json文件
+    /// </summary>
+    public const string EXPORT_JSON_PARAM_STRING = "-exportJson";
+
+    /// <summary>
+    /// 声明导出json文件时的参数
+    /// </summary>
+    public const string EXPORT_JSON_PARAM_PARAM_STRING = "-exportJsonParam";
+
+    /// <summary>
+    /// 导出csv文件参数下属的具体参数，用于配置导出路径
+    /// </summary>
+    public const string EXPORT_CSV_PARAM_EXPORT_PATH_PARAM_STRING = "exportPath";
+
+    /// <summary>
+    /// 导出csv文件参数下属的具体参数，用于配置导出文件的扩展名
+    /// </summary>
+    public const string EXPORT_CSV_PARAM_EXTENSION_PARAM_STRING = "extension";
+
+    /// <summary>
+    /// 导出csv文件参数下属的具体参数，用于配置字段间的分隔符
+    /// </summary>
+    public const string EXPORT_CSV_PARAM_SPLIT_STRING_PARAM_STRING = "splitString";
+
+    /// <summary>
+    /// 导出csv文件参数下属的具体参数，用于配置是否在首行列举字段名称
+    /// </summary>
+    public const string EXPORT_CSV_PARAM_IS_EXPORT_COLUMN_NAME_PARAM_STRING = "isExportColumnName";
+
+    /// <summary>
+    /// 导出csv文件参数下属的具体参数，用于配置是否在其后列举字段数据类型
+    /// </summary>
+    public const string EXPORT_CSV_PARAM_IS_EXPORT_COLUMN_DATA_TYPE_PARAM_STRING = "isExportColumnDataType";
+
+    /// <summary>
+    /// 导出json文件参数下属的具体参数，用于配置导出路径
+    /// </summary>
+    public const string EXPORT_JSON_PARAM_EXPORT_PATH_PARAM_STRING = "exportPath";
+
+    /// <summary>
+    /// 导出json文件参数下属的具体参数，用于配置导出文件的扩展名
+    /// </summary>
+    public const string EXPORT_JSON_PARAM_EXTENSION_PARAM_STRING = "extension";
+
+    /// <summary>
+    /// 导出json文件参数下属的具体参数，用于配置是否将生成的json字符串整理为带缩进格式的形式
+    /// </summary>
+    public const string EXPORT_JSON_PARAM_IS_FORMAT_PARAM_STRING = "isFormat";
+
+    /// <summary>
     /// 配置文件（配置自定义的检查规则）的文件名
     /// </summary>
     public const string CONFIG_FILE_NAME = "config.txt";
@@ -230,6 +290,56 @@ public class AppValues
     /// 存储本次要导出的Excel文件名
     /// </summary>
     public static List<string> exportTableNames = new List<string>();
+
+    /// <summary>
+    /// 存储本次要额外导出为csv文件的Excel文件名
+    /// </summary>
+    public static List<string> exportCsvTableNames = new List<string>();
+
+    /// <summary>
+    /// 导出csv文件的存储路径
+    /// </summary>
+    public static string exportCsvPath = null;
+
+    /// <summary>
+    /// 导出csv文件的扩展名（不含点号），默认为csv
+    /// </summary>
+    public static string exportCsvExtension = "csv";
+
+    /// <summary>
+    /// 导出csv文件中的字段分隔符，默认为英文逗号
+    /// </summary>
+    public static string exportCsvSplitString = ",";
+
+    /// <summary>
+    /// 导出的csv文件中是否在首行列举字段名称，默认为是
+    /// </summary>
+    public static bool exportCsvIsExportColumnName = true;
+
+    /// <summary>
+    /// 导出的csv文件中是否在其后列举字段数据类型，默认为是
+    /// </summary>
+    public static bool exportCsvIsExportColumnDataType = true;
+
+    /// <summary>
+    /// 存储本次要额外导出为json文件的Excel文件名
+    /// </summary>
+    public static List<string> exportJsonTableNames = new List<string>();
+
+    /// <summary>
+    /// 导出json文件的存储路径
+    /// </summary>
+    public static string exportJsonPath = null;
+
+    /// <summary>
+    /// 导出json文件的扩展名（不含点号），默认为txt
+    /// </summary>
+    public static string exportJsonExtension = "txt";
+
+    /// <summary>
+    /// 导出的json文件中是否将json字符串整理为带缩进格式的形式，默认为否
+    /// </summary>
+    public static bool exportJsonIsFormat = false;
 
     /// <summary>
     /// 存储运行时打印的所有信息，在程序运行完毕后输出为txt文件，从而解决如果输出内容过多控制台无法显示全部信息的问题

@@ -10,6 +10,7 @@ public enum DataType
     Invalid,
 
     Int,
+    Long,
     Float,
     Bool,
     String,

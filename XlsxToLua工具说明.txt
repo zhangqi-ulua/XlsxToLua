@@ -54,7 +54,7 @@ return {
 
 对于类似上面的表格，通常需要保证层层索引中包含所有情况下的值，如HeroEquipment表中凡是配置的英雄，都必须一并配置该英雄在所有品阶下四件装备的信息，虽然用整表检查规则自己写检查函数可以进行检查，但这样需要额外自己写代码并不方便。可以在自定义索引导出规则中用作索引字段的字段名后添加该字段需具备的完整性声明，如写为heroId-heroQuality({10,20,21,30,31,32,40,41,42,43})-seq([1-4]){propId,equipRank}则表示对于某一个heroId，必须具备在10,20……43这些品阶下的穿装信息，并且对于某个英雄某个品阶下的必须具备四件装备信息。注意括号中可使用有效值声明或数值范围声明方式去声明该字段在上层索引到的每个值下都必须包含的所有本字段值的数据行，采用有效值声明方式的字段必须为int、long、float或string型，采用数值范围声明方式的字段只能为int、long型。括号中支持用$声明在config配置文件中的自定义取值范围规则，但不支持用&&声明的多组规则
 
-本工具运行时需要顺序传入以下几个必填参数（参数与参数间用空格分隔）：
+本工具运行时需要顺序传入以下几个必填参数：
 ① Excel表格所在目录
 ② 存放导出lua文件的目录
 ③ 项目Client目录的路径（无需文件存在型检查规则则填-noClient）
@@ -66,6 +66,16 @@ return {
 ④ -exportMySQL（将表格数据导出到MySQL数据库中，默认不导出）
 ⑤ -part（后面在英文小括号内声明本次要导出的Excel文件名，用|分隔，未声明的文件将被本工具忽略。但注意所有Excel仍会被读取，只是声明的Excel文件才会被进行检查并导出，因为要导出的部分Excel中可能含有与未声明要导出的Excel文件存在跨表检查规则）
 ⑥ -allowedNullNumber（允许int、long、float型字段下填写空值，默认不允许，不建议使用此选项，如果一定要用请务必为逻辑上不允许为空的数值型字段填写notEmpty检查规则）
+⑦ 声明要将指定的Excel表导出为csv文件需要以下2个参数：
+   -exportCsv（后面在英文小括号内声明本次要额外导出csv文件的Excel文件名，用|分隔。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出csv文件也不会生效）
+   -exportCsvParam（可声明导出csv文件的保存路径exportPath、扩展名extension、字段分隔符splitString、是否在首行列举字段名称isExportColumnName、是否在其后列举字段数据类型isExportColumnDataType等导出参数，参数名和配置值之间用=分隔，参数之间用|分隔。例如-exportCsvParam(exportPath=C:\csv|extension=csv|splitString=,|isExportColumnName=false|isExportColumnDataType=false)，其中exportPath参数必须声明，extension参数不声明则默认为csv，splitString参数不声明则默认为英文逗号，注意若想指定分隔符为“|”则需要赋值为“\|”，isExportColumnName、isExportColumnDataType参数不声明则默认为true）
+   注意：1、date和time型导出为csv文件时，按toLua的格式进行导出，若date型声明toLua的格式为dateTable，则按input格式进行导出。2、array、dict型字段所占用的用于标识每行中该字段是否生效的列也会被导出为csv文件中的一列，值为-1表示该行中此字段不生效，值为空则表示生效。3、array、dict型下属子元素列的字段名按如下规则生成：array下属的子元素，字段名生成格式为“array字段名[从1开始的下标序号]”。dict下属的子元素，生成格式为“dict字段名.下属字段名”
+⑧ 声明要将指定的Excel表导出为json文件需要以下2个参数：
+   -exportJson（后面在英文小括号内声明本次要额外导出json文件的Excel文件名，用|分隔。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出json文件也不会生效）
+   -exportJsonParam（可声明导出json文件的保存路径exportPath、扩展名extension、是否带缩进格式isFormat等导出参数，参数名和配置值之间用=分隔，参数之间用|分隔。例如-exportJsonParam(exportPath=C:\json|extension=txt|isFormat=true)，其中exportPath参数必须声明，extension参数不声明则默认为txt，isFormat为true则将生成的json字符串整理为带缩进格式的形式，否则json字符串中不含有空白字符，不声明此参数则默认为false）
+   注意：date和time型导出为json文件时，按toLua的格式进行导出，若date型声明toLua的格式为dateTable，则按input格式进行导出
+
+注意：本工具在Windows系统下通过命令提示符启动并传入上述参数，参数与参数间用空格分隔，若参数中需要有空格（比如路径中），就必须用英文双引号将这个参数包裹
 
 ---------------------------------------------------------------------------------------------------------
 支持的数据类型如下：
@@ -80,13 +90,13 @@ return {
    toLua规定导出至lua文件中的形式，有以下3种选项：1、可以填写符合C#类库要求的标准时间格式，本工具将会按此格式将日期转为string字符串形式，但lua自身类库中不含将string转为时间的库函数，不利于对时间进行后续操作，除非自己编写相应的转换函数或者此时间仅作为界面展示之用，否则不推荐使用这种toLua的输出形式。2、设置为#1970sec或#1970msec，含义同上。3、设置为#dateTable，本工具将导出为os.date("!*t",xxx)这样的代码，其中xxx为时间转成的距离1970年1月1日的秒数，lua在解析导出的lua文件时，上面的lua库函数可将日期转为lua table形式。若未声明toLua参数则使用config配置文件中的defaultDateToLuaFormat配置项
    toDatabase规定导出至数据库中的形式，有以下2种选项：1、可以填写符合C#类库要求的标准时间格式，MySQL数据库中的datetime类型可识别并赋值，也可保存为varchar等文本类型2、设置为#1970sec或#1970msec，适合导出到数值类型的字段。若未声明toDatabase参数则使用config配置文件中的defaultDateToDatabaseFormat配置项
 ⑧ time 时间型，用时分秒表示一个时间，格式声明形如time(input=HH:mm:ss|toLua=#sec|toDatabase=HH:mm:ss)，其中有三个可选参数input、toLua和toDatabase，它们的声明需要用|隔开。3个参数的作用如下：
-   input规定Excel单元格中填写的格式，有以下2种选项：1、可以填写符合C#类库要求的标准时间格式，如HH:mm:ss。2、设置为#sec表示填写的是距离0点的秒数。若未声明input参数则使用config配置文件中的defaultTimeInputFormat配置项
+   input规定Excel单元格中填写的格式，有以下2种选项：1、可以填写符合C#类库要求的标准时间格式，如HH:mm:ss。2、设置为#sec表示填写的是距离今日0点已过去的秒数。若未声明input参数则使用config配置文件中的defaultTimeInputFormat配置项
    toLua规定导出至lua文件中的形式，有以下2种选项：1、可以填写符合C#类库要求的标准时间格式，本工具将会按此格式将日期转为string字符串形式。2、设置为#sec，含义同上。若未声明toLua参数则使用config配置文件中的defaultTimeToLuaFormat配置项
    toDatabase规定导出至数据库中的形式，有以下2种选项：1、可以填写符合C#类库要求的标准时间格式，MySQL数据库中的time类型可识别并赋值，也可保存为varchar等文本类型。2、设置为#sec，适合导出到数值类型的字段。若未声明toDatabase参数则使用config配置文件中的defaTimeToDatabaseFormat配置项
 ⑨ json json字符串，需符合json格式要求。不建议使用此数据类型，并推荐使用下面所述的dict和array实现复杂嵌套结构的定义，因为json格式不直观，且需要手工重复声明键名，若由于手误写错根本无法检查出来
 ⑩ dict 格式为dict[子元素个数]，用于表示组成一个复杂数据结构的相关元素的集合，比如用一个dict可以表示一个reward，dict[3] 其后三列为 type(int)、id(int)、count(int)。注意dict下的子元素不允许出现变量名相同
-⑪ array 格式为array[类型:个数]，用于表示多个相同数据结构组成的列表，比如想通过3个数字表示某个试炼活动低中高三个难度的开放等级，则可定义为array[int:3]。注意array类型中的元素会按1、2、3依次作为table的key，无法像dict那样为每个元素指定key名
-⑫ tableString 用于以字符串形式表达的复杂嵌套的table结构，格式为tableString[格式]，每组数据的key和value分为用k、v声明，中间用|分隔。特殊符号#seq表示自动按顺序编号，#true表示自动填写value值为true，#table表示value值是一个table，#后加数字表示用填写的该组数据中的第几个表示，自定义的变量在值后面需要在()内标明数据类型，只支持string、int、float、lang、bool这几种最基础类型。填写的具体数据中，两个数据之间用英文分号;隔开，一个数据中的不同变量用英文逗号,隔开。注意整个输入的tableString字符串中不允许出现英文引号、斜杠，string类型字符串中不允许出现英文逗号、分号，lang类型数据所填的key必须在lang文件中能找到对应的字符串值，且字符串中不含有英文引号、斜杠、逗号、分号
+⑪ array 格式为array[类型:个数]，用于表示多个相同数据结构组成的列表，比如想通过3个数字表示某个试炼活动低中高三个难度的开放等级，则可定义为array[int:3]。注意array类型中的元素会按1、2、3依次作为table的key，不允许为array型下属子元素列像dict型子元素列那样指定key名
+⑫ tableString 用于以字符串形式表达的复杂嵌套的table结构，格式为tableString[格式]，每组数据的key和value分为用k、v声明，中间用|分隔。特殊符号#seq表示自动按顺序编号，#true表示自动填写value值为true，#table表示value值是一个table，#后加数字表示用填写的该组数据中的第几个表示，自定义的变量在值后面需要在()内标明数据类型，只支持string、int、long、float、lang、bool这几种最基础类型。填写的具体数据中，两个数据之间用英文分号;隔开，一个数据中的不同变量用英文逗号,隔开。注意整个输入的tableString字符串中不允许出现英文引号、斜杠，string类型字符串中不允许出现英文逗号、分号，lang类型数据所填的key必须在lang文件中能找到对应的字符串值，且字符串中不含有英文引号、斜杠、逗号、分号
 
    示例：1)比如填写了某一场PVE战斗中的怪物组 10001;10003;10021 填写格式为 tableString[k:#1(int)|v:#true]
            这样程序会生成为：

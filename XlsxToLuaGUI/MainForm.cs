@@ -91,7 +91,7 @@ namespace XlsxToLuaGUI
             }
 
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Title = "请选择要导出的Excel文件";
+            dialog.Title = "请选择要导出的Excel表格";
             dialog.InitialDirectory = excelFolderPath;
             dialog.Multiselect = true;
             dialog.Filter = "Excel files (*.xlsx)|*.xlsx";
@@ -137,6 +137,106 @@ namespace XlsxToLuaGUI
         {
             CheckBox cb = sender as CheckBox;
             _WarnWhenChooseDangerousParam(cb);
+        }
+
+        private void btnChooseExportCsvFile_Click(object sender, EventArgs e)
+        {
+            string excelFolderPath = tbExcelFolderPath.Text.Trim();
+            if (string.IsNullOrEmpty(excelFolderPath))
+            {
+                MessageBox.Show("请先指定Excel文件所在目录", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (!Directory.Exists(excelFolderPath))
+            {
+                MessageBox.Show("指定Excel文件所在目录不存在，请重新设置", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Title = "请选择要额外导出为csv文件的Excel表格";
+            dialog.InitialDirectory = excelFolderPath;
+            dialog.Multiselect = true;
+            dialog.Filter = "Excel files (*.xlsx)|*.xlsx";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string[] filePaths = dialog.FileNames;
+                // 检查选择的Excel文件是否在设置的Excel所在目录
+                string checkFilePath = Path.GetDirectoryName(filePaths[0]);
+                if (!checkFilePath.Equals(excelFolderPath, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    MessageBox.Show(string.Format("必须在指定的Excel文件所在目录中选择导出文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", excelFolderPath, checkFilePath), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                List<string> fileNames = new List<string>();
+                foreach (string filePath in filePaths)
+                    fileNames.Add(Path.GetFileNameWithoutExtension(filePath));
+
+                string exportCsvFileParam = Utils.CombineString(fileNames, "|");
+                tbExportCsvTableNames.Text = exportCsvFileParam;
+            }
+        }
+
+        private void btnChooseExportCsvFilePath_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "请选择csv文件导出目录";
+            dialog.ShowNewFolderButton = false;
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string folderPath = dialog.SelectedPath;
+                tbExportCsvFilePath.Text = folderPath;
+            }
+        }
+
+        private void btnChooseExportJsonFile_Click(object sender, EventArgs e)
+        {
+            string excelFolderPath = tbExcelFolderPath.Text.Trim();
+            if (string.IsNullOrEmpty(excelFolderPath))
+            {
+                MessageBox.Show("请先指定Excel文件所在目录", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (!Directory.Exists(excelFolderPath))
+            {
+                MessageBox.Show("指定Excel文件所在目录不存在，请重新设置", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Title = "请选择要额外导出为json文件的Excel表格";
+            dialog.InitialDirectory = excelFolderPath;
+            dialog.Multiselect = true;
+            dialog.Filter = "Excel files (*.xlsx)|*.xlsx";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string[] filePaths = dialog.FileNames;
+                // 检查选择的Excel文件是否在设置的Excel所在目录
+                string checkFilePath = Path.GetDirectoryName(filePaths[0]);
+                if (!checkFilePath.Equals(excelFolderPath, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    MessageBox.Show(string.Format("必须在指定的Excel文件所在目录中选择导出文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", excelFolderPath, checkFilePath), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                List<string> fileNames = new List<string>();
+                foreach (string filePath in filePaths)
+                    fileNames.Add(Path.GetFileNameWithoutExtension(filePath));
+
+                string exportJsonFileParam = Utils.CombineString(fileNames, "|");
+                tbExportJsonTableNames.Text = exportJsonFileParam;
+            }
+        }
+
+        private void btnChooseExportJsonFilePath_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "请选择json文件导出目录";
+            dialog.ShowNewFolderButton = false;
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string folderPath = dialog.SelectedPath;
+                tbExportJsonFilePath.Text = folderPath;
+            }
         }
 
         private void btnExecute_Click(object sender, EventArgs e)
@@ -193,19 +293,63 @@ namespace XlsxToLuaGUI
                     configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_EXPORT_LUA_FOLDER_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportLuaFolderPath);
                     configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_CLIENT_FOLDER_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(clientFolderPath);
                     configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_LANG_FILE_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(langFilePath);
-                    string trueString = "true";
-                    if (cbColumnInfo.CheckState == CheckState.Checked)
-                        configStringBuilder.Append(AppValues.NEED_COLUMN_INFO_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(trueString);
-                    if (cbUnchecked.CheckState == CheckState.Checked)
-                        configStringBuilder.Append(AppValues.UNCHECKED_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(trueString);
-                    if (cbPrintEmptyStringWhenLangNotMatching.CheckState == CheckState.Checked)
-                        configStringBuilder.Append(AppValues.LANG_NOT_MATCHING_PRINT_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(trueString);
-                    if (cbExportMySQL.CheckState == CheckState.Checked)
-                        configStringBuilder.Append(AppValues.EXPORT_MYSQL_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(trueString);
-                    if (cbAllowedNullNumber.CheckState == CheckState.Checked)
-                        configStringBuilder.Append(AppValues.ALLOWED_NULL_NUMBER_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(trueString);
-                    if (cbPart.CheckState == CheckState.Checked)
-                        configStringBuilder.Append(AppValues.PART_EXPORT_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(tbPartExcelNames.Text.Trim());
+
+                    string partExcelNames = tbPartExcelNames.Text.Trim();
+                    if (!string.IsNullOrEmpty(partExcelNames))
+                        configStringBuilder.Append(AppValues.PART_EXPORT_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(partExcelNames);
+
+                    string exportCsvExcelNames = tbExportCsvTableNames.Text.Trim();
+                    if (!string.IsNullOrEmpty(exportCsvExcelNames))
+                        configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsvExcelNames);
+
+                    string exportCsvFilePath = tbExportCsvFilePath.Text.Trim();
+                    if (!string.IsNullOrEmpty(exportCsvFilePath))
+                        configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsvFilePath);
+
+                    string csvFileExtension = tbCsvFileExtension.Text.Trim();
+                    if (!string.IsNullOrEmpty(csvFileExtension))
+                        configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXTENSION).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csvFileExtension);
+
+                    string csvFileSplitString = tbCsvFileSplitString.Text;
+                    if (!string.IsNullOrEmpty(csvFileSplitString))
+                        configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_SPLIT_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csvFileSplitString);
+
+                    string exportJsonExcelNames = tbExportJsonTableNames.Text.Trim();
+                    if (!string.IsNullOrEmpty(exportJsonExcelNames))
+                        configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportJsonExcelNames);
+
+                    string exportJsonFilePath = tbExportJsonFilePath.Text.Trim();
+                    if (!string.IsNullOrEmpty(exportJsonFilePath))
+                        configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportJsonFilePath);
+
+                    string jsonFileExtension = tbJsonFileExtension.Text.Trim();
+                    if (!string.IsNullOrEmpty(jsonFileExtension))
+                        configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXTENSION).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(jsonFileExtension);
+
+                    const string TRUE_STRING = "true";
+                    if (cbColumnInfo.Checked == true)
+                        configStringBuilder.Append(AppValues.NEED_COLUMN_INFO_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbUnchecked.Checked == true)
+                        configStringBuilder.Append(AppValues.UNCHECKED_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbPrintEmptyStringWhenLangNotMatching.Checked == true)
+                        configStringBuilder.Append(AppValues.LANG_NOT_MATCHING_PRINT_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbExportMySQL.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_MYSQL_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbAllowedNullNumber.Checked == true)
+                        configStringBuilder.Append(AppValues.ALLOWED_NULL_NUMBER_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+
+                    if (cbPart.Checked == true)
+                        configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_PART).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbExportCsv.Checked == true)
+                        configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbIsExportCsvColumnName.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_NAME).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbIsExportCsvColumnDataType.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_DATA_TYPE).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbExportJson.Checked == true)
+                        configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JSON).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbIsExportJsonWithFormat.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
 
                     string errorString = null;
                     Utils.SaveFile(dialog.FileName, configStringBuilder.ToString(), out errorString);
@@ -244,20 +388,51 @@ namespace XlsxToLuaGUI
                 if (config.ContainsKey(AppValues.SAVE_CONFIG_KEY_LANG_FILE_PATH))
                     tbLangFilePath.Text = config[AppValues.SAVE_CONFIG_KEY_LANG_FILE_PATH];
                 if (config.ContainsKey(AppValues.NEED_COLUMN_INFO_PARAM_STRING))
-                    cbColumnInfo.CheckState = CheckState.Checked;
+                    cbColumnInfo.Checked = true;
                 if (config.ContainsKey(AppValues.UNCHECKED_PARAM_STRING))
-                    cbUnchecked.CheckState = CheckState.Checked;
+                    cbUnchecked.Checked = true;
                 if (config.ContainsKey(AppValues.LANG_NOT_MATCHING_PRINT_PARAM_STRING))
-                    cbPrintEmptyStringWhenLangNotMatching.CheckState = CheckState.Checked;
+                    cbPrintEmptyStringWhenLangNotMatching.Checked = true;
                 if (config.ContainsKey(AppValues.EXPORT_MYSQL_PARAM_STRING))
-                    cbExportMySQL.CheckState = CheckState.Checked;
+                    cbExportMySQL.Checked = true;
                 if (config.ContainsKey(AppValues.ALLOWED_NULL_NUMBER_PARAM_STRING))
-                    cbAllowedNullNumber.CheckState = CheckState.Checked;
+                    cbAllowedNullNumber.Checked = true;
                 if (config.ContainsKey(AppValues.PART_EXPORT_PARAM_STRING))
-                {
-                    cbPart.CheckState = CheckState.Checked;
                     tbPartExcelNames.Text = config[AppValues.PART_EXPORT_PARAM_STRING];
-                }
+                if (config.ContainsKey(AppValues.EXPORT_CSV_PARAM_STRING))
+                    tbExportCsvTableNames.Text = config[AppValues.EXPORT_CSV_PARAM_STRING];
+                if (config.ContainsKey(AppValues.EXPORT_JSON_PARAM_STRING))
+                    tbExportJsonTableNames.Text = config[AppValues.EXPORT_JSON_PARAM_STRING];
+
+                string exportCsvFilePathKey = string.Concat(AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXPORT_PATH);
+                if (config.ContainsKey(exportCsvFilePathKey))
+                    tbExportCsvFilePath.Text = config[exportCsvFilePathKey];
+
+                string csvFileExtensionKey = string.Concat(AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXTENSION);
+                if (config.ContainsKey(csvFileExtensionKey))
+                    tbCsvFileExtension.Text = config[csvFileExtensionKey];
+
+                string csvFileSplitStringKey = string.Concat(AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_PARAM_SUBTYPE_SPLIT_STRING);
+                if (config.ContainsKey(csvFileSplitStringKey))
+                    tbCsvFileSplitString.Text = config[csvFileSplitStringKey];
+
+                string exportJsonFilePathKey = string.Concat(AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH);
+                if (config.ContainsKey(exportJsonFilePathKey))
+                    tbExportJsonFilePath.Text = config[exportJsonFilePathKey];
+
+                string jsonFileExtensionKey = string.Concat(AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXTENSION);
+                if (config.ContainsKey(jsonFileExtensionKey))
+                    tbJsonFileExtension.Text = config[jsonFileExtensionKey];
+
+                cbPart.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_PART);
+                cbExportCsv.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV);
+                cbExportJson.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JSON);
+                string isExportCsvColumnNameKey = string.Concat(AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_NAME);
+                cbIsExportCsvColumnName.Checked = config.ContainsKey(isExportCsvColumnNameKey);
+                string isExportCsvColumnDataTypeKey = string.Concat(AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_DATA_TYPE);
+                cbIsExportCsvColumnDataType.Checked = config.ContainsKey(isExportCsvColumnDataTypeKey);
+                string isExportJsonWithFormatKey = string.Concat(AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT);
+                cbIsExportJsonWithFormat.Checked = config.ContainsKey(isExportJsonWithFormatKey);
 
                 MessageBox.Show("载入配置文件成功", "恭喜", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -338,13 +513,20 @@ namespace XlsxToLuaGUI
                     return false;
                 }
             }
+
+            // 为方便检查部分导出Excel表格、额外导出为csv或json文件功能所指定的Excel表是否存在（注意不能直接用File.Exists判断是否存在，因为Windows会忽略声明的Excel文件名与实际文件名的大小写差异），这里查找并记录Excel文件所在目录下的所有表格
+            List<string> existExcelFilePaths = new List<string>(Directory.GetFiles(excelFolderPath, "*.xlsx"));
+            List<string> existExcelFileNames = new List<string>();
+            foreach (string filePath in existExcelFilePaths)
+                existExcelFileNames.Add(Path.GetFileNameWithoutExtension(filePath));
+
             // 若设置导出部分Excel文件，检查文件名声明是否正确
-            if (cbPart.CheckState == CheckState.Checked)
+            if (cbPart.Checked == true)
             {
                 string partExcelNames = tbPartExcelNames.Text.Trim();
                 if (string.IsNullOrEmpty(partExcelNames))
                 {
-                    MessageBox.Show("勾选了导出部分Excel文件选项，就必须在文本框中填写要导出的Excel文件名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("勾选了导出部分Excel文件的选项，就必须在文本框中填写要导出的Excel文件名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
                 string[] fileNames = partExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
@@ -352,12 +534,7 @@ namespace XlsxToLuaGUI
                 foreach (string fileName in fileNames)
                     exportTableNames.Add(fileName.Trim());
 
-                // 检查指定导出的Excel文件是否存在（注意不能直接用File.Exists判断是否存在，因为Windows会忽略声明的Excel文件名与实际文件名的大小写差异）
-                List<string> existExcelFilePaths = new List<string>(Directory.GetFiles(excelFolderPath, "*.xlsx"));
-                List<string> existExcelFileNames = new List<string>();
-                foreach (string filePath in existExcelFilePaths)
-                    existExcelFileNames.Add(Path.GetFileNameWithoutExtension(filePath));
-
+                // 检查指定导出的Excel文件是否存在
                 foreach (string exportExcelFileName in exportTableNames)
                 {
                     if (!existExcelFileNames.Contains(exportExcelFileName))
@@ -365,6 +542,104 @@ namespace XlsxToLuaGUI
                         MessageBox.Show(string.Format("指定要导出的Excel文件（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
                     }
+                }
+            }
+            // 若设置额外导出部分Excel表格为csv文件，检查声明的各种参数是否正确
+            if (cbExportCsv.Checked == true)
+            {
+                // 检查设置的要额外导出为csv文件的Excel表格名是否正确
+                string exportCsvExcelNames = tbExportCsvTableNames.Text.Trim();
+                if (string.IsNullOrEmpty(exportCsvExcelNames))
+                {
+                    MessageBox.Show("勾选了额外导出部分Excel表格为csv文件的选项，就必须指定要额外导出为csv文件的Excel文件名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                string[] fileNames = exportCsvExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                List<string> exportCsvTableNames = new List<string>();
+                foreach (string fileName in fileNames)
+                    exportCsvTableNames.Add(fileName.Trim());
+
+                // 检查指定要额外导出为csv文件的Excel表格是否存在
+                foreach (string exportCsvExcelFileName in exportCsvTableNames)
+                {
+                    if (!existExcelFileNames.Contains(exportCsvExcelFileName))
+                    {
+                        MessageBox.Show(string.Format("指定要额外导出出csv文件的Excel表格（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportCsvExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+                // 检查设置的导出csv文件的存储路径是否正确
+                string exportCsvFilePath = tbExportCsvFilePath.Text.Trim();
+                if (string.IsNullOrEmpty(exportCsvFilePath))
+                {
+                    MessageBox.Show("勾选了额外导出部分Excel表格为csv文件的选项，就必须指定导出csv文件的存储路径", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                if (!Directory.Exists(exportCsvFilePath))
+                {
+                    MessageBox.Show("指定的csv文件导出目录不存在", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                // 检查设置的导出csv文件的扩展名是否正确
+                string csvFileExtension = tbCsvFileExtension.Text.Trim();
+                if (string.IsNullOrEmpty(csvFileExtension))
+                {
+                    MessageBox.Show("要额外导出为csv文件，就必须指定csv文件的扩展名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                // 检查设置的导出csv文件的字段分隔符是否正确
+                string csvFileSplitString = tbCsvFileSplitString.Text;
+                if (string.IsNullOrEmpty(csvFileSplitString))
+                {
+                    MessageBox.Show("要额外导出为csv文件，就必须指定csv文件的字段分隔符", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            // 若设置额外导出部分Excel表格为json文件，检查声明的各种参数是否正确
+            if (cbExportJson.Checked == true)
+            {
+                // 检查设置的要额外导出为json文件的Excel表格名是否正确
+                string exportJsonExcelNames = tbExportJsonTableNames.Text.Trim();
+                if (string.IsNullOrEmpty(exportJsonExcelNames))
+                {
+                    MessageBox.Show("勾选了额外导出部分Excel表格为json文件的选项，就必须指定要额外导出为json文件的Excel文件名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                string[] fileNames = exportJsonExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                List<string> exportJsonTableNames = new List<string>();
+                foreach (string fileName in fileNames)
+                    exportJsonTableNames.Add(fileName.Trim());
+
+                // 检查指定要额外导出为json文件的Excel表格是否存在
+                foreach (string exportJsonExcelFileName in exportJsonTableNames)
+                {
+                    if (!existExcelFileNames.Contains(exportJsonExcelFileName))
+                    {
+                        MessageBox.Show(string.Format("指定要额外导出出json文件的Excel表格（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportJsonExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+
+                // 检查设置的导出json文件的存储路径是否正确
+                string exportJsonFilePath = tbExportJsonFilePath.Text.Trim();
+                if (string.IsNullOrEmpty(exportJsonFilePath))
+                {
+                    MessageBox.Show("勾选了额外导出部分Excel表格为json文件的选项，就必须指定导出json文件的存储路径", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                if (!Directory.Exists(exportJsonFilePath))
+                {
+                    MessageBox.Show("指定的json文件导出目录不存在", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                // 检查设置的导出json文件的扩展名是否正确
+                string jsonFileExtension = tbJsonFileExtension.Text.Trim();
+                if (string.IsNullOrEmpty(jsonFileExtension))
+                {
+                    MessageBox.Show("要额外导出为json文件，就必须指定json文件的扩展名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
                 }
             }
 
@@ -381,20 +656,68 @@ namespace XlsxToLuaGUI
             string clientFolderPath = tbClientFolderPath.Text.Trim();
             string langFilePath = tbLangFilePath.Text.Trim();
             stringBuilder.AppendFormat("\"{0}\" ", programPath).AppendFormat("\"{0}\" ", excelFolderPath).AppendFormat("\"{0}\" ", exportLuaFolderPath).AppendFormat("\"{0}\" ", clientFolderPath).AppendFormat("\"{0}\" ", langFilePath);
-            if (cbColumnInfo.CheckState == CheckState.Checked)
+            if (cbColumnInfo.Checked == true)
                 stringBuilder.AppendFormat("\"{0}\" ", AppValues.NEED_COLUMN_INFO_PARAM_STRING);
-            if (cbUnchecked.CheckState == CheckState.Checked)
+            if (cbUnchecked.Checked == true)
                 stringBuilder.AppendFormat("\"{0}\" ", AppValues.UNCHECKED_PARAM_STRING);
-            if (cbPrintEmptyStringWhenLangNotMatching.CheckState == CheckState.Checked)
+            if (cbPrintEmptyStringWhenLangNotMatching.Checked == true)
                 stringBuilder.AppendFormat("\"{0}\" ", AppValues.LANG_NOT_MATCHING_PRINT_PARAM_STRING);
-            if (cbExportMySQL.CheckState == CheckState.Checked)
+            if (cbExportMySQL.Checked == true)
                 stringBuilder.AppendFormat("\"{0}\" ", AppValues.EXPORT_MYSQL_PARAM_STRING);
-            if (cbAllowedNullNumber.CheckState == CheckState.Checked)
+            if (cbAllowedNullNumber.Checked == true)
                 stringBuilder.AppendFormat("\"{0}\" ", AppValues.ALLOWED_NULL_NUMBER_PARAM_STRING);
-            if (cbPart.CheckState == CheckState.Checked)
+            if (cbPart.Checked == true)
             {
                 string partExcelNames = tbPartExcelNames.Text.Trim();
                 stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.PART_EXPORT_PARAM_STRING, partExcelNames);
+            }
+            if (cbExportCsv.Checked == true)
+            {
+                // 声明要额外导出为csv文件的Excel表格
+                string exportCsvTableNames = tbExportCsvTableNames.Text.Trim();
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_CSV_PARAM_STRING, exportCsvTableNames);
+
+                // 声明csv文件的导出参数
+                List<string> exportCsvParamList = new List<string>();
+                // 导出路径
+                const string KEY_AND_VALUE_FORMAT = "{0}={1}";
+                string exportCsvFilePath = tbExportCsvFilePath.Text.Trim();
+                exportCsvParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXPORT_PATH, exportCsvFilePath));
+                // csv文件扩展名
+                string csvFileExtension = tbCsvFileExtension.Text.Trim();
+                exportCsvParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXTENSION, csvFileExtension));
+                // csv文件字段分隔符
+                string csvFileSplitString = tbCsvFileSplitString.Text.Replace("|", "\\|");
+                exportCsvParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_PARAM_SUBTYPE_SPLIT_STRING, csvFileSplitString));
+                // 是否在首行列举字段名称
+                bool isExportColumnName = cbIsExportCsvColumnName.Checked;
+                exportCsvParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_NAME, isExportColumnName == true ? "true" : "false"));
+                // 是否在其后列举字段数据类型
+                bool isExportCsvColumnDataType = cbIsExportCsvColumnDataType.Checked;
+                exportCsvParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_DATA_TYPE, isExportCsvColumnDataType == true ? "true" : "false"));
+
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_CSV_PARAM_PARAM_STRING, Utils.CombineString(exportCsvParamList, "|"));
+            }
+            if (cbExportJson.Checked == true)
+            {
+                // 声明要额外导出为json文件的Excel表格
+                string exportJsonTableNames = tbExportJsonTableNames.Text.Trim();
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_JSON_PARAM_STRING, exportJsonTableNames);
+
+                // 声明json文件的导出参数
+                List<string> exportJsonParamList = new List<string>();
+                // 导出路径
+                const string KEY_AND_VALUE_FORMAT = "{0}={1}";
+                string exportJsonFilePath = tbExportJsonFilePath.Text.Trim();
+                exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH, exportJsonFilePath));
+                // json文件扩展名
+                string jsonFileExtension = tbJsonFileExtension.Text.Trim();
+                exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXTENSION, jsonFileExtension));
+                // 是否将生成的json字符串整理为带缩进格式的形式
+                bool isFormat = cbIsExportJsonWithFormat.Checked;
+                exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT, isFormat == true ? "true" : "false"));
+
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, Utils.CombineString(exportJsonParamList, "|"));
             }
 
             return stringBuilder.ToString();
@@ -402,7 +725,7 @@ namespace XlsxToLuaGUI
 
         private void _WarnWhenChooseDangerousParam(CheckBox cb)
         {
-            if (cb.CheckState == CheckState.Checked)
+            if (cb.Checked == true)
                 cb.ForeColor = Color.Red;
             else
                 cb.ForeColor = Color.Black;

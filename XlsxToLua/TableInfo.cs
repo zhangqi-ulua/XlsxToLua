@@ -40,6 +40,30 @@ public class TableInfo
         else
             return null;
     }
+
+    /// <summary>
+    /// 获取依次排列的表格中各字段信息，但无视array、dict型的嵌套结构，将其下属子元素作为独立字段
+    /// </summary>
+    public List<FieldInfo> GetAllFieldInfoIgnoreSetDataStructure()
+    {
+        List<FieldInfo> allFieldInfo = new List<FieldInfo>();
+        foreach (FieldInfo fieldInfo in GetAllFieldInfo())
+            _AddFieldInfoFromOneField(fieldInfo, allFieldInfo);
+
+        return allFieldInfo;
+    }
+
+    public void _AddFieldInfoFromOneField(FieldInfo fieldInfo, List<FieldInfo> allFieldInfo)
+    {
+        if (fieldInfo.DataType == DataType.Array || fieldInfo.DataType == DataType.Dict)
+        {
+            allFieldInfo.Add(fieldInfo);
+            foreach (FieldInfo childField in fieldInfo.ChildField)
+                _AddFieldInfoFromOneField(childField, allFieldInfo);
+        }
+        else
+            allFieldInfo.Add(fieldInfo);
+    }
 }
 
 /// <summary>

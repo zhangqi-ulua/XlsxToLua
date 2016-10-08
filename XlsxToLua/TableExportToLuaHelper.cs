@@ -5,8 +5,8 @@ using System.Text;
 
 public class TableExportToLuaHelper
 {
-    // 用于缩进lua table的字符
-    private static char _LUA_TABLE_INDENTATION_CHAR = '\t';
+    // 用于缩进lua table的字符串
+    private static string _LUA_TABLE_INDENTATION_STRING = "\t";
 
     // 生成lua文件上方字段描述的配置
     // 每行开头的lua注释声明
@@ -34,17 +34,18 @@ public class TableExportToLuaHelper
         bool isAddKeyToLuaTable = tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_ADD_KEY_TO_LUA_TABLE) && tableInfo.TableConfig[AppValues.CONFIG_NAME_ADD_KEY_TO_LUA_TABLE].Count > 0 && "true".Equals(tableInfo.TableConfig[AppValues.CONFIG_NAME_ADD_KEY_TO_LUA_TABLE][0], StringComparison.CurrentCultureIgnoreCase);
 
         // 逐行读取表格内容生成lua table
-        for (int row = 0; row < tableInfo.GetKeyColumnFieldInfo().Data.Count; ++row)
+        List<FieldInfo> allField = tableInfo.GetAllFieldInfo();
+        int dataCount = tableInfo.GetKeyColumnFieldInfo().Data.Count;
+        for (int row = 0; row < dataCount; ++row)
         {
-            List<FieldInfo> allField = tableInfo.GetAllFieldInfo();
-
             // 将主键列作为key生成
             content.Append(_GetLuaTableIndentation(currentLevel));
             FieldInfo keyColumnField = allField[0];
             if (keyColumnField.DataType == DataType.Int || keyColumnField.DataType == DataType.Long)
                 content.AppendFormat("[{0}]", keyColumnField.Data[row]);
+            // 注意：像“1_2”这样的字符串作为table的key必须加[""]否则lua认为是语法错误
             else if (keyColumnField.DataType == DataType.String)
-                content.Append(keyColumnField.Data[row]);
+                content.AppendFormat("[\"{0}\"]", keyColumnField.Data[row]);
             else
             {
                 errorString = "用ExportTableToLua导出不支持的主键列数据类型";
@@ -96,10 +97,16 @@ public class TableExportToLuaHelper
             exportString = _GetColumnInfo(tableInfo) + exportString;
 
         // 保存为lua文件
-        Utils.SaveLuaFile(tableInfo.TableName, exportString);
-
-        errorString = null;
-        return true;
+        if (Utils.SaveLuaFile(tableInfo.TableName, exportString) == true)
+        {
+            errorString = null;
+            return true;
+        }
+        else
+        {
+            errorString = "保存为lua文件失败\n";
+            return false;
+        }
     }
 
     /// <summary>
@@ -345,10 +352,16 @@ public class TableExportToLuaHelper
         }
 
         // 保存为lua文件
-        Utils.SaveLuaFile(fileName, exportString);
-
-        errorString = null;
-        return true;
+        if (Utils.SaveLuaFile(fileName, exportString) == true)
+        {
+            errorString = null;
+            return true;
+        }
+        else
+        {
+            errorString = "保存为lua文件失败\n";
+            return false;
+        }
     }
 
     /// <summary>
@@ -478,10 +491,18 @@ public class TableExportToLuaHelper
             case DataType.Int:
             case DataType.Long:
             case DataType.Float:
+                {
+                    value = _GetNumberValue(fieldInfo, row, level);
+                    break;
+                }
             case DataType.String:
+                {
+                    value = _GetStringValue(fieldInfo, row, level);
+                    break;
+                }
             case DataType.Bool:
                 {
-                    value = _GetBaseValue(fieldInfo, row, level);
+                    value = _GetBoolValue(fieldInfo, row, level);
                     break;
                 }
             case DataType.Lang:
@@ -536,48 +557,33 @@ public class TableExportToLuaHelper
         return content.ToString();
     }
 
-    private static string _GetBaseValue(FieldInfo fieldInfo, int row, int level)
+    private static string _GetNumberValue(FieldInfo fieldInfo, int row, int level)
+    {
+        if (fieldInfo.Data[row] == null)
+            return "nil";
+        else
+            return fieldInfo.Data[row].ToString();
+    }
+
+    private static string _GetStringValue(FieldInfo fieldInfo, int row, int level)
     {
         StringBuilder content = new StringBuilder();
 
-        switch (fieldInfo.DataType)
-        {
-            case DataType.Int:
-            case DataType.Long:
-            case DataType.Float:
-                {
-                    if (fieldInfo.Data[row] == null)
-                        content.Append("nil");
-                    else
-                        content.Append(fieldInfo.Data[row]);
-
-                    break;
-                }
-            case DataType.String:
-                {
-                    content.Append("\"");
-                    // 将单元格中填写的英文引号进行转义，使得单元格中填写123"456时，最终生成的lua文件中为xx = "123\"456"
-                    content.Append(fieldInfo.Data[row].ToString().Replace("\"", "\\\""));
-                    content.Append("\"");
-                    break;
-                }
-            case DataType.Bool:
-                {
-                    if ((bool)fieldInfo.Data[row] == true)
-                        content.Append("true");
-                    else
-                        content.Append("false");
-
-                    break;
-                }
-            default:
-                {
-                    Utils.LogErrorAndExit("错误：用_WriteBaseValue函数导出非基础类型的数据");
-                    break;
-                }
-        }
+        content.Append("\"");
+        // 将单元格中填写的英文引号进行转义，使得单元格中填写123"456时，最终生成的lua文件中为xx = "123\"456"。还要对反斜杠进行转义
+        // 但一定要先处理\再处理"，否则若先处理"就会额外添加\，使得再处理\的个数错误地增加
+        content.Append(fieldInfo.Data[row].ToString().Replace("\\", "\\\\").Replace("\"", "\\\""));
+        content.Append("\"");
 
         return content.ToString();
+    }
+
+    private static string _GetBoolValue(FieldInfo fieldInfo, int row, int level)
+    {
+        if ((bool)fieldInfo.Data[row] == true)
+            return "true";
+        else
+            return "false";
     }
 
     private static string _GetLangValue(FieldInfo fieldInfo, int row, int level)
@@ -587,7 +593,7 @@ public class TableExportToLuaHelper
         if (fieldInfo.Data[row] != null)
         {
             content.Append("\"");
-            content.Append(fieldInfo.Data[row].ToString().Replace("\"", "\\\""));
+            content.Append(fieldInfo.Data[row].ToString().Replace("\\", "\\\\").Replace("\"", "\\\""));
             content.Append("\"");
         }
         else
@@ -649,7 +655,7 @@ public class TableExportToLuaHelper
                 }
             default:
                 {
-                    Utils.LogErrorAndExit("错误：用_GetDateValue函数导出的date型的DateFormatType非法");
+                    Utils.LogErrorAndExit("错误：用_GetDateValue函数导出lua文件的date型的DateFormatType非法");
                     break;
                 }
         }
@@ -684,7 +690,7 @@ public class TableExportToLuaHelper
                 }
             default:
                 {
-                    Utils.LogErrorAndExit("错误：用_GetTimeValue函数导出的time型的TimeFormatType非法");
+                    Utils.LogErrorAndExit("错误：用_GetTimeValue函数导出lua文件的time型的TimeFormatType非法");
                     break;
                 }
         }
@@ -837,7 +843,7 @@ public class TableExportToLuaHelper
                         string value = _GetDataInIndexType(fieldInfo.TableStringFormatDefine.KeyDefine.DataInIndexDefine, allDataString[i], out errorString);
                         if (errorString == null)
                         {
-                            if (fieldInfo.TableStringFormatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Int)
+                            if (fieldInfo.TableStringFormatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Int || fieldInfo.TableStringFormatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Long)
                             {
                                 // 检查key是否在该组数据中重复
                                 if (stringKeys.ContainsKey(value))
@@ -868,7 +874,7 @@ public class TableExportToLuaHelper
                             }
                             else
                             {
-                                Utils.LogErrorAndExit("错误：用_WriteTableStringValue函数导出非int或string型的key值");
+                                Utils.LogErrorAndExit("错误：用_GetTableStringValue函数导出非int、long或string型的key值");
                                 return null;
                             }
                         }
@@ -877,7 +883,7 @@ public class TableExportToLuaHelper
                     }
                 default:
                     {
-                        Utils.LogErrorAndExit("错误：用_WriteTableStringValue函数导出未知类型的key");
+                        Utils.LogErrorAndExit("错误：用_GetTableStringValue函数导出未知类型的key");
                         return null;
                     }
             }
@@ -940,7 +946,7 @@ public class TableExportToLuaHelper
                     }
                 default:
                     {
-                        Utils.LogErrorAndExit("错误：用_WriteTableStringValue函数导出未知类型的value");
+                        Utils.LogErrorAndExit("错误：用_GetTableStringValue函数导出未知类型的value");
                         return null;
                     }
             }
@@ -1002,23 +1008,24 @@ public class TableExportToLuaHelper
         {
             case DataType.Bool:
                 {
-                    if ("1".Equals(inputData))
+                    if ("1".Equals(inputData) || "true".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
                         result = "true";
-                    else if ("0".Equals(inputData))
+                    else if ("0".Equals(inputData) || "false".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
                         result = "false";
                     else
-                        errorString = string.Format("输入的\"{0}\"不是合法的bool值，正确填写bool值方式为填1代表true，0代表false", inputData);
+                        errorString = string.Format("输入的\"{0}\"不是合法的bool值，正确填写bool值方式为填1或true代表真，0或false代表假", inputData);
 
                     break;
                 }
             case DataType.Int:
+            case DataType.Long:
                 {
-                    int intValue;
-                    bool isValid = int.TryParse(inputData, out intValue);
+                    long longValue;
+                    bool isValid = long.TryParse(inputData, out longValue);
                     if (isValid)
-                        result = intValue.ToString();
+                        result = longValue.ToString();
                     else
-                        errorString = string.Format("输入的\"{0}\"不是合法的int类型的值", inputData);
+                        errorString = string.Format("输入的\"{0}\"不是合法的{1}类型的值", inputData, dataType);
 
                     break;
                 }
@@ -1055,7 +1062,7 @@ public class TableExportToLuaHelper
                 }
             default:
                 {
-                    Utils.LogErrorAndExit("错误：用_GetDataInTableString函数解析了tableString中不支持的数据类型");
+                    Utils.LogErrorAndExit(string.Format("错误：用_GetDataInTableString函数解析了tableString中不支持的数据类型{0}", dataType));
                     break;
                 }
         }
@@ -1065,6 +1072,10 @@ public class TableExportToLuaHelper
 
     private static string _GetLuaTableIndentation(int level)
     {
-        return new string(_LUA_TABLE_INDENTATION_CHAR, level);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < level; ++i)
+            stringBuilder.Append(_LUA_TABLE_INDENTATION_STRING);
+
+        return stringBuilder.ToString();
     }
 }

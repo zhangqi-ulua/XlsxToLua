@@ -19,8 +19,18 @@
 --    [1]                           lang                             1
 --    [2]                           lang                             2
 -- testSimpleArray2                 array[lang(itemName{id}):2]      测试简单array2，其中子元素为统一key名的lang型
---    [1]                           lang(itemName{id})               测试tableString1
---    [2]                           lang(itemName{id})               测试array嵌套array
+--    [1]                           lang(itemName{id})               1
+--    [2]                           lang(itemName{id})               2
+-- testTableString1                 tableString[k:#1(int)|v:#true]   测试tableString1
+-- testArrayIncludeArray            array[array[string:3]:2]         测试array嵌套array
+--    [1]                           array[string:3]                  array下的array1
+--       [1]                        string                           1
+--       [2]                        string                           2
+--       [3]                        string                           3
+--    [2]                           array[string:3]                  array下的array2
+--       [1]                        string                           1
+--       [2]                        string                           2
+--       [3]                        string                           3
 -- testTableString2                 tableString[k:#seq|v:#1(int)]    测试tableString2
 -- testArrayIncludeDict             array[dict[3]:2]                 测试array嵌套dict
 --    [1]                           dict[3]                          reward1
@@ -45,6 +55,11 @@
 -- testTime1                        time(input=HH时mm分ss秒|toLua=HH:mm:ss)   测试time（自定义时间输入、导出至lua文件的格式）
 -- testTime2                        time(toLua=#sec)                 测试time（使用默认的时间输入格式，导出至lua文件采用距离0点的秒数）
 -- testTime3                        time(input=#sec)                 测试date（以距离0点的秒数输入，导出至lua文件采用默认的时间格式）
+-- testExportJsonSpecialString      dict[2]                          测试导出json时，字符串中含有括号、转义引号的特殊情况
+--    testExportJsonArrayInDict     array[string:2]                  dict下的array
+--       [1]                        string                           1
+--       [2]                        string                           2
+--    testExportJsonStringInDict    string                           普通string
 
 return {
 	[100001] = {
@@ -60,6 +75,8 @@ return {
 			[1] = "小号经验药水",
 			[2] = "小号经验药水",
 		},
+		testTableString1 = nil,
+		testArrayIncludeArray = nil,
 		testTableString2 = nil,
 		testArrayIncludeDict = nil,
 		testDictIncludeDict = nil,
@@ -71,6 +88,13 @@ return {
 		testTime1 = "00:00:00",
 		testTime2 = 0,
 		testTime3 = "00:00:00",
+		testExportJsonSpecialString = {
+			testExportJsonArrayInDict = {
+				[1] = "正常1",
+				[2] = "",
+			},
+			testExportJsonStringInDict = "正常2",
+		},
 	},
 	[100002] = {
 		testBool = true,
@@ -98,6 +122,10 @@ return {
 			[1] = "中号经验药水",
 			[2] = "中号经验药水",
 		},
+		testTableString1 = {
+			[10001] = true,
+		},
+		testArrayIncludeArray = nil,
 		testTableString2 = {
 			[1] = 10001,
 		},
@@ -128,6 +156,13 @@ return {
 		testTime1 = "00:32:00",
 		testTime2 = 1920,
 		testTime3 = "00:32:00",
+		testExportJsonSpecialString = {
+			testExportJsonArrayInDict = {
+				[1] = "{带括号]",
+				[2] = "",
+			},
+			testExportJsonStringInDict = "[带括号}",
+		},
 	},
 	[100003] = {
 		testBool = true,
@@ -157,6 +192,17 @@ return {
 		testSimpleArray2 = {
 			[1] = "大号经验药水",
 			[2] = "大号经验药水",
+		},
+		testTableString1 = {
+			[10002] = true,
+		},
+		testArrayIncludeArray = {
+			[1] = {
+				[1] = "1",
+				[2] = "2",
+				[3] = "3",
+			},
+			[2] = nil,
 		},
 		testTableString2 = {
 			[1] = 10002,
@@ -191,6 +237,13 @@ return {
 		testTime1 = "10:10:00",
 		testTime2 = 36600,
 		testTime3 = "10:10:00",
+		testExportJsonSpecialString = {
+			testExportJsonArrayInDict = {
+				[1] = "带引号\\\"",
+				[2] = "",
+			},
+			testExportJsonStringInDict = "带\\\"引号",
+		},
 	},
 	[100004] = {
 		testBool = false,
@@ -220,6 +273,23 @@ return {
 		testSimpleArray2 = {
 			[1] = "超级经验药水",
 			[2] = "超级经验药水",
+		},
+		testTableString1 = {
+			[10001] = true,
+			[10003] = true,
+			[10021] = true,
+		},
+		testArrayIncludeArray = {
+			[1] = {
+				[1] = "4",
+				[2] = "",
+				[3] = "6",
+			},
+			[2] = {
+				[1] = "",
+				[2] = "7",
+				[3] = "8",
+			},
 		},
 		testTableString2 = {
 			[1] = 10001,
@@ -265,5 +335,12 @@ return {
 		testTime1 = "03:00:32",
 		testTime2 = 10832,
 		testTime3 = "03:00:32",
+		testExportJsonSpecialString = {
+			testExportJsonArrayInDict = {
+				[1] = "混{{\\\"\\\\]合}",
+				[2] = "",
+			},
+			testExportJsonStringInDict = "混{{\\\"\\\\]合}",
+		},
 	},
 }

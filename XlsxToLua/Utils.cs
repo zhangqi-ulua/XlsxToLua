@@ -328,9 +328,38 @@ public class Utils
             return null;
     }
 
-    public static void Log(string logString)
+    /// <summary>
+    /// 解析在英文小括号内用|分隔的Excel文件名
+    /// </summary>
+    public static string[] GetExcelFileNames(string paramString, out string errorString)
     {
-        Console.ForegroundColor = ConsoleColor.White;
+        int leftBracketIndex = paramString.IndexOf('(');
+        int rightBracketIndex = paramString.LastIndexOf(')');
+        if (leftBracketIndex == -1 || rightBracketIndex == -1 || leftBracketIndex > rightBracketIndex)
+        {
+            errorString = "必须在英文小括号内声明Excel文件名";
+            return null;
+        }
+        else
+        {
+            string fileNameString = paramString.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
+            string[] fileNames = fileNameString.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            if (fileNames.Length < 1)
+            {
+                errorString = "必须在英文小括号内声明至少一个Excel文件名";
+                return null;
+            }
+            else
+            {
+                errorString = null;
+                return fileNames;
+            }
+        }
+    }
+
+    public static void Log(string logString, ConsoleColor color = ConsoleColor.White)
+    {
+        Console.ForegroundColor = color;
         Console.WriteLine(logString);
         AppValues.LogContent.AppendLine(logString);
     }
@@ -401,7 +430,44 @@ public class Utils
         }
         catch
         {
-            LogError(string.Format("导出表格{0}为lua文件失败", tableName));
+            return false;
+        }
+    }
+
+    public static bool SaveCsvFile(string tableName, List<StringBuilder> rowContentList)
+    {
+        try
+        {
+            string fileName = string.Concat(tableName, ".", AppValues.exportCsvExtension);
+            string savePath = Utils.CombinePath(AppValues.exportCsvPath, fileName);
+            StreamWriter writer = new StreamWriter(savePath, false, new UTF8Encoding(false));
+            foreach (StringBuilder stringBuilder in rowContentList)
+                writer.WriteLine(stringBuilder);
+
+            writer.Flush();
+            writer.Close();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool SaveJsonFile(string tableName, string content)
+    {
+        try
+        {
+            string fileName = string.Concat(tableName, ".", AppValues.exportJsonExtension);
+            string savePath = Utils.CombinePath(AppValues.exportJsonPath, fileName);
+            StreamWriter writer = new StreamWriter(savePath, false, new UTF8Encoding(false));
+            writer.Write(content);
+            writer.Flush();
+            writer.Close();
+            return true;
+        }
+        catch
+        {
             return false;
         }
     }

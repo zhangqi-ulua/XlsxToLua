@@ -16,6 +16,8 @@ public class TableAnalyzeHelper
 
         if (typeString.StartsWith("int", StringComparison.CurrentCultureIgnoreCase))
             return DataType.Int;
+        else if (typeString.StartsWith("long", StringComparison.CurrentCultureIgnoreCase))
+            return DataType.Long;
         else if (typeString.StartsWith("float", StringComparison.CurrentCultureIgnoreCase))
             return DataType.Float;
         else if (typeString.StartsWith("string", StringComparison.CurrentCultureIgnoreCase))
@@ -83,10 +85,10 @@ public class TableAnalyzeHelper
                     errorString = "key的声明未符合形如#1(int)\n" + errorString;
                     return formatDefine;
                 }
-                // 只有int型或string型数据才能作为key
-                if (!(formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Int || formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.String))
+                // 只有int、long或string型数据才能作为key
+                if (!(formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Int || formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Long || formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.String))
                 {
-                    errorString = string.Format("key只允许为int或string型，你定义的类型为{0}\n", formatDefine.KeyDefine.DataInIndexDefine.DataType.ToString());
+                    errorString = string.Format("key只允许为int、long或string型，你定义的类型为{0}\n", formatDefine.KeyDefine.DataInIndexDefine.DataType.ToString());
                     return formatDefine;
                 }
             }
@@ -242,9 +244,9 @@ public class TableAnalyzeHelper
         {
             string dataTypeString = defineString.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
             dataInIndexDefine.DataType = _AnalyzeDataType(dataTypeString);
-            if (!(dataInIndexDefine.DataType == DataType.Int || dataInIndexDefine.DataType == DataType.Float || dataInIndexDefine.DataType == DataType.Bool || dataInIndexDefine.DataType == DataType.String || dataInIndexDefine.DataType == DataType.Lang))
+            if (!(dataInIndexDefine.DataType == DataType.Int || dataInIndexDefine.DataType == DataType.Long || dataInIndexDefine.DataType == DataType.Float || dataInIndexDefine.DataType == DataType.Bool || dataInIndexDefine.DataType == DataType.String || dataInIndexDefine.DataType == DataType.Lang))
             {
-                errorString = "格式类型非法，只支持int、float、bool、string、lang这几种类型";
+                errorString = "格式类型非法，只支持int、long、float、bool、string、lang这几种类型";
                 return dataInIndexDefine;
             }
         }

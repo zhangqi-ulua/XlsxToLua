@@ -44,7 +44,7 @@ public class TableExportToLuaHelper
                         string value = _GetDataInIndexType(formatDefine.KeyDefine.DataInIndexDefine, allDataString[i], out errorString);
                         if (errorString == null)
                         {
-                            if (formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Int)
+                            if (formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Int || formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Long)
                             {
                                 // 检查key是否在该组数据中重复
                                 if (stringKeys.ContainsKey(value))
@@ -75,7 +75,7 @@ public class TableExportToLuaHelper
                             }
                             else
                             {
-                                errorString = "错误：用_WriteTableStringValue函数导出非int或string型的key值";
+                                errorString = "错误：用GetTableStringValue函数导出非int、long或string型的key值";
                                 return null;
                             }
                         }
@@ -84,7 +84,7 @@ public class TableExportToLuaHelper
                     }
                 default:
                     {
-                        errorString = "错误：用_WriteTableStringValue函数导出未知类型的key";
+                        errorString = "错误：用GetTableStringValue函数导出未知类型的key";
                         return null;
                     }
             }
@@ -147,7 +147,7 @@ public class TableExportToLuaHelper
                     }
                 default:
                     {
-                        errorString = "错误：用_WriteTableStringValue函数导出未知类型的value";
+                        errorString = "错误：用GetTableStringValue函数导出未知类型的value";
                         return null;
                     }
             }
@@ -219,13 +219,14 @@ public class TableExportToLuaHelper
                     break;
                 }
             case DataType.Int:
+            case DataType.Long:
                 {
-                    int intValue;
-                    bool isValid = int.TryParse(inputData, out intValue);
+                    long longValue;
+                    bool isValid = long.TryParse(inputData, out longValue);
                     if (isValid)
-                        result = intValue.ToString();
+                        result = longValue.ToString();
                     else
-                        errorString = string.Format("输入的\"{0}\"不是合法的int类型的值", inputData);
+                        errorString = string.Format("输入的\"{0}\"不是合法的{1}类型的值", inputData, dataType);
 
                     break;
                 }

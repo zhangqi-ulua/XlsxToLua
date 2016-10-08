@@ -51,6 +51,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TableAnalyzeHelper.cs" />
     <Compile Include="TableCheckHelper.cs" />
+    <Compile Include="TableExportToCsvHelper.cs" />
+    <Compile Include="TableExportToJsonHelper.cs" />
     <Compile Include="TableExportToMySQLHelper.cs" />
     <Compile Include="TableExportToLuaHelper.cs" />
     <Compile Include="TableInfo.cs" />

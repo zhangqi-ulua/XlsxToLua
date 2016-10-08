@@ -240,6 +240,13 @@ public class TableAnalyzeHelper
                 }
             }
 
+            // 检查array下属子元素列，不允许填写变量名（如果不进行此强制限制，当定表时没有空出足够的array子元素列数，并且后面为独立字段时，解析array型时会把后面的独立字段当成array子元素声明列，很可能造成格式上可以正确解析，但逻辑上和定表者想法不符但不易发觉的问题）
+            if (!string.IsNullOrEmpty(inputFieldName))
+            {
+                errorString = string.Format("array下属的子元素列不允许填写变量名，第{0}列错误地填写了变量名{1}", Utils.GetExcelColumnName(columnIndex + 1), inputFieldName);
+                nextFieldColumnIndex = columnIndex + 1;
+                return null;
+            }
             fieldInfo.FieldName = null;
             fieldInfo.DataType = parentField.ArrayChildDataType;
             // array类型的ArrayChildDataTypeString中还包含了子元素个数，需要去除
@@ -280,12 +287,28 @@ public class TableAnalyzeHelper
         switch (fieldInfo.DataType)
         {
             case DataType.Int:
+                {
+                    _AnalyzeIntType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    break;
+                }
             case DataType.Long:
+                {
+                    _AnalyzeLongType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    break;
+                }
             case DataType.Float:
+                {
+                    _AnalyzeFloatType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    break;
+                }
             case DataType.Bool:
+                {
+                    _AnalyzeBoolType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    break;
+                }
             case DataType.String:
                 {
-                    _AnalyzeBaseType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    _AnalyzeStringType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
                     break;
                 }
             case DataType.Lang:
@@ -375,79 +398,43 @@ public class TableAnalyzeHelper
             return DataType.Invalid;
     }
 
-    /// <summary>
-    /// 解析int、float、string、bool这类基础数据类型
-    /// </summary>
-    private static bool _AnalyzeBaseType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    private static bool _AnalyzeIntType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
-        // 检查string型字段数据格式声明是否正确
-        if (fieldInfo.DataType == DataType.String && !"string(trim)".Equals(fieldInfo.DataTypeString) && !"string".Equals(fieldInfo.DataTypeString))
-        {
-            errorString = string.Format("错误：string型字段定义非法，若要自动去除输入字符串的首尾空白字符请将数据类型声明为\"string(trim)\"，否则声明为\"string\"，而你输入的为\"{0}\"", fieldInfo.DataTypeString);
-            nextFieldColumnIndex = columnIndex + 1;
-            return false;
-        }
-
         fieldInfo.Data = new List<object>();
-
         // 记录非法数据的行号以及数据值（key：行号， value：数据值）
-        Dictionary<int, object> invalidInfo = new Dictionary<int, object>();
+        Dictionary<int, string> invalidInfo = new Dictionary<int, string>();
 
-        // 如果是独立的字段
-        if (parentField == null)
+        for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
-            for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
-            {
-                string inputData = dt.Rows[row][columnIndex].ToString();
-                _GetOneValidBaseValue(fieldInfo, invalidInfo, inputData, row);
-            }
-        }
-        else
-        {
-            // 嵌套一层，是集合类型的直接子类型（凡是集合类型的子元素，如果集合定义列中填写的数据为-1，则其子元素无效）
-            if (parentField.ParentField == null)
-            {
-                for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
-                {
-                    if ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
-                        fieldInfo.Data.Add(null);
-                    else
-                    {
-                        string inputData = dt.Rows[row][columnIndex].ToString();
-                        _GetOneValidBaseValue(fieldInfo, invalidInfo, inputData, row);
-                    }
-                }
-            }
-            // 嵌套两层
-            else if (parentField.ParentField.ParentField == null)
-            {
-                for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
-                {
-                    if ((bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
-                        fieldInfo.Data.Add(null);
-                    else
-                    {
-                        string inputData = dt.Rows[row][columnIndex].ToString();
-                        _GetOneValidBaseValue(fieldInfo, invalidInfo, inputData, row);
-                    }
-                }
-            }
-            // 本工具不允许更多层的嵌套
+            // 如果本行该字段的父元素标记为无效则该数据也标为无效
+            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                fieldInfo.Data.Add(null);
             else
             {
-                errorString = "错误：本工具不支持高于两层集合类型的嵌套";
-                nextFieldColumnIndex = columnIndex + 1;
-                return false;
+                string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                if (string.IsNullOrEmpty(inputData))
+                {
+                    if (AppValues.IsAllowedNullNumber == true)
+                        fieldInfo.Data.Add(null);
+                    else
+                        invalidInfo.Add(row, inputData);
+                }
+                else
+                {
+                    int intValue;
+                    bool isValid = int.TryParse(inputData, out intValue);
+                    if (isValid)
+                        fieldInfo.Data.Add(intValue);
+                    else
+                        invalidInfo.Add(row, inputData);
+                }
             }
         }
 
         if (invalidInfo.Count > 0)
         {
             StringBuilder invalidDataInfo = new StringBuilder();
-            if (fieldInfo.DataType == DataType.Bool)
-                invalidDataInfo.Append("以下行中数据不是合法的bool值，正确填写bool值方式为填1代表true，0代表false：\n");
-            else
-                invalidDataInfo.AppendFormat("以下行中数据不是合法的{0}类型的值：\n", fieldInfo.DataType.ToString());
+            invalidDataInfo.Append("以下行中数据不是合法的int类型的值：\n");
 
             foreach (var item in invalidInfo)
                 invalidDataInfo.AppendFormat("第{0}行，错误地填写数据为\"{1}\"\n", item.Key + 1, item.Value);
@@ -464,106 +451,192 @@ public class TableAnalyzeHelper
         }
     }
 
-    /// <summary>
-    /// 解析一个基础类型数据的字符串形式为真实数据
-    /// </summary>
-    private static void _GetOneValidBaseValue(FieldInfo fieldInfo, Dictionary<int, object> invalidInfo, string inputData, int rowIndex)
+    private static bool _AnalyzeLongType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
-        switch (fieldInfo.DataType)
+        fieldInfo.Data = new List<object>();
+        // 记录非法数据的行号以及数据值（key：行号， value：数据值）
+        Dictionary<int, string> invalidInfo = new Dictionary<int, string>();
+
+        for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
-            case DataType.Int:
+            // 如果本行该字段的父元素标记为无效则该数据也标为无效
+            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                fieldInfo.Data.Add(null);
+            else
+            {
+                string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                if (string.IsNullOrEmpty(inputData))
                 {
-                    inputData = inputData.Trim();
-                    if (string.IsNullOrEmpty(inputData))
-                    {
-                        if (AppValues.IsAllowedNullNumber == true)
-                            fieldInfo.Data.Add(null);
-                        else
-                            invalidInfo.Add(rowIndex, inputData);
-                    }
+                    if (AppValues.IsAllowedNullNumber == true)
+                        fieldInfo.Data.Add(null);
                     else
-                    {
-                        int intValue;
-                        bool isValid = int.TryParse(inputData, out intValue);
-                        if (isValid)
-                            fieldInfo.Data.Add(intValue);
-                        else
-                            invalidInfo.Add(rowIndex, inputData);
-                    }
-
-                    break;
+                        invalidInfo.Add(row, inputData);
                 }
-            case DataType.Long:
+                else
                 {
-                    inputData = inputData.Trim();
-                    if (string.IsNullOrEmpty(inputData))
-                    {
-                        if (AppValues.IsAllowedNullNumber == true)
-                            fieldInfo.Data.Add(null);
-                        else
-                            invalidInfo.Add(rowIndex, inputData);
-                    }
+                    long longValue;
+                    bool isValid = long.TryParse(inputData, out longValue);
+                    if (isValid)
+                        fieldInfo.Data.Add(longValue);
                     else
-                    {
-                        long longValue;
-                        bool isValid = long.TryParse(inputData, out longValue);
-                        if (isValid)
-                            fieldInfo.Data.Add(longValue);
-                        else
-                            invalidInfo.Add(rowIndex, inputData);
-                    }
-
-                    break;
+                        invalidInfo.Add(row, inputData);
                 }
-            case DataType.Float:
-                {
-                    inputData = inputData.Trim();
-                    if (string.IsNullOrEmpty(inputData))
-                    {
-                        if (AppValues.IsAllowedNullNumber == true)
-                            fieldInfo.Data.Add(null);
-                        else
-                            invalidInfo.Add(rowIndex, inputData);
-                    }
-                    else
-                    {
-                        float floatValue;
-                        bool isValid = float.TryParse(inputData, out floatValue);
-                        if (isValid)
-                            fieldInfo.Data.Add(floatValue);
-                        else
-                            invalidInfo.Add(rowIndex, inputData);
-                    }
-
-                    break;
-                }
-            case DataType.Bool:
-                {
-                    inputData = inputData.Trim();
-                    if ("1".Equals(inputData) || "true".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
-                        fieldInfo.Data.Add(true);
-                    else if ("0".Equals(inputData) || "false".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
-                        fieldInfo.Data.Add(false);
-                    else
-                        invalidInfo.Add(rowIndex, inputData);
-
-                    break;
-                }
-            case DataType.String:
-                {
-                    if ("string(trim)".Equals(fieldInfo.DataTypeString, StringComparison.CurrentCultureIgnoreCase))
-                        fieldInfo.Data.Add(inputData.Trim());
-                    else
-                        fieldInfo.Data.Add(inputData);
-
-                    break;
-                }
-            default:
-                {
-                    Utils.LogErrorAndExit("错误：用_GetOneValidBaseValue函数解析了非基础类型的数据");
-                    break;
-                }
+            }
         }
+
+        if (invalidInfo.Count > 0)
+        {
+            StringBuilder invalidDataInfo = new StringBuilder();
+            invalidDataInfo.Append("以下行中数据不是合法的long类型的值：\n");
+
+            foreach (var item in invalidInfo)
+                invalidDataInfo.AppendFormat("第{0}行，错误地填写数据为\"{1}\"\n", item.Key + 1, item.Value);
+
+            errorString = invalidDataInfo.ToString();
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+        else
+        {
+            errorString = null;
+            nextFieldColumnIndex = columnIndex + 1;
+            return true;
+        }
+    }
+
+    private static bool _AnalyzeFloatType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    {
+        fieldInfo.Data = new List<object>();
+        // 记录非法数据的行号以及数据值（key：行号， value：数据值）
+        Dictionary<int, string> invalidInfo = new Dictionary<int, string>();
+
+        for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+        {
+            // 如果本行该字段的父元素标记为无效则该数据也标为无效
+            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                fieldInfo.Data.Add(null);
+            else
+            {
+                string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                if (string.IsNullOrEmpty(inputData))
+                {
+                    if (AppValues.IsAllowedNullNumber == true)
+                        fieldInfo.Data.Add(null);
+                    else
+                        invalidInfo.Add(row, inputData);
+                }
+                else
+                {
+                    float floatValue;
+                    bool isValid = float.TryParse(inputData, out floatValue);
+                    if (isValid)
+                        fieldInfo.Data.Add(floatValue);
+                    else
+                        invalidInfo.Add(row, inputData);
+                }
+            }
+        }
+
+        if (invalidInfo.Count > 0)
+        {
+            StringBuilder invalidDataInfo = new StringBuilder();
+            invalidDataInfo.Append("以下行中数据不是合法的float类型的值：\n");
+
+            foreach (var item in invalidInfo)
+                invalidDataInfo.AppendFormat("第{0}行，错误地填写数据为\"{1}\"\n", item.Key + 1, item.Value);
+
+            errorString = invalidDataInfo.ToString();
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+        else
+        {
+            errorString = null;
+            nextFieldColumnIndex = columnIndex + 1;
+            return true;
+        }
+    }
+
+    private static bool _AnalyzeBoolType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    {
+        fieldInfo.Data = new List<object>();
+        // 记录非法数据的行号以及数据值（key：行号， value：数据值）
+        Dictionary<int, string> invalidInfo = new Dictionary<int, string>();
+
+        for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+        {
+            // 如果本行该字段的父元素标记为无效则该数据也标为无效
+            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                fieldInfo.Data.Add(null);
+            else
+            {
+                string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                if ("1".Equals(inputData) || "true".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
+                    fieldInfo.Data.Add(true);
+                else if ("0".Equals(inputData) || "false".Equals(inputData, StringComparison.CurrentCultureIgnoreCase))
+                    fieldInfo.Data.Add(false);
+                else
+                    invalidInfo.Add(row, inputData);
+            }
+        }
+
+        if (invalidInfo.Count > 0)
+        {
+            StringBuilder invalidDataInfo = new StringBuilder();
+            invalidDataInfo.Append("以下行中数据不是合法的bool值，正确填写bool值方式为填1或true代表真，0或false代表假：\n");
+
+            foreach (var item in invalidInfo)
+                invalidDataInfo.AppendFormat("第{0}行，错误地填写数据为\"{1}\"\n", item.Key + 1, item.Value);
+
+            errorString = invalidDataInfo.ToString();
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+        else
+        {
+            errorString = null;
+            nextFieldColumnIndex = columnIndex + 1;
+            return true;
+        }
+    }
+
+    private static bool _AnalyzeStringType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    {
+        // 检查string型字段数据格式声明是否正确
+        if (!"string(trim)".Equals(fieldInfo.DataTypeString) && !"string".Equals(fieldInfo.DataTypeString))
+        {
+            errorString = string.Format("错误：string型字段定义非法，若要自动去除输入字符串的首尾空白字符请将数据类型声明为\"string(trim)\"，否则声明为\"string\"，而你输入的为\"{0}\"", fieldInfo.DataTypeString);
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+
+        fieldInfo.Data = new List<object>();
+
+        if ("string(trim)".Equals(fieldInfo.DataTypeString, StringComparison.CurrentCultureIgnoreCase))
+        {
+            for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+            {
+                // 如果本行该字段的父元素标记为无效则该数据也标为无效
+                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                    fieldInfo.Data.Add(null);
+                else
+                    fieldInfo.Data.Add(dt.Rows[row][columnIndex].ToString().Trim());
+            }
+        }
+        else
+        {
+            for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+            {
+                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                    fieldInfo.Data.Add(null);
+                else
+                    fieldInfo.Data.Add(dt.Rows[row][columnIndex].ToString());
+            }
+        }
+
+        errorString = null;
+        nextFieldColumnIndex = columnIndex + 1;
+        return true;
     }
 
     private static bool _AnalyzeLangType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
@@ -1304,10 +1377,10 @@ public class TableAnalyzeHelper
                     errorString = "key的声明未符合形如#1(int)\n" + errorString;
                     return formatDefine;
                 }
-                // 只有int型或string型数据才能作为key
-                if (!(formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Int || formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.String))
+                // 只有int、long或string型数据才能作为key
+                if (!(formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Int || formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.Long || formatDefine.KeyDefine.DataInIndexDefine.DataType == DataType.String))
                 {
-                    errorString = string.Format("key只允许为int或string型，你定义的类型为{0}\n", formatDefine.KeyDefine.DataInIndexDefine.DataType.ToString());
+                    errorString = string.Format("key只允许为int、long或string型，你定义的类型为{0}\n", formatDefine.KeyDefine.DataInIndexDefine.DataType.ToString());
                     return formatDefine;
                 }
             }
@@ -1463,9 +1536,9 @@ public class TableAnalyzeHelper
         {
             string dataTypeString = defineString.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
             dataInIndexDefine.DataType = _AnalyzeDataType(dataTypeString);
-            if (!(dataInIndexDefine.DataType == DataType.Int || dataInIndexDefine.DataType == DataType.Float || dataInIndexDefine.DataType == DataType.Bool || dataInIndexDefine.DataType == DataType.String || dataInIndexDefine.DataType == DataType.Lang))
+            if (!(dataInIndexDefine.DataType == DataType.Int || dataInIndexDefine.DataType == DataType.Long || dataInIndexDefine.DataType == DataType.Float || dataInIndexDefine.DataType == DataType.Bool || dataInIndexDefine.DataType == DataType.String || dataInIndexDefine.DataType == DataType.Lang))
             {
-                errorString = "格式类型非法，只支持int、float、bool、string、lang这几种类型";
+                errorString = "格式类型非法，只支持int、long、float、bool、string、lang这几种类型";
                 return dataInIndexDefine;
             }
         }
