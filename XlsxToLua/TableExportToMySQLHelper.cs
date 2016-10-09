@@ -254,8 +254,8 @@ public class TableExportToMySQLHelper
                     }
                     else if (fieldInfo.DataType == DataType.Json)
                     {
-                        // json型直接向数据库写入原始json字符串
-                        values.Add(string.Format("'{0}'", fieldInfo.JsonString[i]));
+                        // json型直接向数据库写入原始json字符串，但需要对\进行转义
+                        values.Add(string.Format("'{0}'", fieldInfo.JsonString[i]).Replace("\\", "\\\\"));
                     }
                     // 这里需要自行处理向数据库中某些数据类型如datetime的列不允许插入空字符串的情况
                     else if (string.IsNullOrEmpty(fieldInfo.Data[i].ToString()))
@@ -266,7 +266,10 @@ public class TableExportToMySQLHelper
                             values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
                     }
                     else
-                        values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));
+                    {
+                        // 注意对\进行转义
+                        values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()).Replace("\\", "\\\\"));
+                    }
                 }
 
                 valueDefineStringBuilder.AppendFormat("({0}),", Utils.CombineString(values, ","));
