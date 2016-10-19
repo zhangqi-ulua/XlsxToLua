@@ -107,7 +107,7 @@ public class TableExportToMySQLHelper
 
     public static bool ExportTableToDatabase(TableInfo tableInfo, out string errorString)
     {
-        Utils.Log(string.Format("导出表格\"{0}\"：", tableInfo.TableName));
+        Utils.Log(string.Format("导出表格\"{0}\"：", tableInfo.TableName), ConsoleColor.Green);
         if (tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_NAME))
         {
             List<string> inputParams = tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_NAME];

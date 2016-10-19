@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -465,13 +466,21 @@ public class Program
         }
 
         // 读取给定的Excel所在目录下的所有Excel文件，然后解析成本工具所需的数据结构
+        Utils.Log("开始解析Excel所在目录下的所有Excel文件：");
+        Stopwatch stopwatch = new Stopwatch();
         foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
         {
+            string fileName = Path.GetFileNameWithoutExtension(filePath);
+            Utils.Log(string.Format("解析表格\"{0}\"：", fileName), ConsoleColor.Green);
+            stopwatch.Reset();
+            stopwatch.Start();
+
             string errorString = null;
             DataSet ds = XlsxReader.ReadXlsxFile(filePath, out errorString);
+            stopwatch.Stop();
+            Utils.Log(string.Format("成功，耗时：{0}毫秒", stopwatch.ElapsedMilliseconds));
             if (string.IsNullOrEmpty(errorString))
             {
-                string fileName = Path.GetFileNameWithoutExtension(filePath);
                 TableInfo tableInfo = TableAnalyzeHelper.AnalyzeTable(ds.Tables[AppValues.EXCEL_DATA_SHEET_NAME], fileName, out errorString);
                 if (errorString != null)
                     Utils.LogErrorAndExit(string.Format("错误：解析{0}失败\n{1}", filePath, errorString));

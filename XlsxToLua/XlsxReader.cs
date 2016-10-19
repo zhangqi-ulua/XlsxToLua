@@ -65,6 +65,17 @@ public class XlsxReader
             ds = new DataSet();
             da.Fill(ds, AppValues.EXCEL_DATA_SHEET_NAME);
 
+            // 删除表格末尾的空行
+            DataRowCollection rows = ds.Tables[AppValues.EXCEL_DATA_SHEET_NAME].Rows;
+            int rowCount = rows.Count;
+            for (int i = rowCount - 1; i >= AppValues.DATA_FIELD_DATA_START_INDEX; --i)
+            {
+                if (string.IsNullOrEmpty(rows[i][0].ToString()))
+                    rows.RemoveAt(i);
+                else
+                    break;
+            }
+
             if (isFoundConfigSheet == true)
             {
                 da.Dispose();
