@@ -34,7 +34,10 @@ public class ExcelOperateHelper
         // 在名为data的Sheet表中填充数据
         Excel.Worksheet dataWorksheet = workbook.Sheets[1] as Excel.Worksheet;
         dataWorksheet.Name = AppValues.EXCEL_DATA_SHEET_NAME;
-        dataWorksheet.Tab.ColorIndex = (XlColorIndex)AppValues.DataSheetTabColorIndex;
+        // 设置标签按钮的颜色
+        if (AppValues.DataSheetTabColorIndex > 0)
+            dataWorksheet.Tab.ColorIndex = (XlColorIndex)AppValues.DataSheetTabColorIndex;
+
         // 设置表格中所有单元格均为文本格式，避免很大的数字写入Excel时被转为科学计数法形式，使得XlsxToLua工具无法正确读取数值（注意必须在写入数据前就设置，否则会导致写入Excel的日期字符串最终变成数字）
         dataWorksheet.Cells.NumberFormatLocal = "@";
 
@@ -84,7 +87,11 @@ public class ExcelOperateHelper
 
             // 将每列的背景色按配置进行设置
             if (AppValues.ColumnBackgroundColorIndex != null)
-                dataWorksheet.get_Range(Utils.GetExcelColumnName(columnIndex) + "1").EntireColumn.Interior.ColorIndex = AppValues.ColumnBackgroundColorIndex[(columnIndex - 1) % AppValues.ColumnBackgroundColorIndex.Count];
+            {
+                int colorIndex = AppValues.ColumnBackgroundColorIndex[(columnIndex - 1) % AppValues.ColumnBackgroundColorIndex.Count];
+                if (colorIndex > 0)
+                    dataWorksheet.get_Range(Utils.GetExcelColumnName(columnIndex) + "1").EntireColumn.Interior.ColorIndex = colorIndex;
+            }
         }
         // 为了美化生成的Excel文件，设置单元格自动列宽（使得列宽根据内容自动调整，每个单元格在一行中可显示完整内容）。然后对于因内容过多而通过自动列宽后超过配置文件中配置的最大列宽的单元格，强制缩小列宽到所允许的最大宽度。最后设置单元格内容自动换行，使得单元格自动扩大高度以显示所有内容
         // 注意以下操作需在插入完所有数据后进行，否则插入数据前设置自动列宽无效
@@ -128,7 +135,10 @@ public class ExcelOperateHelper
         // 新建名为config的Sheet表
         Excel.Worksheet configWorksheet = workbook.Sheets.Add(Type.Missing, dataWorksheet) as Excel.Worksheet;
         configWorksheet.Name = AppValues.EXCEL_CONFIG_SHEET_NAME;
-        configWorksheet.Tab.ColorIndex = (XlColorIndex)AppValues.ConfigSheetTabColorIndex;
+        // 设置标签按钮的颜色
+        if (AppValues.ConfigSheetTabColorIndex > 0)
+            configWorksheet.Tab.ColorIndex = (XlColorIndex)AppValues.ConfigSheetTabColorIndex;
+
         // 写入导出到数据库中的字段名及类型配置
         configWorksheet.Cells[1, 1] = AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_NAME;
         configWorksheet.Cells[2, 1] = tableName;
@@ -142,7 +152,11 @@ public class ExcelOperateHelper
         {
             int configColumnCount = configWorksheet.UsedRange.Columns.Count;
             for (int columnIndex = 1; columnIndex <= configColumnCount; ++columnIndex)
-                configWorksheet.get_Range(Utils.GetExcelColumnName(columnIndex) + "1").EntireColumn.Interior.ColorIndex = AppValues.ColumnBackgroundColorIndex[(columnIndex - 1) % AppValues.ColumnBackgroundColorIndex.Count];
+            {
+                int colorIndex = AppValues.ColumnBackgroundColorIndex[(columnIndex - 1) % AppValues.ColumnBackgroundColorIndex.Count];
+                if (colorIndex > 0)
+                    configWorksheet.get_Range(Utils.GetExcelColumnName(columnIndex) + "1").EntireColumn.Interior.ColorIndex = colorIndex;
+            }
         }
         // 对第一行配置名行执行窗口冻结
         excelRange = configWorksheet.get_Range("A2");
@@ -172,6 +186,7 @@ public class ExcelOperateHelper
         switch (databaseDataType)
         {
             case "int":
+            case "smallint":
                 return "int";
             case "bigint":
                 return "long";
@@ -184,9 +199,11 @@ public class ExcelOperateHelper
                 }
             case "float":
             case "double":
+            case "decimal":
                 return "float";
             case "char":
             case "varchar":
+            case "enum":
                 return "string";
             case "datetime":
                 return string.Format("date(input={0})", AppValues.DEFAULT_DATETIME_FORMAT);
