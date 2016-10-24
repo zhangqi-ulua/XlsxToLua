@@ -1921,7 +1921,9 @@ public class TableCheckHelper
 
                             // 文件名中不允许含有\或/，即不支持文件在填写路径的非同级目录
                             string inputFileName = fieldInfo.Data[i].ToString().Trim();
-                            if (inputFileName.IndexOf('\\') != -1 || inputFileName.IndexOf('/') != -1)
+                            if (string.IsNullOrEmpty(inputFileName))
+                                continue;
+                            else if (inputFileName.IndexOf('\\') != -1 || inputFileName.IndexOf('/') != -1)
                                 illegalFileNames.Add(i);
                             else
                             {
@@ -1947,7 +1949,9 @@ public class TableCheckHelper
 
                         // 文件名中不允许含有\或/，即不支持文件在填写路径的非同级目录
                         string inputFileName = fieldInfo.Data[i].ToString().Trim();
-                        if (inputFileName.IndexOf('\\') != -1 || inputFileName.IndexOf('/') != -1)
+                        if (string.IsNullOrEmpty(inputFileName))
+                            continue;
+                        else if (inputFileName.IndexOf('\\') != -1 || inputFileName.IndexOf('/') != -1)
                             illegalFileNames.Add(i);
                         else
                         {
