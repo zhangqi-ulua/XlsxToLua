@@ -370,7 +370,13 @@ public class Program
         if (AppValues.exportTableNames.Count == 0)
         {
             foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
-                AppValues.exportTableNames.Add(Path.GetFileNameWithoutExtension(filePath));
+            {
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+                if (fileName.StartsWith(AppValues.EXCEL_TEMP_FILE_FILE_NAME_START_STRING))
+                    Utils.LogWarning(string.Format("目录中的{0}文件为Excel自动生成的临时文件，将被忽略处理", filePath));
+                else
+                    AppValues.exportTableNames.Add(Path.GetFileNameWithoutExtension(filePath));
+            }
         }
 
         // 如果声明要额外导出为csv文件的Excel表本身在本次被忽略，需要进行警告
@@ -471,6 +477,9 @@ public class Program
         foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
         {
             string fileName = Path.GetFileNameWithoutExtension(filePath);
+            if (fileName.StartsWith(AppValues.EXCEL_TEMP_FILE_FILE_NAME_START_STRING))
+                continue;
+
             Utils.Log(string.Format("解析表格\"{0}\"：", fileName), ConsoleColor.Green);
             stopwatch.Reset();
             stopwatch.Start();

@@ -527,8 +527,8 @@ public class TableAnalyzeHelper
                 }
                 else
                 {
-                    float floatValue;
-                    bool isValid = float.TryParse(inputData, out floatValue);
+                    double floatValue;
+                    bool isValid = double.TryParse(inputData, out floatValue);
                     if (isValid)
                         fieldInfo.Data.Add(floatValue);
                     else
