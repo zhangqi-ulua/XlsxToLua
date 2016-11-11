@@ -173,6 +173,9 @@ public class TableExportToMySQLHelper
 
         string fieldNameDefineString = Utils.CombineString(fileNames, ", ");
 
+        // 用户是否配置该表中string型字段中的空单元格导出至MySQL中为NULL，默认为空字符串
+        bool isWriteNullForEmptyString = tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_EXPORT_DATABASE_WRITE_NULL_FOR_EMPTY_STRING) && tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_WRITE_NULL_FOR_EMPTY_STRING].Count > 0 && "true".Equals(tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_WRITE_NULL_FOR_EMPTY_STRING][0], StringComparison.CurrentCultureIgnoreCase);
+
         // 逐行生成插入数据的SQL语句中的value定义部分
         StringBuilder valueDefineStringBuilder = new StringBuilder();
         int count = tableInfo.GetKeyColumnFieldInfo().Data.Count;
@@ -257,10 +260,12 @@ public class TableExportToMySQLHelper
                         // json型直接向数据库写入原始json字符串，但需要对\进行转义
                         values.Add(string.Format("'{0}'", fieldInfo.JsonString[i]).Replace("\\", "\\\\"));
                     }
-                    // 这里需要自行处理向数据库中某些数据类型如datetime的列不允许插入空字符串的情况
+                    // 这里需要自行处理数据库中某些数据类型（如datetime）中不允许插入空字符串的情况，以及用户设置的string型中空单元格导出至数据库的形式
                     else if (string.IsNullOrEmpty(fieldInfo.Data[i].ToString()))
                     {
                         if (fieldInfo.DatabaseFieldType.StartsWith("datetime", StringComparison.CurrentCultureIgnoreCase))
+                            values.Add("NULL");
+                        else if (fieldInfo.DataType == DataType.String && isWriteNullForEmptyString == true)
                             values.Add("NULL");
                         else
                             values.Add(string.Format("'{0}'", fieldInfo.Data[i].ToString()));

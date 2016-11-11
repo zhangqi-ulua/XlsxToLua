@@ -24,7 +24,7 @@ public class TableAnalyzeHelper
         }
         else
         {
-            // 解析出第一列，然后检查主键唯一性，如果是string型主键还要检查是否非空、是否符合变量名的规范（只能由英文字母、数字、下划线组成）
+            // 解析出主键列，然后检查是否非空、唯一，如果是string型主键还要检查是否符合变量名的规范（只能由英文字母、数字、下划线组成）
             FieldInfo primaryKeyField = _AnalyzeOneField(dt, tableInfo, 0, null, out curColumnIndex, out errorString);
             if (errorString != null)
             {
@@ -43,7 +43,8 @@ public class TableAnalyzeHelper
                     errorString = _GetTableAnalyzeErrorString(tableName, 0) + "主键列存在重复错误\n" + errorString;
                     return null;
                 }
-                // string型主键检查是否非空、是否符合变量名的规范
+
+                // string型主键检查是否符合变量名的规范
                 if (primaryKeyColumnType == DataType.String)
                 {
                     StringBuilder errorStringBuilder = new StringBuilder();
@@ -57,6 +58,21 @@ public class TableAnalyzeHelper
                     if (!string.IsNullOrEmpty(errorStringBuilder.ToString()))
                     {
                         errorString = _GetTableAnalyzeErrorString(tableName, 0) + "string型主键列存在非法数据\n" + errorStringBuilder.ToString();
+                        return null;
+                    }
+                }
+
+                // 非空检查（因为string型检查是否符合变量名规范时以及未声明数值型字段中允许空时，均已对主键列进行过非空检查，这里只需对数据值字段且声明数值型字段中允许空的情况下进行非空检查）
+                if (AppValues.IsAllowedNullNumber == true && (primaryKeyColumnType == DataType.Int || primaryKeyColumnType == DataType.Long))
+                {
+                    FieldCheckRule notEmptyCheckRule = new FieldCheckRule();
+                    uniqueCheckRule.CheckType = TableCheckType.NotEmpty;
+                    uniqueCheckRule.CheckRuleString = "notEmpty";
+                    TableCheckHelper.CheckNotEmpty(primaryKeyField, notEmptyCheckRule, out errorString);
+                    if (errorString != null)
+                    {
+                        errorString = _GetTableAnalyzeErrorString(tableName, 0) + "主键列存在非空错误\n" + errorString;
+                        return null;
                     }
                 }
 
@@ -1433,7 +1449,7 @@ public class TableAnalyzeHelper
                     Dictionary<string, int> tableKeys = new Dictionary<string, int>();
                     for (int i = 0; i < tableElementDefine.Length; ++i)
                     {
-                        TableElementDefine oneTableElementDefine = _GetTablelementDefine(tableElementDefine[i].Trim(), out errorString);
+                        TableElementDefine oneTableElementDefine = _GetTableElementDefine(tableElementDefine[i].Trim(), out errorString);
                         if (errorString != null)
                         {
                             errorString = string.Format("table类型值声明错误，无法解析{0}，", tableElementDefine[i].Trim()) + errorString;
@@ -1481,7 +1497,7 @@ public class TableAnalyzeHelper
     /// <summary>
     /// 将形如type=#1(int)的格式定义字符串转为TableElementDefine定义
     /// </summary>
-    private static TableElementDefine _GetTablelementDefine(string tableElementDefine, out string errorString)
+    private static TableElementDefine _GetTableElementDefine(string tableElementDefine, out string errorString)
     {
         TableElementDefine elementDefine = new TableElementDefine();
 

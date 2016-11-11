@@ -139,6 +139,9 @@ public class ExcelOperateHelper
         if (AppValues.ConfigSheetTabColorIndex > 0)
             configWorksheet.Tab.ColorIndex = (XlColorIndex)AppValues.ConfigSheetTabColorIndex;
 
+        // 设置表格中所有单元格均为文本格式
+        configWorksheet.Cells.NumberFormatLocal = "@";
+
         // 写入导出到数据库中的字段名及类型配置
         configWorksheet.Cells[1, 1] = AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_NAME;
         configWorksheet.Cells[2, 1] = tableName;

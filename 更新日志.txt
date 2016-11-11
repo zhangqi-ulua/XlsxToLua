@@ -1,5 +1,11 @@
-﻿本文件仅列举版本新增功能的大致介绍，详细使用请参考“XlsxToLua工具说明.txt”
-辅助工具的说明请参考“辅助工具说明.txt”
+﻿本文件仅列举版本新增功能的大致介绍，详细使用请参考PDF版XlsxToLua使用说明”
+
+======= V6.1 2016.11.11 ======
+1、Excel表格的config配置表中增加exportDatabaseWriteNullForEmptyString选项，可设置string型字段中的空单元格导出至MySQL数据库时为NULL，而不是默认的空字符串
+2、增加显示用OleDb方式读取各张Excel表所用时间的功能
+3、读取Excel表时，自动忽略表格末尾所有主键列为空的行
+4、float型字段在C#中改为实际用double型存储，float型仅表明是小数类型
+5、忽略对Excel自动生成的以~$开头的临时文件的读取
 
 ======= V6.0 2016.10.8 ======
 1、增加将Excel文件额外导出为csv文件的功能
