@@ -82,6 +82,8 @@ public class TableAnalyzeHelper
 
         // 存储定义过的字段名，不允许有同名字段（key：字段名， value：列号）
         Dictionary<string, int> fieldNames = new Dictionary<string, int>();
+        // 先加入主键列
+        fieldNames.Add(tableInfo.GetKeyColumnFieldInfo().FieldName, 0);
         // 解析剩余的列
         while (curColumnIndex < dt.Columns.Count)
         {
