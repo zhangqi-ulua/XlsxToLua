@@ -44,7 +44,13 @@ public class Utils
     {
         try
         {
-            StreamWriter writer = new StreamWriter(filePath, false, new UTF8Encoding(false));
+            Encoding encoding = null;
+            if (".bat".Equals(Path.GetExtension(filePath)))
+                encoding = Encoding.Default;
+            else
+                encoding = new UTF8Encoding(false);
+
+            StreamWriter writer = new StreamWriter(filePath, false, encoding);
             writer.Write(content);
             writer.Flush();
             writer.Close();
