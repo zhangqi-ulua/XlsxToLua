@@ -176,7 +176,7 @@
 		"testTime3":"10:10:00",
 		"testExportJsonSpecialString":{
 			"testExportJsonArrayInDict":[
-				"带引号\\\"",
+				"带引号\"",
 				""
 			],
 			"testExportJsonStringInDict":"带\\\"引号"
@@ -275,10 +275,10 @@
 		"testTime3":"03:00:32",
 		"testExportJsonSpecialString":{
 			"testExportJsonArrayInDict":[
-				"混{{\\\"\\\\]合}",
+				"混{{\"\\]合}",
 				""
 			],
-			"testExportJsonStringInDict":"混{{\\\"\\\\]合}"
+			"testExportJsonStringInDict":"混{{\\\"]合}"
 		}
 	}
 ]

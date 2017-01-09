@@ -239,7 +239,7 @@ return {
 		testTime3 = "10:10:00",
 		testExportJsonSpecialString = {
 			testExportJsonArrayInDict = {
-				[1] = "带引号\\\"",
+				[1] = "带引号\"",
 				[2] = "",
 			},
 			testExportJsonStringInDict = "带\\\"引号",
@@ -337,10 +337,10 @@ return {
 		testTime3 = "03:00:32",
 		testExportJsonSpecialString = {
 			testExportJsonArrayInDict = {
-				[1] = "混{{\\\"\\\\]合}",
+				[1] = "混{{\"\\]合}",
 				[2] = "",
 			},
-			testExportJsonStringInDict = "混{{\\\"\\\\]合}",
+			testExportJsonStringInDict = "混{{\\\"]合}",
 		},
 	},
 }

@@ -168,9 +168,7 @@ public class TableExportToJsonHelper
         StringBuilder content = new StringBuilder();
 
         content.Append("\"");
-        // 将单元格中填写的英文引号进行转义，使得单元格中填写123"456时，最终生成的json文件中为xx = "123\"456"。还要对反斜杠进行转义
-        // 但一定要先处理\再处理"，否则若先处理"就会额外添加\，使得再处理\的个数错误地增加
-        content.Append(fieldInfo.Data[row].ToString().Replace("\\", "\\\\").Replace("\"", "\\\""));
+        content.Append(fieldInfo.Data[row].ToString().Replace("\n", "\\n").Replace("\"", "\\\""));
         content.Append("\"");
 
         return content.ToString();
@@ -191,7 +189,7 @@ public class TableExportToJsonHelper
         if (fieldInfo.Data[row] != null)
         {
             content.Append("\"");
-            content.Append(fieldInfo.Data[row].ToString().Replace("\\", "\\\\").Replace("\"", "\\\""));
+            content.Append(fieldInfo.Data[row].ToString().Replace("\n", "\\n").Replace("\"", "\\\""));
             content.Append("\"");
         }
         else
