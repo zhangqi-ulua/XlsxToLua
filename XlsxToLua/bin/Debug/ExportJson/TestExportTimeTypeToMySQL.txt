@@ -1,0 +1,46 @@
+[
+	{
+		"id":1,
+		"testExportDateToDatetime":"2016-07-01 00:00:00",
+		"testExportDateToReferenceSec":"2016-07-01 00:00:00",
+		"testExportDateToReferenceMsec":"2016-07-01 00:00:00",
+		"testExportDateToDate":"2016-07-01 00:00:00",
+		"testExportDateToVarchar":"2016-07-01 00:00:00",
+		"testExportTimeToTime":"00:00:00",
+		"testExportTimeToReferenceSec":"00:00:00",
+		"testExportTimeToVarchar":"00:00:00"
+	},
+	{
+		"id":2,
+		"testExportDateToDatetime":"2016-07-01 01:00:01",
+		"testExportDateToReferenceSec":"2016-07-01 00:00:00",
+		"testExportDateToReferenceMsec":"2016-07-01 00:00:00",
+		"testExportDateToDate":"2016-07-01 00:00:00",
+		"testExportDateToVarchar":"2016-07-01 00:00:00",
+		"testExportTimeToTime":"00:32:00",
+		"testExportTimeToReferenceSec":"00:32:00",
+		"testExportTimeToVarchar":"00:32:00"
+	},
+	{
+		"id":3,
+		"testExportDateToDatetime":"2016-10-10 00:00:00",
+		"testExportDateToReferenceSec":"2016-07-01 10:10:00",
+		"testExportDateToReferenceMsec":"2016-07-01 10:10:00",
+		"testExportDateToDate":"2016-07-01 10:10:00",
+		"testExportDateToVarchar":"2016-07-01 10:10:00",
+		"testExportTimeToTime":"10:10:00",
+		"testExportTimeToReferenceSec":"10:10:00",
+		"testExportTimeToVarchar":"10:10:00"
+	},
+	{
+		"id":4,
+		"testExportDateToDatetime":"2016-10-10 10:10:10",
+		"testExportDateToReferenceSec":"2016-10-10 00:00:10",
+		"testExportDateToReferenceMsec":"2016-10-10 00:00:10",
+		"testExportDateToDate":"2016-10-10 00:00:10",
+		"testExportDateToVarchar":"2016-10-10 00:00:10",
+		"testExportTimeToTime":"03:00:32",
+		"testExportTimeToReferenceSec":"03:00:32",
+		"testExportTimeToVarchar":"03:00:32"
+	}
+]

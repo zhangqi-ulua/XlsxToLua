@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>TestExcel ExportLua ClientVirtual lang.txt -columnInfo -printEmptyStringWhenLangNotMatching -allowedNullNumber -exportCsv%28TestAllDataType%29 -exportCsvParam%28exportPath=ExportCsv|extension=csv|splitString=\||isExportColumnName=true|IsExportColumnDataType=true%29 -exportJson%28Hero|HeroEquipment|Prop|System|TestAllDataType%29 -exportJsonParam%28exportPath=ExportJson|extension=txt|isFormat=true%29</StartArguments>
+    <StartArguments>TestExcel ExportLua ClientVirtual lang.txt -columnInfo -printEmptyStringWhenLangNotMatching -allowedNullNumber -except%28TestChecker%29 -exportCsv%28TestAllDataType%29 -exportCsvParam%28exportPath=ExportCsv|extension=csv|splitString=\||isExportColumnName=true|IsExportColumnDataType=true%29 -exportJson%28%24all%29 -exportJsonParam%28exportPath=ExportJson|extension=txt|isFormat=true%29</StartArguments>
   </PropertyGroup>
 </Project>

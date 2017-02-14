@@ -79,6 +79,10 @@
             this.lbJsonFileExtension = new System.Windows.Forms.Label();
             this.tbJsonFileExtension = new System.Windows.Forms.TextBox();
             this.cbIsExportJsonWithFormat = new System.Windows.Forms.CheckBox();
+            this.cbIsUseRelativePath = new System.Windows.Forms.CheckBox();
+            this.cbExcept = new System.Windows.Forms.CheckBox();
+            this.tbExceptExcelNames = new System.Windows.Forms.TextBox();
+            this.btnChooseExceptExcel = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lbExcelFolderPath
@@ -264,7 +268,7 @@
             // 
             // btnSaveConfig
             // 
-            this.btnSaveConfig.Location = new System.Drawing.Point(50, 704);
+            this.btnSaveConfig.Location = new System.Drawing.Point(50, 786);
             this.btnSaveConfig.Name = "btnSaveConfig";
             this.btnSaveConfig.Size = new System.Drawing.Size(75, 23);
             this.btnSaveConfig.TabIndex = 20;
@@ -274,7 +278,7 @@
             // 
             // btnLoadConfig
             // 
-            this.btnLoadConfig.Location = new System.Drawing.Point(140, 704);
+            this.btnLoadConfig.Location = new System.Drawing.Point(140, 786);
             this.btnLoadConfig.Name = "btnLoadConfig";
             this.btnLoadConfig.Size = new System.Drawing.Size(75, 23);
             this.btnLoadConfig.TabIndex = 21;
@@ -285,7 +289,7 @@
             // btnExecute
             // 
             this.btnExecute.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnExecute.Location = new System.Drawing.Point(262, 693);
+            this.btnExecute.Location = new System.Drawing.Point(262, 775);
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(117, 39);
             this.btnExecute.TabIndex = 22;
@@ -295,7 +299,7 @@
             // 
             // btnGenerateBat
             // 
-            this.btnGenerateBat.Location = new System.Drawing.Point(424, 704);
+            this.btnGenerateBat.Location = new System.Drawing.Point(424, 786);
             this.btnGenerateBat.Name = "btnGenerateBat";
             this.btnGenerateBat.Size = new System.Drawing.Size(133, 23);
             this.btnGenerateBat.TabIndex = 23;
@@ -343,7 +347,7 @@
             // cbExportCsv
             // 
             this.cbExportCsv.AutoSize = true;
-            this.cbExportCsv.Location = new System.Drawing.Point(15, 404);
+            this.cbExportCsv.Location = new System.Drawing.Point(15, 454);
             this.cbExportCsv.Margin = new System.Windows.Forms.Padding(2);
             this.cbExportCsv.Name = "cbExportCsv";
             this.cbExportCsv.Size = new System.Drawing.Size(174, 16);
@@ -354,24 +358,24 @@
             // lbExportCsvTableNames
             // 
             this.lbExportCsvTableNames.AutoSize = true;
-            this.lbExportCsvTableNames.Location = new System.Drawing.Point(43, 430);
+            this.lbExportCsvTableNames.Location = new System.Drawing.Point(43, 480);
             this.lbExportCsvTableNames.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbExportCsvTableNames.Name = "lbExportCsvTableNames";
-            this.lbExportCsvTableNames.Size = new System.Drawing.Size(197, 12);
+            this.lbExportCsvTableNames.Size = new System.Drawing.Size(251, 12);
             this.lbExportCsvTableNames.TabIndex = 29;
-            this.lbExportCsvTableNames.Text = "需导出的表格名（填写规则同上）：";
+            this.lbExportCsvTableNames.Text = "需导出的表格名（用|分隔，全部则用$all）：";
             // 
             // tbExportCsvTableNames
             // 
-            this.tbExportCsvTableNames.Location = new System.Drawing.Point(244, 428);
+            this.tbExportCsvTableNames.Location = new System.Drawing.Point(298, 478);
             this.tbExportCsvTableNames.Margin = new System.Windows.Forms.Padding(2);
             this.tbExportCsvTableNames.Name = "tbExportCsvTableNames";
-            this.tbExportCsvTableNames.Size = new System.Drawing.Size(260, 21);
+            this.tbExportCsvTableNames.Size = new System.Drawing.Size(206, 21);
             this.tbExportCsvTableNames.TabIndex = 30;
             // 
             // btnChooseExportCsvFile
             // 
-            this.btnChooseExportCsvFile.Location = new System.Drawing.Point(519, 426);
+            this.btnChooseExportCsvFile.Location = new System.Drawing.Point(519, 476);
             this.btnChooseExportCsvFile.Margin = new System.Windows.Forms.Padding(2);
             this.btnChooseExportCsvFile.Name = "btnChooseExportCsvFile";
             this.btnChooseExportCsvFile.Size = new System.Drawing.Size(75, 23);
@@ -383,7 +387,7 @@
             // lbExportCsvFilePath
             // 
             this.lbExportCsvFilePath.AutoSize = true;
-            this.lbExportCsvFilePath.Location = new System.Drawing.Point(43, 462);
+            this.lbExportCsvFilePath.Location = new System.Drawing.Point(43, 512);
             this.lbExportCsvFilePath.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbExportCsvFilePath.Name = "lbExportCsvFilePath";
             this.lbExportCsvFilePath.Size = new System.Drawing.Size(107, 12);
@@ -392,7 +396,7 @@
             // 
             // tbExportCsvFilePath
             // 
-            this.tbExportCsvFilePath.Location = new System.Drawing.Point(154, 459);
+            this.tbExportCsvFilePath.Location = new System.Drawing.Point(154, 509);
             this.tbExportCsvFilePath.Margin = new System.Windows.Forms.Padding(2);
             this.tbExportCsvFilePath.Name = "tbExportCsvFilePath";
             this.tbExportCsvFilePath.Size = new System.Drawing.Size(350, 21);
@@ -400,7 +404,7 @@
             // 
             // btnChooseExportCsvFilePath
             // 
-            this.btnChooseExportCsvFilePath.Location = new System.Drawing.Point(519, 457);
+            this.btnChooseExportCsvFilePath.Location = new System.Drawing.Point(519, 507);
             this.btnChooseExportCsvFilePath.Margin = new System.Windows.Forms.Padding(2);
             this.btnChooseExportCsvFilePath.Name = "btnChooseExportCsvFilePath";
             this.btnChooseExportCsvFilePath.Size = new System.Drawing.Size(75, 23);
@@ -412,7 +416,7 @@
             // lbCsvFileExtension
             // 
             this.lbCsvFileExtension.AutoSize = true;
-            this.lbCsvFileExtension.Location = new System.Drawing.Point(43, 494);
+            this.lbCsvFileExtension.Location = new System.Drawing.Point(43, 544);
             this.lbCsvFileExtension.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbCsvFileExtension.Name = "lbCsvFileExtension";
             this.lbCsvFileExtension.Size = new System.Drawing.Size(95, 12);
@@ -421,7 +425,7 @@
             // 
             // tbCsvFileExtension
             // 
-            this.tbCsvFileExtension.Location = new System.Drawing.Point(154, 492);
+            this.tbCsvFileExtension.Location = new System.Drawing.Point(154, 542);
             this.tbCsvFileExtension.Margin = new System.Windows.Forms.Padding(2);
             this.tbCsvFileExtension.Name = "tbCsvFileExtension";
             this.tbCsvFileExtension.Size = new System.Drawing.Size(68, 21);
@@ -431,7 +435,7 @@
             // lbCsvFileSplitString
             // 
             this.lbCsvFileSplitString.AutoSize = true;
-            this.lbCsvFileSplitString.Location = new System.Drawing.Point(242, 494);
+            this.lbCsvFileSplitString.Location = new System.Drawing.Point(242, 544);
             this.lbCsvFileSplitString.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbCsvFileSplitString.Name = "lbCsvFileSplitString";
             this.lbCsvFileSplitString.Size = new System.Drawing.Size(77, 12);
@@ -440,7 +444,7 @@
             // 
             // tbCsvFileSplitString
             // 
-            this.tbCsvFileSplitString.Location = new System.Drawing.Point(331, 492);
+            this.tbCsvFileSplitString.Location = new System.Drawing.Point(331, 542);
             this.tbCsvFileSplitString.Margin = new System.Windows.Forms.Padding(2);
             this.tbCsvFileSplitString.Name = "tbCsvFileSplitString";
             this.tbCsvFileSplitString.Size = new System.Drawing.Size(102, 21);
@@ -452,7 +456,7 @@
             this.cbIsExportCsvColumnName.AutoSize = true;
             this.cbIsExportCsvColumnName.Checked = true;
             this.cbIsExportCsvColumnName.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbIsExportCsvColumnName.Location = new System.Drawing.Point(45, 525);
+            this.cbIsExportCsvColumnName.Location = new System.Drawing.Point(45, 575);
             this.cbIsExportCsvColumnName.Margin = new System.Windows.Forms.Padding(2);
             this.cbIsExportCsvColumnName.Name = "cbIsExportCsvColumnName";
             this.cbIsExportCsvColumnName.Size = new System.Drawing.Size(132, 16);
@@ -465,7 +469,7 @@
             this.cbIsExportCsvColumnDataType.AutoSize = true;
             this.cbIsExportCsvColumnDataType.Checked = true;
             this.cbIsExportCsvColumnDataType.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbIsExportCsvColumnDataType.Location = new System.Drawing.Point(244, 525);
+            this.cbIsExportCsvColumnDataType.Location = new System.Drawing.Point(244, 575);
             this.cbIsExportCsvColumnDataType.Margin = new System.Windows.Forms.Padding(2);
             this.cbIsExportCsvColumnDataType.Name = "cbIsExportCsvColumnDataType";
             this.cbIsExportCsvColumnDataType.Size = new System.Drawing.Size(156, 16);
@@ -476,7 +480,7 @@
             // cbExportJson
             // 
             this.cbExportJson.AutoSize = true;
-            this.cbExportJson.Location = new System.Drawing.Point(15, 557);
+            this.cbExportJson.Location = new System.Drawing.Point(15, 607);
             this.cbExportJson.Margin = new System.Windows.Forms.Padding(2);
             this.cbExportJson.Name = "cbExportJson";
             this.cbExportJson.Size = new System.Drawing.Size(180, 16);
@@ -487,24 +491,24 @@
             // lbExportJsonTableNames
             // 
             this.lbExportJsonTableNames.AutoSize = true;
-            this.lbExportJsonTableNames.Location = new System.Drawing.Point(43, 583);
+            this.lbExportJsonTableNames.Location = new System.Drawing.Point(43, 633);
             this.lbExportJsonTableNames.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbExportJsonTableNames.Name = "lbExportJsonTableNames";
-            this.lbExportJsonTableNames.Size = new System.Drawing.Size(197, 12);
+            this.lbExportJsonTableNames.Size = new System.Drawing.Size(251, 12);
             this.lbExportJsonTableNames.TabIndex = 42;
-            this.lbExportJsonTableNames.Text = "需导出的表格名（填写规则同上）：";
+            this.lbExportJsonTableNames.Text = "需导出的表格名（用|分隔，全部则用$all）：";
             // 
             // tbExportJsonTableNames
             // 
-            this.tbExportJsonTableNames.Location = new System.Drawing.Point(244, 580);
+            this.tbExportJsonTableNames.Location = new System.Drawing.Point(298, 630);
             this.tbExportJsonTableNames.Margin = new System.Windows.Forms.Padding(2);
             this.tbExportJsonTableNames.Name = "tbExportJsonTableNames";
-            this.tbExportJsonTableNames.Size = new System.Drawing.Size(260, 21);
+            this.tbExportJsonTableNames.Size = new System.Drawing.Size(206, 21);
             this.tbExportJsonTableNames.TabIndex = 43;
             // 
             // btnChooseExportJsonFile
             // 
-            this.btnChooseExportJsonFile.Location = new System.Drawing.Point(519, 578);
+            this.btnChooseExportJsonFile.Location = new System.Drawing.Point(519, 628);
             this.btnChooseExportJsonFile.Margin = new System.Windows.Forms.Padding(2);
             this.btnChooseExportJsonFile.Name = "btnChooseExportJsonFile";
             this.btnChooseExportJsonFile.Size = new System.Drawing.Size(75, 23);
@@ -516,7 +520,7 @@
             // lbExportJsonFilePath
             // 
             this.lbExportJsonFilePath.AutoSize = true;
-            this.lbExportJsonFilePath.Location = new System.Drawing.Point(43, 615);
+            this.lbExportJsonFilePath.Location = new System.Drawing.Point(43, 665);
             this.lbExportJsonFilePath.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbExportJsonFilePath.Name = "lbExportJsonFilePath";
             this.lbExportJsonFilePath.Size = new System.Drawing.Size(113, 12);
@@ -525,7 +529,7 @@
             // 
             // tbExportJsonFilePath
             // 
-            this.tbExportJsonFilePath.Location = new System.Drawing.Point(154, 612);
+            this.tbExportJsonFilePath.Location = new System.Drawing.Point(154, 662);
             this.tbExportJsonFilePath.Margin = new System.Windows.Forms.Padding(2);
             this.tbExportJsonFilePath.Name = "tbExportJsonFilePath";
             this.tbExportJsonFilePath.Size = new System.Drawing.Size(350, 21);
@@ -533,7 +537,7 @@
             // 
             // btnChooseExportJsonFilePath
             // 
-            this.btnChooseExportJsonFilePath.Location = new System.Drawing.Point(519, 610);
+            this.btnChooseExportJsonFilePath.Location = new System.Drawing.Point(519, 660);
             this.btnChooseExportJsonFilePath.Margin = new System.Windows.Forms.Padding(2);
             this.btnChooseExportJsonFilePath.Name = "btnChooseExportJsonFilePath";
             this.btnChooseExportJsonFilePath.Size = new System.Drawing.Size(75, 23);
@@ -545,7 +549,7 @@
             // lbJsonFileExtension
             // 
             this.lbJsonFileExtension.AutoSize = true;
-            this.lbJsonFileExtension.Location = new System.Drawing.Point(43, 647);
+            this.lbJsonFileExtension.Location = new System.Drawing.Point(43, 697);
             this.lbJsonFileExtension.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lbJsonFileExtension.Name = "lbJsonFileExtension";
             this.lbJsonFileExtension.Size = new System.Drawing.Size(101, 12);
@@ -554,7 +558,7 @@
             // 
             // tbJsonFileExtension
             // 
-            this.tbJsonFileExtension.Location = new System.Drawing.Point(154, 645);
+            this.tbJsonFileExtension.Location = new System.Drawing.Point(154, 695);
             this.tbJsonFileExtension.Margin = new System.Windows.Forms.Padding(2);
             this.tbJsonFileExtension.Name = "tbJsonFileExtension";
             this.tbJsonFileExtension.Size = new System.Drawing.Size(68, 21);
@@ -564,7 +568,7 @@
             // cbIsExportJsonWithFormat
             // 
             this.cbIsExportJsonWithFormat.AutoSize = true;
-            this.cbIsExportJsonWithFormat.Location = new System.Drawing.Point(244, 646);
+            this.cbIsExportJsonWithFormat.Location = new System.Drawing.Point(244, 696);
             this.cbIsExportJsonWithFormat.Margin = new System.Windows.Forms.Padding(2);
             this.cbIsExportJsonWithFormat.Name = "cbIsExportJsonWithFormat";
             this.cbIsExportJsonWithFormat.Size = new System.Drawing.Size(264, 16);
@@ -572,11 +576,52 @@
             this.cbIsExportJsonWithFormat.Text = "将生成的json字符串整理为带缩进格式的形式";
             this.cbIsExportJsonWithFormat.UseVisualStyleBackColor = true;
             // 
+            // cbIsUseRelativePath
+            // 
+            this.cbIsUseRelativePath.AutoSize = true;
+            this.cbIsUseRelativePath.Location = new System.Drawing.Point(51, 750);
+            this.cbIsUseRelativePath.Name = "cbIsUseRelativePath";
+            this.cbIsUseRelativePath.Size = new System.Drawing.Size(144, 16);
+            this.cbIsUseRelativePath.TabIndex = 51;
+            this.cbIsUseRelativePath.Text = "使用相对路径进行配置";
+            this.cbIsUseRelativePath.UseVisualStyleBackColor = true;
+            // 
+            // cbExcept
+            // 
+            this.cbExcept.AutoSize = true;
+            this.cbExcept.Location = new System.Drawing.Point(15, 401);
+            this.cbExcept.Name = "cbExcept";
+            this.cbExcept.Size = new System.Drawing.Size(576, 16);
+            this.cbExcept.TabIndex = 52;
+            this.cbExcept.Text = "-except（后面在英文小括号内声明本次忽略导出的Excel文件名，用|分隔，注意不能与-part参数冲突）";
+            this.cbExcept.UseVisualStyleBackColor = true;
+            // 
+            // tbExceptExcelNames
+            // 
+            this.tbExceptExcelNames.Location = new System.Drawing.Point(69, 423);
+            this.tbExceptExcelNames.Name = "tbExceptExcelNames";
+            this.tbExceptExcelNames.Size = new System.Drawing.Size(435, 21);
+            this.tbExceptExcelNames.TabIndex = 53;
+            // 
+            // btnChooseExceptExcel
+            // 
+            this.btnChooseExceptExcel.Location = new System.Drawing.Point(519, 421);
+            this.btnChooseExceptExcel.Name = "btnChooseExceptExcel";
+            this.btnChooseExceptExcel.Size = new System.Drawing.Size(75, 23);
+            this.btnChooseExceptExcel.TabIndex = 54;
+            this.btnChooseExceptExcel.Text = "选择";
+            this.btnChooseExceptExcel.UseVisualStyleBackColor = true;
+            this.btnChooseExceptExcel.Click += new System.EventHandler(this.btnChooseExceptExcel_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(605, 754);
+            this.ClientSize = new System.Drawing.Size(605, 836);
+            this.Controls.Add(this.btnChooseExceptExcel);
+            this.Controls.Add(this.tbExceptExcelNames);
+            this.Controls.Add(this.cbExcept);
+            this.Controls.Add(this.cbIsUseRelativePath);
             this.Controls.Add(this.cbIsExportJsonWithFormat);
             this.Controls.Add(this.tbJsonFileExtension);
             this.Controls.Add(this.lbJsonFileExtension);
@@ -692,6 +737,10 @@
         private System.Windows.Forms.Label lbJsonFileExtension;
         private System.Windows.Forms.TextBox tbJsonFileExtension;
         private System.Windows.Forms.CheckBox cbIsExportJsonWithFormat;
+        private System.Windows.Forms.CheckBox cbIsUseRelativePath;
+        private System.Windows.Forms.CheckBox cbExcept;
+        private System.Windows.Forms.TextBox tbExceptExcelNames;
+        private System.Windows.Forms.Button btnChooseExceptExcel;
     }
 }
 

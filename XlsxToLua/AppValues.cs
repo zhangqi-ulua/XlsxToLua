@@ -58,9 +58,19 @@ public class AppValues
     public const string PART_EXPORT_PARAM_STRING = "-part";
 
     /// <summary>
+    /// 声明忽略对指定Excel表进行导出的命令参数
+    /// </summary>
+    public const string EXCEPT_EXPORT_PARAM_STRING = "-except";
+
+    /// <summary>
     /// 声明允许int、float型字段中存在空值的命令参数
     /// </summary>
     public const string ALLOWED_NULL_NUMBER_PARAM_STRING = "-allowedNullNumber";
+
+    /// <summary>
+    /// 声明额外导出为其他格式文件时，涉及所有文件
+    /// </summary>
+    public const string EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING = "$all";
 
     /// <summary>
     /// 声明将指定的Excel文件额外导出为csv文件
@@ -297,6 +307,11 @@ public class AppValues
     /// 存储本次要导出的Excel文件名
     /// </summary>
     public static List<string> exportTableNames = new List<string>();
+
+    /// <summary>
+    /// 存储本次忽略导出的Excel文件名
+    /// </summary>
+    public static List<string> exceptExportTableNames = new List<string>();
 
     /// <summary>
     /// 存储本次要额外导出为csv文件的Excel文件名

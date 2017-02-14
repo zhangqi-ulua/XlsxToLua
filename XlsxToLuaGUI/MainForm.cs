@@ -114,6 +114,44 @@ namespace XlsxToLuaGUI
             }
         }
 
+        private void btnChooseExceptExcel_Click(object sender, EventArgs e)
+        {
+            string excelFolderPath = tbExcelFolderPath.Text.Trim();
+            if (string.IsNullOrEmpty(excelFolderPath))
+            {
+                MessageBox.Show("请先指定Excel文件所在目录", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (!Directory.Exists(excelFolderPath))
+            {
+                MessageBox.Show("指定Excel文件所在目录不存在，请重新设置", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Title = "请选择要忽略导出的Excel表格";
+            dialog.InitialDirectory = excelFolderPath;
+            dialog.Multiselect = true;
+            dialog.Filter = "Excel files (*.xlsx)|*.xlsx";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string[] filePaths = dialog.FileNames;
+                // 检查选择的Excel文件是否在设置的Excel所在目录
+                string checkFilePath = Path.GetDirectoryName(filePaths[0]);
+                if (!checkFilePath.Equals(excelFolderPath, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    MessageBox.Show(string.Format("必须在指定的Excel文件所在目录中选择要忽略导出的文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", excelFolderPath, checkFilePath), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                List<string> fileNames = new List<string>();
+                foreach (string filePath in filePaths)
+                    fileNames.Add(Path.GetFileNameWithoutExtension(filePath));
+
+                string exceptExcelFileParam = Utils.CombineString(fileNames, "|");
+                tbExceptExcelNames.Text = exceptExcelFileParam;
+            }
+        }
+
         private void btnChooseProgramPath_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -282,12 +320,27 @@ namespace XlsxToLuaGUI
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     StringBuilder configStringBuilder = new StringBuilder();
+                    Uri programUri = new Uri(AppValues.PROGRAM_PATH);
 
                     string programPath = tbProgramPath.Text.Trim();
                     string excelFolderPath = tbExcelFolderPath.Text.Trim();
                     string exportLuaFolderPath = tbExportLuaFolderPath.Text.Trim();
                     string clientFolderPath = tbClientFolderPath.Text.Trim();
                     string langFilePath = tbLangFilePath.Text.Trim();
+                    if (cbIsUseRelativePath.Checked == true)
+                    {
+                        if (Path.IsPathRooted(programPath))
+                            programPath = programUri.MakeRelativeUri(new Uri(programPath)).ToString();
+                        if (Path.IsPathRooted(excelFolderPath))
+                            excelFolderPath = programUri.MakeRelativeUri(new Uri(excelFolderPath)).ToString();
+                        if (Path.IsPathRooted(exportLuaFolderPath))
+                            exportLuaFolderPath = programUri.MakeRelativeUri(new Uri(exportLuaFolderPath)).ToString();
+                        if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(clientFolderPath))
+                            clientFolderPath = programUri.MakeRelativeUri(new Uri(clientFolderPath)).ToString();
+
+                        if (!langFilePath.Equals(AppValues.NO_LANG_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(langFilePath))
+                            langFilePath = programUri.MakeRelativeUri(new Uri(langFilePath)).ToString();
+                    }
                     configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_PROGRAM_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(programPath);
                     configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_EXCEL_FOLDER_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(excelFolderPath);
                     configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_EXPORT_LUA_FOLDER_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportLuaFolderPath);
@@ -298,13 +351,22 @@ namespace XlsxToLuaGUI
                     if (!string.IsNullOrEmpty(partExcelNames))
                         configStringBuilder.Append(AppValues.PART_EXPORT_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(partExcelNames);
 
+                    string exceptExcelNames = tbExceptExcelNames.Text.Trim();
+                    if (!string.IsNullOrEmpty(exceptExcelNames))
+                        configStringBuilder.Append(AppValues.EXCEPT_EXPORT_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exceptExcelNames);
+
                     string exportCsvExcelNames = tbExportCsvTableNames.Text.Trim();
                     if (!string.IsNullOrEmpty(exportCsvExcelNames))
                         configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsvExcelNames);
 
                     string exportCsvFilePath = tbExportCsvFilePath.Text.Trim();
                     if (!string.IsNullOrEmpty(exportCsvFilePath))
+                    {
+                        if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsvFilePath))
+                            exportCsvFilePath = programUri.MakeRelativeUri(new Uri(exportCsvFilePath)).ToString();
+
                         configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsvFilePath);
+                    }
 
                     string csvFileExtension = tbCsvFileExtension.Text.Trim();
                     if (!string.IsNullOrEmpty(csvFileExtension))
@@ -320,7 +382,12 @@ namespace XlsxToLuaGUI
 
                     string exportJsonFilePath = tbExportJsonFilePath.Text.Trim();
                     if (!string.IsNullOrEmpty(exportJsonFilePath))
+                    {
+                        if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportJsonFilePath))
+                            exportJsonFilePath = programUri.MakeRelativeUri(new Uri(exportJsonFilePath)).ToString();
+
                         configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportJsonFilePath);
+                    }
 
                     string jsonFileExtension = tbJsonFileExtension.Text.Trim();
                     if (!string.IsNullOrEmpty(jsonFileExtension))
@@ -340,6 +407,8 @@ namespace XlsxToLuaGUI
 
                     if (cbPart.Checked == true)
                         configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_PART).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbExcept.Checked == true)
+                        configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXCEPT).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbExportCsv.Checked == true)
                         configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbIsExportCsvColumnName.Checked == true)
@@ -350,6 +419,8 @@ namespace XlsxToLuaGUI
                         configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JSON).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbIsExportJsonWithFormat.Checked == true)
                         configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbIsUseRelativePath.Checked == true)
+                        configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_USE_RELATIVE_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
 
                     string errorString = null;
                     Utils.SaveFile(dialog.FileName, configStringBuilder.ToString(), out errorString);
@@ -399,6 +470,8 @@ namespace XlsxToLuaGUI
                     cbAllowedNullNumber.Checked = true;
                 if (config.ContainsKey(AppValues.PART_EXPORT_PARAM_STRING))
                     tbPartExcelNames.Text = config[AppValues.PART_EXPORT_PARAM_STRING];
+                if (config.ContainsKey(AppValues.EXCEPT_EXPORT_PARAM_STRING))
+                    tbExceptExcelNames.Text = config[AppValues.EXCEPT_EXPORT_PARAM_STRING];
                 if (config.ContainsKey(AppValues.EXPORT_CSV_PARAM_STRING))
                     tbExportCsvTableNames.Text = config[AppValues.EXPORT_CSV_PARAM_STRING];
                 if (config.ContainsKey(AppValues.EXPORT_JSON_PARAM_STRING))
@@ -425,8 +498,10 @@ namespace XlsxToLuaGUI
                     tbJsonFileExtension.Text = config[jsonFileExtensionKey];
 
                 cbPart.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_PART);
+                cbExcept.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXCEPT);
                 cbExportCsv.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV);
                 cbExportJson.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JSON);
+                cbIsUseRelativePath.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_USE_RELATIVE_PATH);
                 string isExportCsvColumnNameKey = string.Concat(AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_NAME);
                 cbIsExportCsvColumnName.Checked = config.ContainsKey(isExportCsvColumnNameKey);
                 string isExportCsvColumnDataTypeKey = string.Concat(AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_DATA_TYPE);
@@ -521,6 +596,7 @@ namespace XlsxToLuaGUI
                 existExcelFileNames.Add(Path.GetFileNameWithoutExtension(filePath));
 
             // 若设置导出部分Excel文件，检查文件名声明是否正确
+            List<string> exportTableNames = new List<string>();
             if (cbPart.Checked == true)
             {
                 string partExcelNames = tbPartExcelNames.Text.Trim();
@@ -530,7 +606,6 @@ namespace XlsxToLuaGUI
                     return false;
                 }
                 string[] fileNames = partExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                List<string> exportTableNames = new List<string>();
                 foreach (string fileName in fileNames)
                     exportTableNames.Add(fileName.Trim());
 
@@ -544,6 +619,42 @@ namespace XlsxToLuaGUI
                     }
                 }
             }
+
+            // 若设置忽略导出部分Excel文件，检查文件名声明是否正确
+            List<string> exceptTableNames = new List<string>();
+            if (cbExcept.Checked == true)
+            {
+                string exceptExcelNames = tbExceptExcelNames.Text.Trim();
+                if (string.IsNullOrEmpty(exceptExcelNames))
+                {
+                    MessageBox.Show("勾选了忽略导出部分Excel文件的选项，就必须在文本框中填写要忽略的Excel文件名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                string[] fileNames = exceptExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string fileName in fileNames)
+                    exceptTableNames.Add(fileName.Trim());
+
+                // 检查指定导出的Excel文件是否存在
+                foreach (string exceptTableName in exceptTableNames)
+                {
+                    if (!existExcelFileNames.Contains(exceptTableName))
+                    {
+                        MessageBox.Show(string.Format("指定要忽略导出的Excel文件（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exceptTableName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+            }
+
+            // 同一张表格不能既设置为-part又设置为-except
+            foreach (string exportTableName in exportTableNames)
+            {
+                if (exceptTableNames.Contains(exportTableName))
+                {
+                    MessageBox.Show(string.Format("对表格{0}既设置了-part参数，又设置了-except参数", exportTableNames), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+
             // 若设置额外导出部分Excel表格为csv文件，检查声明的各种参数是否正确
             if (cbExportCsv.Checked == true)
             {
@@ -551,23 +662,27 @@ namespace XlsxToLuaGUI
                 string exportCsvExcelNames = tbExportCsvTableNames.Text.Trim();
                 if (string.IsNullOrEmpty(exportCsvExcelNames))
                 {
-                    MessageBox.Show("勾选了额外导出部分Excel表格为csv文件的选项，就必须指定要额外导出为csv文件的Excel文件名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(string.Format("勾选了额外导出部分Excel表格为csv文件的选项，就必须指定要额外导出为csv文件的Excel文件名，若要全部导出，请指定{0}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-                string[] fileNames = exportCsvExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                List<string> exportCsvTableNames = new List<string>();
-                foreach (string fileName in fileNames)
-                    exportCsvTableNames.Add(fileName.Trim());
-
-                // 检查指定要额外导出为csv文件的Excel表格是否存在
-                foreach (string exportCsvExcelFileName in exportCsvTableNames)
+                if (!exportCsvExcelNames.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    if (!existExcelFileNames.Contains(exportCsvExcelFileName))
+                    string[] fileNames = exportCsvExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    List<string> exportCsvTableNames = new List<string>();
+                    foreach (string fileName in fileNames)
+                        exportCsvTableNames.Add(fileName.Trim());
+
+                    // 检查指定要额外导出为csv文件的Excel表格是否存在
+                    foreach (string exportCsvExcelFileName in exportCsvTableNames)
                     {
-                        MessageBox.Show(string.Format("指定要额外导出出csv文件的Excel表格（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportCsvExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
+                        if (!existExcelFileNames.Contains(exportCsvExcelFileName))
+                        {
+                            MessageBox.Show(string.Format("指定要额外导出出csv文件的Excel表格（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportCsvExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return false;
+                        }
                     }
                 }
+
                 // 检查设置的导出csv文件的存储路径是否正确
                 string exportCsvFilePath = tbExportCsvFilePath.Text.Trim();
                 if (string.IsNullOrEmpty(exportCsvFilePath))
@@ -603,21 +718,24 @@ namespace XlsxToLuaGUI
                 string exportJsonExcelNames = tbExportJsonTableNames.Text.Trim();
                 if (string.IsNullOrEmpty(exportJsonExcelNames))
                 {
-                    MessageBox.Show("勾选了额外导出部分Excel表格为json文件的选项，就必须指定要额外导出为json文件的Excel文件名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(string.Format("勾选了额外导出部分Excel表格为json文件的选项，就必须指定要额外导出为json文件的Excel文件名，若要全部导出，请指定{0}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-                string[] fileNames = exportJsonExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                List<string> exportJsonTableNames = new List<string>();
-                foreach (string fileName in fileNames)
-                    exportJsonTableNames.Add(fileName.Trim());
-
-                // 检查指定要额外导出为json文件的Excel表格是否存在
-                foreach (string exportJsonExcelFileName in exportJsonTableNames)
+                if (!exportJsonExcelNames.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    if (!existExcelFileNames.Contains(exportJsonExcelFileName))
+                    string[] fileNames = exportJsonExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    List<string> exportJsonTableNames = new List<string>();
+                    foreach (string fileName in fileNames)
+                        exportJsonTableNames.Add(fileName.Trim());
+
+                    // 检查指定要额外导出为json文件的Excel表格是否存在
+                    foreach (string exportJsonExcelFileName in exportJsonTableNames)
                     {
-                        MessageBox.Show(string.Format("指定要额外导出出json文件的Excel表格（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportJsonExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return false;
+                        if (!existExcelFileNames.Contains(exportJsonExcelFileName))
+                        {
+                            MessageBox.Show(string.Format("指定要额外导出出json文件的Excel表格（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportJsonExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return false;
+                        }
                     }
                 }
 
@@ -649,12 +767,27 @@ namespace XlsxToLuaGUI
         private string _GetExecuteParamString()
         {
             StringBuilder stringBuilder = new StringBuilder();
+            Uri programUri = new Uri(AppValues.PROGRAM_PATH);
 
             string programPath = tbProgramPath.Text.Trim();
             string excelFolderPath = tbExcelFolderPath.Text.Trim();
             string exportLuaFolderPath = tbExportLuaFolderPath.Text.Trim();
             string clientFolderPath = tbClientFolderPath.Text.Trim();
             string langFilePath = tbLangFilePath.Text.Trim();
+            if (cbIsUseRelativePath.Checked == true)
+            {
+                if (Path.IsPathRooted(programPath))
+                    programPath = programUri.MakeRelativeUri(new Uri(programPath)).ToString();
+                if (Path.IsPathRooted(excelFolderPath))
+                    excelFolderPath = programUri.MakeRelativeUri(new Uri(excelFolderPath)).ToString();
+                if (Path.IsPathRooted(exportLuaFolderPath))
+                    exportLuaFolderPath = programUri.MakeRelativeUri(new Uri(exportLuaFolderPath)).ToString();
+                if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(clientFolderPath))
+                    clientFolderPath = programUri.MakeRelativeUri(new Uri(clientFolderPath)).ToString();
+
+                if (!langFilePath.Equals(AppValues.NO_LANG_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(langFilePath))
+                    langFilePath = programUri.MakeRelativeUri(new Uri(langFilePath)).ToString();
+            }
             stringBuilder.AppendFormat("\"{0}\" ", programPath).AppendFormat("\"{0}\" ", excelFolderPath).AppendFormat("\"{0}\" ", exportLuaFolderPath).AppendFormat("\"{0}\" ", clientFolderPath).AppendFormat("\"{0}\" ", langFilePath);
             if (cbColumnInfo.Checked == true)
                 stringBuilder.AppendFormat("\"{0}\" ", AppValues.NEED_COLUMN_INFO_PARAM_STRING);
@@ -671,6 +804,11 @@ namespace XlsxToLuaGUI
                 string partExcelNames = tbPartExcelNames.Text.Trim();
                 stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.PART_EXPORT_PARAM_STRING, partExcelNames);
             }
+            if (cbExcept.Checked == true)
+            {
+                string exceptExcelNames = tbExceptExcelNames.Text.Trim();
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXCEPT_EXPORT_PARAM_STRING, exceptExcelNames);
+            }
             if (cbExportCsv.Checked == true)
             {
                 // 声明要额外导出为csv文件的Excel表格
@@ -682,6 +820,9 @@ namespace XlsxToLuaGUI
                 // 导出路径
                 const string KEY_AND_VALUE_FORMAT = "{0}={1}";
                 string exportCsvFilePath = tbExportCsvFilePath.Text.Trim();
+                if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsvFilePath))
+                    exportCsvFilePath = programUri.MakeRelativeUri(new Uri(exportCsvFilePath)).ToString();
+
                 exportCsvParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXPORT_PATH, exportCsvFilePath));
                 // csv文件扩展名
                 string csvFileExtension = tbCsvFileExtension.Text.Trim();
@@ -709,6 +850,9 @@ namespace XlsxToLuaGUI
                 // 导出路径
                 const string KEY_AND_VALUE_FORMAT = "{0}={1}";
                 string exportJsonFilePath = tbExportJsonFilePath.Text.Trim();
+                if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportJsonFilePath))
+                    exportJsonFilePath = programUri.MakeRelativeUri(new Uri(exportJsonFilePath)).ToString();
+
                 exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH, exportJsonFilePath));
                 // json文件扩展名
                 string jsonFileExtension = tbJsonFileExtension.Text.Trim();
