@@ -438,8 +438,8 @@ public class Utils
     {
         try
         {
-            string fileName = string.Concat(tableName, ".", AppValues.exportCsvExtension);
-            string savePath = Utils.CombinePath(AppValues.exportCsvPath, fileName);
+            string fileName = string.Concat(tableName, ".", AppValues.ExportCsvExtension);
+            string savePath = Utils.CombinePath(AppValues.ExportCsvPath, fileName);
             StreamWriter writer = new StreamWriter(savePath, false, new UTF8Encoding(false));
             foreach (StringBuilder stringBuilder in rowContentList)
                 writer.WriteLine(stringBuilder);
@@ -458,8 +458,8 @@ public class Utils
     {
         try
         {
-            string fileName = string.Concat(tableName, ".", AppValues.exportJsonExtension);
-            string savePath = Utils.CombinePath(AppValues.exportJsonPath, fileName);
+            string fileName = string.Concat(tableName, ".", AppValues.ExportJsonExtension);
+            string savePath = Utils.CombinePath(AppValues.ExportJsonPath, fileName);
             StreamWriter writer = new StreamWriter(savePath, false, new UTF8Encoding(false));
             writer.Write(content);
             writer.Flush();

@@ -306,62 +306,62 @@ public class AppValues
     /// <summary>
     /// 存储本次要导出的Excel文件名
     /// </summary>
-    public static List<string> exportTableNames = new List<string>();
+    public static List<string> ExportTableNames = new List<string>();
 
     /// <summary>
     /// 存储本次忽略导出的Excel文件名
     /// </summary>
-    public static List<string> exceptExportTableNames = new List<string>();
+    public static List<string> ExceptExportTableNames = new List<string>();
 
     /// <summary>
     /// 存储本次要额外导出为csv文件的Excel文件名
     /// </summary>
-    public static List<string> exportCsvTableNames = new List<string>();
+    public static List<string> ExportCsvTableNames = new List<string>();
 
     /// <summary>
     /// 导出csv文件的存储路径
     /// </summary>
-    public static string exportCsvPath = null;
+    public static string ExportCsvPath = null;
 
     /// <summary>
     /// 导出csv文件的扩展名（不含点号），默认为csv
     /// </summary>
-    public static string exportCsvExtension = "csv";
+    public static string ExportCsvExtension = "csv";
 
     /// <summary>
     /// 导出csv文件中的字段分隔符，默认为英文逗号
     /// </summary>
-    public static string exportCsvSplitString = ",";
+    public static string ExportCsvSplitString = ",";
 
     /// <summary>
     /// 导出的csv文件中是否在首行列举字段名称，默认为是
     /// </summary>
-    public static bool exportCsvIsExportColumnName = true;
+    public static bool ExportCsvIsExportColumnName = true;
 
     /// <summary>
     /// 导出的csv文件中是否在其后列举字段数据类型，默认为是
     /// </summary>
-    public static bool exportCsvIsExportColumnDataType = true;
+    public static bool ExportCsvIsExportColumnDataType = true;
 
     /// <summary>
     /// 存储本次要额外导出为json文件的Excel文件名
     /// </summary>
-    public static List<string> exportJsonTableNames = new List<string>();
+    public static List<string> ExportJsonTableNames = new List<string>();
 
     /// <summary>
     /// 导出json文件的存储路径
     /// </summary>
-    public static string exportJsonPath = null;
+    public static string ExportJsonPath = null;
 
     /// <summary>
     /// 导出json文件的扩展名（不含点号），默认为txt
     /// </summary>
-    public static string exportJsonExtension = "txt";
+    public static string ExportJsonExtension = "txt";
 
     /// <summary>
     /// 导出的json文件中是否将json字符串整理为带缩进格式的形式，默认为否
     /// </summary>
-    public static bool exportJsonIsFormat = false;
+    public static bool ExportJsonIsFormat = false;
 
     /// <summary>
     /// 存储运行时打印的所有信息，在程序运行完毕后输出为txt文件，从而解决如果输出内容过多控制台无法显示全部信息的问题

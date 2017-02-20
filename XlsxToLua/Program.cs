@@ -125,16 +125,16 @@ public class Program
                 else
                 {
                     foreach (string fileName in fileNames)
-                        AppValues.exceptExportTableNames.Add(fileName.Trim());
+                        AppValues.ExceptExportTableNames.Add(fileName.Trim());
 
                     // 检查要忽略导出的Excel文件是否存在
-                    foreach (string exceptExportExcelFileName in AppValues.exceptExportTableNames)
+                    foreach (string exceptExportExcelFileName in AppValues.ExceptExportTableNames)
                     {
                         if (!existExcelFileNames.Contains(exceptExportExcelFileName))
                             Utils.LogErrorAndExit(string.Format("设置要忽略导出的Excel文件（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(AppValues.ExcelFolderPath, string.Concat(exceptExportExcelFileName, ".xlsx"))));
                     }
 
-                    Utils.LogWarning(string.Format("警告：本次将忽略以下Excel文件：\n{0}\n", Utils.CombineString(AppValues.exceptExportTableNames, ", ")));
+                    Utils.LogWarning(string.Format("警告：本次将忽略以下Excel文件：\n{0}\n", Utils.CombineString(AppValues.ExceptExportTableNames, ", ")));
                 }
             }
             else if (param.StartsWith(AppValues.PART_EXPORT_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
@@ -147,16 +147,16 @@ public class Program
                 else
                 {
                     foreach (string fileName in fileNames)
-                        AppValues.exportTableNames.Add(fileName.Trim());
+                        AppValues.ExportTableNames.Add(fileName.Trim());
 
                     // 检查指定导出的Excel文件是否存在
-                    foreach (string exportExcelFileName in AppValues.exportTableNames)
+                    foreach (string exportExcelFileName in AppValues.ExportTableNames)
                     {
                         if (!existExcelFileNames.Contains(exportExcelFileName))
                             Utils.LogErrorAndExit(string.Format("要求导出的Excel文件（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(AppValues.ExcelFolderPath, string.Concat(exportExcelFileName, ".xlsx"))));
                     }
 
-                    Utils.LogWarning(string.Format("警告：本次将仅检查并导出以下Excel文件：\n{0}\n", Utils.CombineString(AppValues.exportTableNames, ", ")));
+                    Utils.LogWarning(string.Format("警告：本次将仅检查并导出以下Excel文件：\n{0}\n", Utils.CombineString(AppValues.ExportTableNames, ", ")));
                 }
             }
             // 注意：-exportCsv与-exportCsvParam均以-exportCsv开头，故要先判断-exportCsvParam分支。这里将-exportCsvParam的解析放到-exportCsv的解析之中是为了只有声明了进行csv文件导出时才解析导出参数
@@ -220,7 +220,7 @@ public class Program
                                     if (!Directory.Exists(value))
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的csv文件导出路径不存在", AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_PARAM_EXPORT_PATH_PARAM_STRING));
                                     else
-                                        AppValues.exportCsvPath = value;
+                                        AppValues.ExportCsvPath = value;
                                 }
                                 else if (AppValues.EXPORT_CSV_PARAM_EXTENSION_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
                                 {
@@ -230,20 +230,20 @@ public class Program
                                     if (value.StartsWith("."))
                                         value = value.Substring(1);
 
-                                    AppValues.exportCsvExtension = value;
+                                    AppValues.ExportCsvExtension = value;
                                 }
                                 else if (AppValues.EXPORT_CSV_PARAM_SPLIT_STRING_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
                                 {
                                     value = value.Replace("\\|", "|");
-                                    AppValues.exportCsvSplitString = value;
+                                    AppValues.ExportCsvSplitString = value;
                                 }
                                 else if (AppValues.EXPORT_CSV_PARAM_IS_EXPORT_COLUMN_NAME_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
                                 {
                                     value = value.Trim();
                                     if ("true".Equals(value, StringComparison.CurrentCultureIgnoreCase))
-                                        AppValues.exportCsvIsExportColumnName = true;
+                                        AppValues.ExportCsvIsExportColumnName = true;
                                     else if ("false".Equals(value, StringComparison.CurrentCultureIgnoreCase))
-                                        AppValues.exportCsvIsExportColumnName = false;
+                                        AppValues.ExportCsvIsExportColumnName = false;
                                     else
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的值错误，必须为true或false", AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_PARAM_IS_EXPORT_COLUMN_NAME_PARAM_STRING));
                                 }
@@ -251,9 +251,9 @@ public class Program
                                 {
                                     value = value.Trim();
                                     if ("true".Equals(value, StringComparison.CurrentCultureIgnoreCase))
-                                        AppValues.exportCsvIsExportColumnDataType = true;
+                                        AppValues.ExportCsvIsExportColumnDataType = true;
                                     else if ("false".Equals(value, StringComparison.CurrentCultureIgnoreCase))
-                                        AppValues.exportCsvIsExportColumnDataType = false;
+                                        AppValues.ExportCsvIsExportColumnDataType = false;
                                     else
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的值错误，必须为true或false", AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_PARAM_IS_EXPORT_COLUMN_DATA_TYPE_PARAM_STRING));
                                 }
@@ -262,7 +262,7 @@ public class Program
                             }
                         }
                         // 要求必须含有exportPath参数
-                        if (AppValues.exportCsvPath == null)
+                        if (AppValues.ExportCsvPath == null)
                             Utils.LogErrorAndExit(string.Format("错误：声明要额外导出指定Excel文件为csv文件，就必须同时在{0}参数下声明用于配置csv文件导出路径的参数{1}", AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_PARAM_EXPORT_PATH_PARAM_STRING));
                     }
                 }
@@ -279,7 +279,7 @@ public class Program
 
                 string exportCsvFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportCsvFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
-                    AppValues.exportCsvTableNames = AppValues.exportTableNames;
+                    AppValues.ExportCsvTableNames = AppValues.ExportTableNames;
                 else
                 {
                     string[] fileNames = Utils.GetExcelFileNames(param, out errorString);
@@ -291,9 +291,9 @@ public class Program
                         foreach (string fileName in fileNames)
                         {
                             if (!existExcelFileNames.Contains(fileName))
-                                Utils.LogErrorAndExit(string.Format("要求额外导出为csv文件的Excel表（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(AppValues.exportCsvPath, string.Concat(fileName, ".xlsx"))));
+                                Utils.LogErrorAndExit(string.Format("要求额外导出为csv文件的Excel表（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(AppValues.ExportCsvPath, string.Concat(fileName, ".xlsx"))));
                             else
-                                AppValues.exportCsvTableNames.Add(fileName);
+                                AppValues.ExportCsvTableNames.Add(fileName);
                         }
                     }
                 }
@@ -341,7 +341,7 @@ public class Program
                                     if (!Directory.Exists(value))
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的json文件导出路径不存在", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.EXPORT_JSON_PARAM_EXPORT_PATH_PARAM_STRING));
                                     else
-                                        AppValues.exportJsonPath = value;
+                                        AppValues.ExportJsonPath = value;
                                 }
                                 else if (AppValues.EXPORT_JSON_PARAM_EXTENSION_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
                                 {
@@ -351,15 +351,15 @@ public class Program
                                     if (value.StartsWith("."))
                                         value = value.Substring(1);
 
-                                    AppValues.exportJsonExtension = value;
+                                    AppValues.ExportJsonExtension = value;
                                 }
                                 else if (AppValues.EXPORT_JSON_PARAM_IS_FORMAT_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
                                 {
                                     value = value.Trim();
                                     if ("true".Equals(value, StringComparison.CurrentCultureIgnoreCase))
-                                        AppValues.exportJsonIsFormat = true;
+                                        AppValues.ExportJsonIsFormat = true;
                                     else if ("false".Equals(value, StringComparison.CurrentCultureIgnoreCase))
-                                        AppValues.exportJsonIsFormat = false;
+                                        AppValues.ExportJsonIsFormat = false;
                                     else
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的值错误，必须为true或false", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.EXPORT_JSON_PARAM_IS_FORMAT_PARAM_STRING));
                                 }
@@ -368,7 +368,7 @@ public class Program
                             }
                         }
                         // 要求必须含有exportPath参数
-                        if (AppValues.exportJsonPath == null)
+                        if (AppValues.ExportJsonPath == null)
                             Utils.LogErrorAndExit(string.Format("错误：声明要额外导出指定Excel文件为json文件，就必须同时在{0}参数下声明用于配置json文件导出路径的参数{1}", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.EXPORT_JSON_PARAM_EXPORT_PATH_PARAM_STRING));
                     }
                 }
@@ -385,7 +385,7 @@ public class Program
 
                 string exportJsonFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportJsonFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
-                    AppValues.exportJsonTableNames = AppValues.exportTableNames;
+                    AppValues.ExportJsonTableNames = AppValues.ExportTableNames;
                 else
                 {
                     string[] fileNames = Utils.GetExcelFileNames(param, out errorString);
@@ -397,9 +397,9 @@ public class Program
                         foreach (string fileName in fileNames)
                         {
                             if (!existExcelFileNames.Contains(fileName))
-                                Utils.LogErrorAndExit(string.Format("要求额外导出为json文件的Excel表（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(AppValues.exportJsonPath, string.Concat(fileName, ".xlsx"))));
+                                Utils.LogErrorAndExit(string.Format("要求额外导出为json文件的Excel表（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(AppValues.ExportJsonPath, string.Concat(fileName, ".xlsx"))));
                             else
-                                AppValues.exportJsonTableNames.Add(fileName);
+                                AppValues.ExportJsonTableNames.Add(fileName);
                         }
                     }
                 }
@@ -414,12 +414,12 @@ public class Program
         }
 
         // 如果设置了部分导出，则检查是否对同一个表格既声明了-part又声明了-except
-        if (AppValues.exportTableNames.Count > 0)
+        if (AppValues.ExportTableNames.Count > 0)
         {
             List<string> errorConfigTableNames = new List<string>();
-            foreach (string tableName in AppValues.exportTableNames)
+            foreach (string tableName in AppValues.ExportTableNames)
             {
-                if (AppValues.exceptExportTableNames.Contains(tableName))
+                if (AppValues.ExceptExportTableNames.Contains(tableName))
                     errorConfigTableNames.Add(tableName);
             }
 
@@ -428,49 +428,49 @@ public class Program
         }
 
         // 如果未指定导出部分Excel文件，则全部导出，但要排除设置了进行忽略的
-        if (AppValues.exportTableNames.Count == 0)
+        if (AppValues.ExportTableNames.Count == 0)
         {
             foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
             {
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
                 if (fileName.StartsWith(AppValues.EXCEL_TEMP_FILE_FILE_NAME_START_STRING))
                     Utils.LogWarning(string.Format("目录中的{0}文件为Excel自动生成的临时文件，将被忽略处理", filePath));
-                else if (!AppValues.exceptExportTableNames.Contains(fileName))
-                    AppValues.exportTableNames.Add(Path.GetFileNameWithoutExtension(filePath));
+                else if (!AppValues.ExceptExportTableNames.Contains(fileName))
+                    AppValues.ExportTableNames.Add(Path.GetFileNameWithoutExtension(filePath));
             }
         }
 
         // 如果声明要额外导出为csv文件的Excel表本身在本次被忽略，需要进行警告
         List<string> warnExportCsvTableNames = new List<string>();
-        foreach (string exportCsvTableName in AppValues.exportCsvTableNames)
+        foreach (string exportCsvTableName in AppValues.ExportCsvTableNames)
         {
-            if (!AppValues.exportTableNames.Contains(exportCsvTableName))
+            if (!AppValues.ExportTableNames.Contains(exportCsvTableName))
                 warnExportCsvTableNames.Add(exportCsvTableName);
         }
         if (warnExportCsvTableNames.Count > 0)
         {
             Utils.LogWarning(string.Format("警告：以下Excel表声明为要额外导出为csv文件，但在{0}参数中未声明本次要对其进行导出，本工具将不对这些表格执行导出csv文件的操作\n{1}", AppValues.PART_EXPORT_PARAM_STRING, Utils.CombineString(warnExportCsvTableNames, ", ")));
             foreach (string tableName in warnExportCsvTableNames)
-                AppValues.exportCsvTableNames.Remove(tableName);
+                AppValues.ExportCsvTableNames.Remove(tableName);
         }
-        if (AppValues.exportCsvTableNames.Count > 0)
-            Utils.Log(string.Format("本次将以下Excel表额外导出为csv文件：\n{0}\n", Utils.CombineString(AppValues.exportCsvTableNames, ", ")));
+        if (AppValues.ExportCsvTableNames.Count > 0)
+            Utils.Log(string.Format("本次将以下Excel表额外导出为csv文件：\n{0}\n", Utils.CombineString(AppValues.ExportCsvTableNames, ", ")));
 
         // 如果声明要额外导出为json文件的Excel表本身在本次被忽略，需要进行警告
         List<string> warnExportJsonTableNames = new List<string>();
-        foreach (string exportJsonTableName in AppValues.exportJsonTableNames)
+        foreach (string exportJsonTableName in AppValues.ExportJsonTableNames)
         {
-            if (!AppValues.exportTableNames.Contains(exportJsonTableName))
+            if (!AppValues.ExportTableNames.Contains(exportJsonTableName))
                 warnExportJsonTableNames.Add(exportJsonTableName);
         }
         if (warnExportJsonTableNames.Count > 0)
         {
             Utils.LogWarning(string.Format("警告：以下Excel表声明为要额外导出为json文件，但在{0}参数中未声明本次要对其进行导出，本工具将不对这些表格执行导出json文件的操作\n{1}", AppValues.PART_EXPORT_PARAM_STRING, Utils.CombineString(warnExportJsonTableNames, ", ")));
             foreach (string tableName in warnExportJsonTableNames)
-                AppValues.exportJsonTableNames.Remove(tableName);
+                AppValues.ExportJsonTableNames.Remove(tableName);
         }
-        if (AppValues.exportJsonTableNames.Count > 0)
-            Utils.Log(string.Format("本次将以下Excel表额外导出为json文件：\n{0}\n", Utils.CombineString(AppValues.exportJsonTableNames, ", ")));
+        if (AppValues.ExportJsonTableNames.Count > 0)
+            Utils.Log(string.Format("本次将以下Excel表额外导出为json文件：\n{0}\n", Utils.CombineString(AppValues.ExportJsonTableNames, ", ")));
 
         // 解析本工具所在目录下的config文件
         string configFilePath = Utils.CombinePath(AppValues.PROGRAM_FOLDER_PATH, AppValues.CONFIG_FILE_NAME);
@@ -577,7 +577,7 @@ public class Program
         {
             Utils.Log("\n下面开始进行表格检查：");
 
-            foreach (string tableName in AppValues.exportTableNames)
+            foreach (string tableName in AppValues.ExportTableNames)
             {
                 TableInfo tableInfo = AppValues.TableInfo[tableName];
                 string errorString = null;
@@ -596,7 +596,7 @@ public class Program
         {
             Utils.Log("\n表格检查完毕，没有发现错误，开始导出为lua文件\n");
             // 进行表格导出
-            foreach (string tableName in AppValues.exportTableNames)
+            foreach (string tableName in AppValues.ExportTableNames)
             {
                 TableInfo tableInfo = AppValues.TableInfo[tableName];
                 string errorString = null;
@@ -638,7 +638,7 @@ public class Program
                         Utils.Log("按默认方式导出成功");
                 }
                 // 判断是否要额外导出为csv文件
-                if (AppValues.exportCsvTableNames.Contains(tableName))
+                if (AppValues.ExportCsvTableNames.Contains(tableName))
                 {
                     TableExportToCsvHelper.ExportTableToCsv(tableInfo, out errorString);
                     if (errorString != null)
@@ -647,7 +647,7 @@ public class Program
                         Utils.Log("额外导出为csv文件成功");
                 }
                 // 判断是否要额外导出为json文件
-                if (AppValues.exportJsonTableNames.Contains(tableName))
+                if (AppValues.ExportJsonTableNames.Contains(tableName))
                 {
                     TableExportToJsonHelper.ExportTableToJson(tableInfo, out errorString);
                     if (errorString != null)
@@ -669,7 +669,7 @@ public class Program
                 if (!string.IsNullOrEmpty(errorString))
                     Utils.LogErrorAndExit(string.Format("无法连接至MySQL数据库：{0}\n导出至MySQL数据库被迫中止，请修正错误后重试\n", errorString));
 
-                foreach (string tableName in AppValues.exportTableNames)
+                foreach (string tableName in AppValues.ExportTableNames)
                 {
                     TableInfo tableInfo = AppValues.TableInfo[tableName];
                     TableExportToMySQLHelper.ExportTableToDatabase(tableInfo, out errorString);

@@ -24,12 +24,12 @@ public class TableExportToCsvHelper
             _GetOneFieldCsvContent(allFieldInfoIgnoreSetDataStructure[i], rowContentList);
 
         // 如果声明了要在首行列举字段名称
-        if (AppValues.exportCsvIsExportColumnName == true)
+        if (AppValues.ExportCsvIsExportColumnName == true)
         {
             StringBuilder columnNameStringBuilder = new StringBuilder();
             for (int i = 0; i < allFieldInfoIgnoreSetDataStructure.Count; ++i)
             {
-                columnNameStringBuilder.Append(AppValues.exportCsvSplitString);
+                columnNameStringBuilder.Append(AppValues.ExportCsvSplitString);
                 FieldInfo fieldInfo = allFieldInfoIgnoreSetDataStructure[i];
                 // 如果是array下属的子元素，字段名生成格式为“array字段名[从1开始的下标序号]”。dict下属的子元素，生成格式为“dict字段名.下属字段名”
                 if (fieldInfo.ParentField != null)
@@ -53,22 +53,22 @@ public class TableExportToCsvHelper
             }
 
             // 去掉开头多加的一个分隔符
-            rowContentList.Insert(0, columnNameStringBuilder.Remove(0, AppValues.exportCsvSplitString.Length));
+            rowContentList.Insert(0, columnNameStringBuilder.Remove(0, AppValues.ExportCsvSplitString.Length));
         }
 
         // 如果声明了要在其后列举字段数据类型
-        if (AppValues.exportCsvIsExportColumnDataType == true)
+        if (AppValues.ExportCsvIsExportColumnDataType == true)
         {
             StringBuilder columnDataTypeStringBuilder = new StringBuilder();
             for (int i = 0; i < allFieldInfoIgnoreSetDataStructure.Count; ++i)
             {
-                columnDataTypeStringBuilder.Append(AppValues.exportCsvSplitString);
+                columnDataTypeStringBuilder.Append(AppValues.ExportCsvSplitString);
                 FieldInfo fieldInfo = allFieldInfoIgnoreSetDataStructure[i];
                 columnDataTypeStringBuilder.Append(fieldInfo.DataType);
             }
 
             // 去掉开头多加的一个分隔符
-            rowContentList.Insert(AppValues.exportCsvIsExportColumnName == true ? 1 : 0, columnDataTypeStringBuilder.Remove(0, AppValues.exportCsvSplitString.Length));
+            rowContentList.Insert(AppValues.ExportCsvIsExportColumnName == true ? 1 : 0, columnDataTypeStringBuilder.Remove(0, AppValues.ExportCsvSplitString.Length));
         }
 
         // 保存为csv文件
@@ -101,7 +101,7 @@ public class TableExportToCsvHelper
                     {
                         StringBuilder stringBuilder = rowContentList[row];
                         // 先增加与上一字段间的分隔符
-                        stringBuilder.Append(AppValues.exportCsvSplitString);
+                        stringBuilder.Append(AppValues.ExportCsvSplitString);
                         // 再生成本行对应的内容
                         if (fieldInfo.Data[row] != null)
                             stringBuilder.Append(fieldInfo.Data[row].ToString());
@@ -113,7 +113,7 @@ public class TableExportToCsvHelper
                     for (int row = 0; row < rowCount; ++row)
                     {
                         StringBuilder stringBuilder = rowContentList[row];
-                        stringBuilder.Append(AppValues.exportCsvSplitString);
+                        stringBuilder.Append(AppValues.ExportCsvSplitString);
                         if (fieldInfo.Data[row] != null)
                         {
                             if ((bool)fieldInfo.Data[row] == true)
@@ -129,7 +129,7 @@ public class TableExportToCsvHelper
                     for (int row = 0; row < rowCount; ++row)
                     {
                         StringBuilder stringBuilder = rowContentList[row];
-                        stringBuilder.Append(AppValues.exportCsvSplitString);
+                        stringBuilder.Append(AppValues.ExportCsvSplitString);
                         if (fieldInfo.Data[row] != null)
                             stringBuilder.Append(fieldInfo.JsonString[row]);
                     }
@@ -155,7 +155,7 @@ public class TableExportToCsvHelper
                                 for (int row = 0; row < rowCount; ++row)
                                 {
                                     StringBuilder stringBuilder = rowContentList[row];
-                                    stringBuilder.Append(AppValues.exportCsvSplitString);
+                                    stringBuilder.Append(AppValues.ExportCsvSplitString);
                                     if (fieldInfo.Data[row] != null)
                                         stringBuilder.Append(((DateTime)(fieldInfo.Data[row])).ToString(exportFormatString));
                                 }
@@ -166,7 +166,7 @@ public class TableExportToCsvHelper
                                 for (int row = 0; row < rowCount; ++row)
                                 {
                                     StringBuilder stringBuilder = rowContentList[row];
-                                    stringBuilder.Append(AppValues.exportCsvSplitString);
+                                    stringBuilder.Append(AppValues.ExportCsvSplitString);
                                     if (fieldInfo.Data[row] != null)
                                         stringBuilder.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalSeconds);
                                 }
@@ -177,7 +177,7 @@ public class TableExportToCsvHelper
                                 for (int row = 0; row < rowCount; ++row)
                                 {
                                     StringBuilder stringBuilder = rowContentList[row];
-                                    stringBuilder.Append(AppValues.exportCsvSplitString);
+                                    stringBuilder.Append(AppValues.ExportCsvSplitString);
                                     if (fieldInfo.Data[row] != null)
                                         stringBuilder.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalMilliseconds);
                                 }
@@ -201,7 +201,7 @@ public class TableExportToCsvHelper
                                 for (int row = 0; row < rowCount; ++row)
                                 {
                                     StringBuilder stringBuilder = rowContentList[row];
-                                    stringBuilder.Append(AppValues.exportCsvSplitString);
+                                    stringBuilder.Append(AppValues.ExportCsvSplitString);
                                     if (fieldInfo.Data[row] != null)
                                         stringBuilder.Append(((DateTime)(fieldInfo.Data[row])).ToString(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_LUA_FORMAT].ToString()));
                                 }
@@ -212,7 +212,7 @@ public class TableExportToCsvHelper
                                 for (int row = 0; row < rowCount; ++row)
                                 {
                                     StringBuilder stringBuilder = rowContentList[row];
-                                    stringBuilder.Append(AppValues.exportCsvSplitString);
+                                    stringBuilder.Append(AppValues.ExportCsvSplitString);
                                     if (fieldInfo.Data[row] != null)
                                         stringBuilder.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalSeconds);
                                 }
@@ -232,7 +232,7 @@ public class TableExportToCsvHelper
                     for (int row = 0; row < rowCount; ++row)
                     {
                         StringBuilder stringBuilder = rowContentList[row];
-                        stringBuilder.Append(AppValues.exportCsvSplitString);
+                        stringBuilder.Append(AppValues.ExportCsvSplitString);
                         if ((bool)fieldInfo.Data[row] == false)
                             stringBuilder.Append("-1");
                     }

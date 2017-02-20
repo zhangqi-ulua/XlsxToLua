@@ -43,14 +43,15 @@ public class TableExportToJsonHelper
             content.Append(",");
         }
 
-        // 去掉最后一行后多余的英文逗号
-        content.Remove(content.Length - 1, 1);
+        // 去掉最后一行后多余的英文逗号，此处要特殊处理当表格中没有任何数据行时的情况
+        if (content.Length > 1)
+            content.Remove(content.Length - 1, 1);
         // 生成json字符串结尾
         content.Append("]");
 
         string exportString = content.ToString();
         // 如果声明了要整理为带缩进格式的形式
-        if (AppValues.exportJsonIsFormat == true)
+        if (AppValues.ExportJsonIsFormat == true)
             exportString = _FormatJson(exportString);
 
         // 保存为json文件
