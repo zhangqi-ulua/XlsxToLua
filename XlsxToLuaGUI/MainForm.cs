@@ -100,7 +100,7 @@ namespace XlsxToLuaGUI
                 string[] filePaths = dialog.FileNames;
                 // 检查选择的Excel文件是否在设置的Excel所在目录
                 string checkFilePath = Path.GetDirectoryName(filePaths[0]);
-                if (!checkFilePath.Equals(excelFolderPath, StringComparison.CurrentCultureIgnoreCase))
+                if (!Path.GetFullPath(checkFilePath).Equals(Path.GetFullPath(excelFolderPath), StringComparison.CurrentCultureIgnoreCase))
                 {
                     MessageBox.Show(string.Format("必须在指定的Excel文件所在目录中选择导出文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", excelFolderPath, checkFilePath), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -138,7 +138,7 @@ namespace XlsxToLuaGUI
                 string[] filePaths = dialog.FileNames;
                 // 检查选择的Excel文件是否在设置的Excel所在目录
                 string checkFilePath = Path.GetDirectoryName(filePaths[0]);
-                if (!checkFilePath.Equals(excelFolderPath, StringComparison.CurrentCultureIgnoreCase))
+                if (!Path.GetFullPath(checkFilePath).Equals(Path.GetFullPath(excelFolderPath), StringComparison.CurrentCultureIgnoreCase))
                 {
                     MessageBox.Show(string.Format("必须在指定的Excel文件所在目录中选择要忽略导出的文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", excelFolderPath, checkFilePath), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -201,7 +201,7 @@ namespace XlsxToLuaGUI
                 string[] filePaths = dialog.FileNames;
                 // 检查选择的Excel文件是否在设置的Excel所在目录
                 string checkFilePath = Path.GetDirectoryName(filePaths[0]);
-                if (!checkFilePath.Equals(excelFolderPath, StringComparison.CurrentCultureIgnoreCase))
+                if (!Path.GetFullPath(checkFilePath).Equals(Path.GetFullPath(excelFolderPath), StringComparison.CurrentCultureIgnoreCase))
                 {
                     MessageBox.Show(string.Format("必须在指定的Excel文件所在目录中选择导出文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", excelFolderPath, checkFilePath), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -251,7 +251,7 @@ namespace XlsxToLuaGUI
                 string[] filePaths = dialog.FileNames;
                 // 检查选择的Excel文件是否在设置的Excel所在目录
                 string checkFilePath = Path.GetDirectoryName(filePaths[0]);
-                if (!checkFilePath.Equals(excelFolderPath, StringComparison.CurrentCultureIgnoreCase))
+                if (!Path.GetFullPath(checkFilePath).Equals(Path.GetFullPath(excelFolderPath), StringComparison.CurrentCultureIgnoreCase))
                 {
                     MessageBox.Show(string.Format("必须在指定的Excel文件所在目录中选择导出文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", excelFolderPath, checkFilePath), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
