@@ -1,0 +1,6 @@
+heroId|name|rare|type|defaultStar|isOpen|attributes
+Int|Lang|Int|Int|Int|Bool|Json
+1|英雄法师|11|1|1|true|{"attack":{"physical":20,"magic":100,"canCrit":true,"hitRate":0.9,"ult":[{"name":"CoupDeGrace","params":["circle",1,0,true],"cd":5}]},"defence":{"physical":10,"magic":60},"hp":200,"modelSize":[4,5,10.5],"petPhrase":"I will kill you!"}
+2|英雄战士|11|2|1|true|
+3|英雄牧师|11|3|1|false|
+4|英雄勇士|11|4|1|false|{"attack":{"physical":140,"magic":0,"canCrit":true,"hitRate":0.9,"ult":[{"name":"CoupDeGrace","params":["sector",150,0,true],"cd":5}]},"defence":{"physical":40,"magic":0},"hp":150,"modelSize":[3.5,4,8],"petPhrase":"Death to all who oppose me!"}

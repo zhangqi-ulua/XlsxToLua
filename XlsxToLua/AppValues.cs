@@ -83,6 +83,16 @@ public class AppValues
     public const string EXPORT_CSV_PARAM_PARAM_STRING = "-exportCsvParam";
 
     /// <summary>
+    /// 声明将指定的Excel文件额外导出为csv对应C#类文件
+    /// </summary>
+    public const string EXPORT_CSV_CLASS_PARAM_STRING = "-exportCsvClass";
+
+    /// <summary>
+    /// 声明导出与csv对应C#类文件的参数
+    /// </summary>
+    public const string EXPORT_CSV_CLASS_PARAM_PARAM_STRING = "-exportCsvClassParam";
+
+    /// <summary>
     /// 声明将指定的Excel文件额外导出为json文件
     /// </summary>
     public const string EXPORT_JSON_PARAM_STRING = "-exportJson";
@@ -118,6 +128,31 @@ public class AppValues
     public const string EXPORT_CSV_PARAM_IS_EXPORT_COLUMN_DATA_TYPE_PARAM_STRING = "isExportColumnDataType";
 
     /// <summary>
+    /// 导出csv对应C#类文件参数下属的具体参数，用于配置导出路径
+    /// </summary>
+    public const string EXPORT_CSV_CLASS_PARAM_EXPORT_PATH_PARAM_STRING = "exportPath";
+
+    /// <summary>
+    /// 导出csv对应C#类文件参数下属的具体参数，用于配置自动按规则声明类名时，在类名前增加的前缀
+    /// </summary>
+    public const string EXPORT_CSV_CLASS_PARAM_CLASS_NAME_PREFIX = "classNamePrefix";
+
+    /// <summary>
+    /// 导出csv对应C#类文件参数下属的具体参数，用于配置自动按规则声明类名时，在类名前增加的后缀
+    /// </summary>
+    public const string EXPORT_CSV_CLASS_PARAM_CLASS_NAME_POSTFIX = "classNamePostfix";
+
+    /// <summary>
+    /// 导出csv对应C#类文件参数下属的具体参数，用于配置命名空间
+    /// </summary>
+    public const string EXPORT_CSV_CLASS_PARAM_NAMESPACE_PARAM_STRING = "namespace";
+
+    /// <summary>
+    /// 导出csv对应C#类文件参数下属的具体参数，用于配置引用类库
+    /// </summary>
+    public const string EXPORT_CSV_CLASS_PARAM_USING_PARAM_STRING = "using";
+
+    /// <summary>
     /// 导出json文件参数下属的具体参数，用于配置导出路径
     /// </summary>
     public const string EXPORT_JSON_PARAM_EXPORT_PATH_PARAM_STRING = "exportPath";
@@ -131,6 +166,11 @@ public class AppValues
     /// 导出json文件参数下属的具体参数，用于配置是否将生成的json字符串整理为带缩进格式的形式
     /// </summary>
     public const string EXPORT_JSON_PARAM_IS_FORMAT_PARAM_STRING = "isFormat";
+
+    /// <summary>
+    /// 导出csv对应C#类文件的扩展名（不含点号）
+    /// </summary>
+    public static string EXPORT_CSV_CLASS_FILE_EXTENSION = "cs";
 
     /// <summary>
     /// 配置文件（配置自定义的检查规则）的文件名
@@ -161,6 +201,8 @@ public class AppValues
     public const string CONFIG_NAME_EXPORT_DATABASE_WRITE_NULL_FOR_EMPTY_STRING = "exportDatabaseWriteNullForEmptyString";
     // 声明某张表格导出为lua table时，是否将主键列的值作为table中的元素
     public const string CONFIG_NAME_ADD_KEY_TO_LUA_TABLE = "addKeyToLuaTable";
+    // 声明某张表格导出csv对应C#类的类名
+    public const string CONFIG_NAME_EXPORT_CSV_CLASS_NAME = "exportCsvClassName";
 
     // 声明对某张表格不进行默认导出的参数配置
     public const string CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE = "-notExportOriginalTable";
@@ -342,6 +384,36 @@ public class AppValues
     /// 导出的csv文件中是否在其后列举字段数据类型，默认为是
     /// </summary>
     public static bool ExportCsvIsExportColumnDataType = true;
+
+    /// <summary>
+    /// 存储本次要额外导出为csv对应C#类文件的Excel文件名
+    /// </summary>
+    public static List<string> ExportCsvClassTableNames = new List<string>();
+
+    /// <summary>
+    /// 导出csv对应C#类文件的存储路径
+    /// </summary>
+    public static string ExportCsvClassPath = null;
+
+    /// <summary>
+    /// 导出csv对应C#类的类名前缀
+    /// </summary>
+    public static string ExportCsvClassClassNamePrefix = null;
+
+    /// <summary>
+    /// 导出csv对应C#类的类名后缀
+    /// </summary>
+    public static string ExportCsvClassClassNamePostfix = null;
+
+    /// <summary>
+    /// 导出csv对应C#类文件中的命名空间
+    /// </summary>
+    public static string ExportCsvClassNamespace = null;
+
+    /// <summary>
+    /// 导出csv对应C#类文件中的引用类库
+    /// </summary>
+    public static List<string> ExportCsvClassUsing = null;
 
     /// <summary>
     /// 存储本次要额外导出为json文件的Excel文件名

@@ -1,0 +1,6 @@
+systemId|systemName|help|openCondition|openCondition.rankLimit|openCondition.vipLimit|openCondition.levelLimit|openRewards|openRewards[1]|openRewards[1].type|openRewards[1].id|openRewards[1].count|openRewards[2]|openRewards[2].type|openRewards[2].id|openRewards[2].count
+Int|Lang|Lang|Dict|Int|Int|Int|Array|Dict|Int|Int|Int|Dict|Int|Int|Int
+1|普通关卡|通过普通关卡可以获得一定几率掉落的道具和英雄经验，快来让你的英雄挑战吧！|-1||||-1||||||||
+2|精英关卡|通过精英关卡可以获得一定几率掉落的稀有英雄碎片用于英雄升阶，每天挑战次数有限哦！|-1||||-1||||||||
+3|竞技场|这里是各位英雄彼此切磋较量的场所，有丰富的奖励给予强大的英雄||25|-1|-1|||1|100001|10|-1|||
+4|商店|在这里你可以花费金币或者钻石来兑换你想要的道具，商店会在每天9点、15点、21点进货新的一批商品哟，欢迎客官前来购买||15|-1|-1|||1|100001|5|-1|||

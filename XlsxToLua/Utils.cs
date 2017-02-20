@@ -454,6 +454,24 @@ public class Utils
         }
     }
 
+    public static bool SaveCsvClassFile(string className, string content)
+    {
+        try
+        {
+            string fileName = string.Concat(className, ".", AppValues.EXPORT_CSV_CLASS_FILE_EXTENSION);
+            string savePath = Utils.CombinePath(AppValues.ExportCsvClassPath, fileName);
+            StreamWriter writer = new StreamWriter(savePath, false, new UTF8Encoding(false));
+            writer.Write(content);
+            writer.Flush();
+            writer.Close();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public static bool SaveJsonFile(string tableName, string content)
     {
         try

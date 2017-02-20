@@ -17,6 +17,8 @@ public class AppValues
     public const string ALLOWED_NULL_NUMBER_PARAM_STRING = "-allowedNullNumber";
     public const string EXPORT_CSV_PARAM_STRING = "-exportCsv";
     public const string EXPORT_CSV_PARAM_PARAM_STRING = "-exportCsvParam";
+    public const string EXPORT_CSV_CLASS_PARAM_STRING = "-exportCsvClass";
+    public const string EXPORT_CSV_CLASS_PARAM_PARAM_STRING = "-exportCsvClassParam";
     public const string EXPORT_JSON_PARAM_STRING = "-exportJson";
     public const string EXPORT_JSON_PARAM_PARAM_STRING = "-exportJsonParam";
 
@@ -25,6 +27,12 @@ public class AppValues
     public const string EXPORT_CSV_PARAM_SUBTYPE_SPLIT_STRING = "splitString";
     public const string EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_NAME = "isExportColumnName";
     public const string EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_DATA_TYPE = "isExportColumnDataType";
+
+    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_EXPORT_PATH = "exportPath";
+    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_NAMESPACE = "namespace";
+    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_USING = "using";
+    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_PREFIX = "classNamePrefix";
+    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_POSTFIX = "classNamePostfix";
 
     public const string EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH = "exportPath";
     public const string EXPORT_JSON_PARAM_SUBTYPE_EXTENSION = "extension";
@@ -41,6 +49,7 @@ public class AppValues
     public const string SAVE_CONFIG_KEY_IS_CHECKED_PART = "isCheckedPart";
     public const string SAVE_CONFIG_KEY_IS_CHECKED_EXCEPT = "isCheckedExcept";
     public const string SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV = "isCheckedExportCsv";
+    public const string SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV_CLASS = "isCheckedExportCsvClass";
     public const string SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JSON = "isCheckedExportJson";
     public const string SAVE_CONFIG_KEY_IS_CHECKED_USE_RELATIVE_PATH = "isCheckedUseRelativePath";
 

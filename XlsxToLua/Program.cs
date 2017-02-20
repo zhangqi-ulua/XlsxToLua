@@ -13,17 +13,20 @@ public class Program
     /// <summary>
     /// 传入参数中，第1个必须为Excel表格所在目录，第2个必须为存放导出lua文件的目录，第3个参数为项目Client目录的路径（无需文件存在型检查规则则填-noClient），第4个参数为必须为lang文件路径（没有填-noLang）
     /// 可附加参数有：
-    /// 1) -columnInfo（在生成lua文件的最上方用注释形式显示列信息，默认不开启）
-    /// 2) -unchecked（不对表格进行查错，不推荐使用）
-    /// 3) -printEmptyStringWhenLangNotMatching（当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串即xx = ""，默认为输出nil）
-    /// 4) -exportMySQL（将表格数据导出到MySQL数据库中，默认不导出）
-    /// 5) -part（后面在英文小括号内声明本次要导出的Excel文件名，用|分隔，未声明的文件将被本工具忽略）
-    /// 6) -except（后面在英文小括号内声明本次要忽略导出的Excel文件名，用|分隔，注意不允许对同一张表格既声明-part又声明-except）
-    /// 7) -allowedNullNumber（允许int、long、float型字段下填写空值，默认不允许）
-    /// 8) 声明要将指定的Excel表导出为csv文件需要以下2个参数：
-    ///    -exportCsv（后面在英文小括号内声明本次要额外导出csv文件的Excel文件名，用|分隔，或者用$all表示全部。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出csv文件也不会生效）
-    ///    -exportCsvParam（可声明导出csv文件的参数）
-    /// 9) 声明要将指定的Excel表导出为json文件需要以下2个参数：
+    /// 1)  -columnInfo（在生成lua文件的最上方用注释形式显示列信息，默认不开启）
+    /// 2)  -unchecked（不对表格进行查错，不推荐使用）
+    /// 3)  -printEmptyStringWhenLangNotMatching（当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串即xx = ""，默认为输出nil）
+    /// 4)  -exportMySQL（将表格数据导出到MySQL数据库中，默认不导出）
+    /// 5)  -part（后面在英文小括号内声明本次要导出的Excel文件名，用|分隔，未声明的文件将被本工具忽略）
+    /// 6)  -except（后面在英文小括号内声明本次要忽略导出的Excel文件名，用|分隔，注意不允许对同一张表格既声明-part又声明-except）
+    /// 7)  -allowedNullNumber（允许int、long、float型字段下填写空值，默认不允许）
+    /// 8)  声明要将指定的Excel表导出为csv文件需要以下2个参数：
+    ///     -exportCsv（后面在英文小括号内声明本次要额外导出csv文件的Excel文件名，用|分隔，或者用$all表示全部。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出csv文件也不会生效）
+    ///     -exportCsvParam（可声明导出csv文件的参数）
+    /// 9)  声明要将指定的Excel表导出为csv对应的C#文件需要以下2个参数：
+    ///     -exportCsvClass（后面在英文小括号内声明本次要额外导出csv对应C#类文件的Excel文件名，用|分隔，或者用$all表示全部。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出csv文件也不会生效）
+    ///     -exportCsvParam（可声明导出csv对应C#类文件的参数）
+    /// 10) 声明要将指定的Excel表导出为json文件需要以下2个参数：
     ///    -exportJson（后面在英文小括号内声明本次要额外导出json文件的Excel文件名，用|分隔，或者用$all表示全部。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出json文件也不会生效）
     ///    -exportJsonParam（可声明导出json文件的参数）
     /// </summary>
@@ -157,6 +160,140 @@ public class Program
                     }
 
                     Utils.LogWarning(string.Format("警告：本次将仅检查并导出以下Excel文件：\n{0}\n", Utils.CombineString(AppValues.ExportTableNames, ", ")));
+                }
+            }
+            // 注意：-exportCsvClass与-exportCsvClassParam均以-exportCsvClass开头，故要先判断-exportCsvClassParam分支。这里将-exportCsvClassParam的解析放到-exportCsvClass的解析之中是为了只有声明了进行csv对应C#类文件导出时才解析导出参数
+            // 另外还需将-exportCsvClass的判断放到-exportCsv之前
+            else if (param.StartsWith(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+                continue;
+            else if (param.StartsWith(AppValues.EXPORT_CSV_CLASS_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            {
+                // 首先解析并判断配置的csv对应C#类文件导出参数是否正确
+                string exportCsvClassParamString = null;
+                for (int j = 4; j < args.Length; ++j)
+                {
+                    string tempParam = args[j];
+                    if (tempParam.StartsWith(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        exportCsvClassParamString = tempParam;
+                        break;
+                    }
+                }
+                if (exportCsvClassParamString != null)
+                {
+                    int leftBracketIndex = exportCsvClassParamString.IndexOf('(');
+                    int rightBracketIndex = exportCsvClassParamString.LastIndexOf(')');
+                    if (leftBracketIndex == -1 || rightBracketIndex == -1 || leftBracketIndex > rightBracketIndex)
+                        Utils.LogErrorAndExit(string.Format("错误：声明导出csv对应C#类文件的参数{0}后必须在英文小括号内声明各个具体参数", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING));
+                    else
+                    {
+                        string paramString = exportCsvClassParamString.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1);
+                        // 通过|分隔各个参数
+                        string[] paramStringList = paramString.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                        // 解析各个具体参数
+                        foreach (string oneParamString in paramStringList)
+                        {
+                            string[] keyAndValue = oneParamString.Split(new char[] { '=' });
+                            if (keyAndValue.Length != 2)
+                                Utils.LogErrorAndExit(string.Format("声明的{0}参数下属的参数字符串{1}错误，参数名和配置值之间应用=分隔", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, oneParamString));
+                            else
+                            {
+                                string key = keyAndValue[0].Trim();
+                                string value = keyAndValue[1];
+                                if (AppValues.EXPORT_CSV_CLASS_PARAM_EXPORT_PATH_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    // 检查导出路径是否存在
+                                    if (!Directory.Exists(value))
+                                        Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的导出csv对应C#类文件导出路径不存在", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_CLASS_PARAM_EXPORT_PATH_PARAM_STRING));
+                                    else
+                                        AppValues.ExportCsvClassPath = value;
+                                }
+                                else if (AppValues.EXPORT_CSV_CLASS_PARAM_CLASS_NAME_PREFIX.Equals(key, StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    value = value.Trim();
+                                    if (string.IsNullOrEmpty(value))
+                                        Utils.LogWarning(string.Format("警告：声明的{0}参数下属的参数{1}所配置的导出csv对应C#类的类名前缀为空，若不想设置，可以直接不配置此参数，而不是将参数值留空", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_CLASS_PARAM_CLASS_NAME_PREFIX));
+                                    else
+                                        AppValues.ExportCsvClassClassNamePrefix = value;
+                                }
+                                else if (AppValues.EXPORT_CSV_CLASS_PARAM_CLASS_NAME_POSTFIX.Equals(key, StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    value = value.Trim();
+                                    if (string.IsNullOrEmpty(value))
+                                        Utils.LogWarning(string.Format("警告：声明的{0}参数下属的参数{1}所配置的导出csv对应C#类的类名后缀为空，若不想设置，可以直接不配置此参数，而不是将参数值留空", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_CLASS_PARAM_CLASS_NAME_POSTFIX));
+                                    else
+                                        AppValues.ExportCsvClassClassNamePostfix = value;
+                                }
+                                else if (AppValues.EXPORT_CSV_CLASS_PARAM_NAMESPACE_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    value = value.Trim();
+                                    if (string.IsNullOrEmpty(value))
+                                        Utils.LogWarning(string.Format("警告：声明的{0}参数下属的参数{1}所配置的导出csv对应C#类文件中的命名空间为空，若不想设置命名空间，可以直接不配置此参数，而不是将参数值留空", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_CLASS_PARAM_NAMESPACE_PARAM_STRING));
+                                    else
+                                        AppValues.ExportCsvClassNamespace = value;
+                                }
+                                else if (AppValues.EXPORT_CSV_CLASS_PARAM_USING_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    value = value.Trim();
+                                    if (string.IsNullOrEmpty(value))
+                                        Utils.LogWarning(string.Format("警告：声明的{0}参数下属的参数{1}所配置的导出csv对应C#类文件中的引用类库为空，若不想设置引用类库，可以直接不配置此参数，而不是将参数值留空", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_CLASS_PARAM_USING_PARAM_STRING));
+                                    else
+                                    {
+                                        // 通过英文逗号分隔各个引用类库
+                                        string[] usingList = value.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                        List<string> exportCsvClassUsing = new List<string>();
+                                        for (int index = 0; index < usingList.Length; ++index)
+                                        {
+                                            string usingString = usingList[index].Trim();
+                                            if (!string.IsNullOrEmpty(usingString) && !exportCsvClassUsing.Contains(usingString))
+                                                exportCsvClassUsing.Add(usingString);
+
+                                            if (exportCsvClassUsing.Count > 0)
+                                                AppValues.ExportCsvClassUsing = exportCsvClassUsing;
+                                            else
+                                                Utils.LogWarning(string.Format("警告：声明的{0}参数下属的参数{1}所配置的导出csv对应C#类文件中的引用类库均为空，若不想设置引用类库，可以直接不配置此参数，而不是将参数值留空", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_CLASS_PARAM_USING_PARAM_STRING));
+                                        }
+                                    }
+                                }
+                                else
+                                    Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}非法", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, key));
+                            }
+                        }
+                        // 要求必须含有exportPath参数
+                        if (AppValues.ExportCsvClassPath == null)
+                            Utils.LogErrorAndExit(string.Format("错误：声明要额外导出csv对应C#类文件，就必须同时在{0}参数下声明用于配置导出路径的参数{1}", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_CLASS_PARAM_EXPORT_PATH_PARAM_STRING));
+                    }
+                }
+                else
+                    Utils.LogErrorAndExit(string.Format("错误：声明要额外导出指定Excel文件为csv对应C#类文件，就必须同时声明用于配置C#类文件导出参数的{0}", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING));
+
+                // 解析配置的要额外导出csv对应C#类文件的Excel文件名
+                string errorString = null;
+                // 先判断是否声明对所有文件进行导出
+                int paramLeftBracketIndex = param.IndexOf('(');
+                int paramRightBracketIndex = param.LastIndexOf(')');
+                if (paramLeftBracketIndex == -1 || paramRightBracketIndex == -1 || paramLeftBracketIndex > paramRightBracketIndex)
+                    Utils.LogErrorAndExit(string.Format("必须在英文小括号内声明要导出为csv对应C#类文件的Excel表格名，若要全部导出，请配置为{1}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING));
+
+                string exportCsvClassFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
+                if (exportCsvClassFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+                    AppValues.ExportCsvClassTableNames = AppValues.ExportTableNames;
+                else
+                {
+                    string[] fileNames = Utils.GetExcelFileNames(param, out errorString);
+                    if (errorString != null)
+                        Utils.LogErrorAndExit(string.Format("错误：声明额外导出为csv对应C#类文件的参数{0}后{1}", AppValues.EXPORT_CSV_CLASS_PARAM_STRING, errorString));
+                    else
+                    {
+                        // 检查指定导出的Excel文件是否存在
+                        foreach (string fileName in fileNames)
+                        {
+                            if (!existExcelFileNames.Contains(fileName))
+                                Utils.LogErrorAndExit(string.Format("要求额外导出为csv对应C#类文件的Excel表（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(AppValues.ExportCsvClassPath, string.Concat(fileName, ".xlsx"))));
+                            else
+                                AppValues.ExportCsvClassTableNames.Add(fileName);
+                        }
+                    }
                 }
             }
             // 注意：-exportCsv与-exportCsvParam均以-exportCsv开头，故要先判断-exportCsvParam分支。这里将-exportCsvParam的解析放到-exportCsv的解析之中是为了只有声明了进行csv文件导出时才解析导出参数
@@ -645,6 +782,15 @@ public class Program
                         Utils.LogErrorAndExit(errorString);
                     else
                         Utils.Log("额外导出为csv文件成功");
+                }
+                // 判断是否要额外导出为csv对应C#类文件
+                if (AppValues.ExportCsvClassTableNames.Contains(tableName))
+                {
+                    TableExportToCsvClassHelper.ExportTableToCsvClass(tableInfo, out errorString);
+                    if (errorString != null)
+                        Utils.LogErrorAndExit(errorString);
+                    else
+                        Utils.Log("额外导出为csv对应C#类文件成功");
                 }
                 // 判断是否要额外导出为json文件
                 if (AppValues.ExportJsonTableNames.Contains(tableName))
