@@ -34,7 +34,7 @@ public class TableExportToLuaHelper
         bool isAddKeyToLuaTable = tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_ADD_KEY_TO_LUA_TABLE) && tableInfo.TableConfig[AppValues.CONFIG_NAME_ADD_KEY_TO_LUA_TABLE].Count > 0 && "true".Equals(tableInfo.TableConfig[AppValues.CONFIG_NAME_ADD_KEY_TO_LUA_TABLE][0], StringComparison.CurrentCultureIgnoreCase);
 
         // 逐行读取表格内容生成lua table
-        List<FieldInfo> allField = tableInfo.GetAllFieldInfo();
+        List<FieldInfo> allField = tableInfo.GetAllClientFieldInfo();
         int dataCount = tableInfo.GetKeyColumnFieldInfo().Data.Count;
         for (int row = 0; row < dataCount; ++row)
         {
@@ -259,7 +259,7 @@ public class TableExportToLuaHelper
         else
         {
             List<string> indexFieldNameList = new List<string>(indexFieldDefine);
-            foreach (FieldInfo fieldInfo in tableInfo.GetAllFieldInfo())
+            foreach (FieldInfo fieldInfo in tableInfo.GetAllClientFieldInfo())
             {
                 if (!indexFieldNameList.Contains(fieldInfo.FieldName))
                     tableValueField.Add(fieldInfo);
@@ -439,7 +439,7 @@ public class TableExportToLuaHelper
         int level = 0;
 
         StringBuilder content = new StringBuilder();
-        foreach (FieldInfo fieldInfo in tableInfo.GetAllFieldInfo())
+        foreach (FieldInfo fieldInfo in tableInfo.GetAllClientFieldInfo())
             content.Append(_GetOneFieldColumnInfo(fieldInfo, level));
 
         content.Append(System.Environment.NewLine);

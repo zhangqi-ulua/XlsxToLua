@@ -31,6 +31,12 @@ public class TableAnalyzeHelper
                 errorString = _GetTableAnalyzeErrorString(tableName, 0) + "主键列解析错误\n" + errorString;
                 return null;
             }
+            // 主键列字段名不允许为空
+            else if (primaryKeyField.IsIgnoreClientExport == true)
+            {
+                errorString = _GetTableAnalyzeErrorString(tableName, 0) + "主键列必须指定字段名\n" + errorString;
+                return null;
+            }
             else
             {
                 // 唯一性检查
@@ -96,7 +102,7 @@ public class TableAnalyzeHelper
             }
             else
             {
-                // 跳过未声明变量名的无效列
+                // 跳过未声明变量名以及数据库导出信息的无效列
                 if (oneField != null)
                 {
                     // 检查字段名是否重复
@@ -279,12 +285,35 @@ public class TableAnalyzeHelper
             else
                 fieldInfo.DataTypeString = parentField.ArrayChildDataTypeString.Substring(0, lastColonIndex);
         }
-        // 独立字段的变量名为空的列视为无效列，直接忽略
         else if (string.IsNullOrEmpty(inputFieldName))
         {
-            errorString = null;
-            nextFieldColumnIndex = columnIndex + 1;
-            return null;
+            // dict下属字段的变量名为空的列，视为无效列，直接忽略
+            if (fieldInfo.ParentField != null && fieldInfo.ParentField.DataType == DataType.Dict)
+            {
+                Utils.LogWarning(string.Format("警告：第{0}列为dict下属字段，但未填写变量名，将被视为无效列而忽略", Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1)));
+                errorString = null;
+                nextFieldColumnIndex = columnIndex + 1;
+                return null;
+            }
+            // 独立字段未填写字段名以及导出数据库信息，视为无效列，直接忽略
+            else if (string.IsNullOrEmpty(databaseInfoString))
+            {
+                Utils.LogWarning(string.Format("警告：第{0}列未填写变量名，也未填写导出数据库信息，将被视为无效列而忽略", Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1)));
+                errorString = null;
+                nextFieldColumnIndex = columnIndex + 1;
+                return null;
+            }
+            // 未填写字段名但填写了导出数据库的信息，视为只进行MySQL导出的字段，自动进行字段命名
+            else
+            {
+                Utils.LogWarning(string.Format("警告：第{0}列未填写变量名，仅填写了导出数据库信息，将不会进行lua、csv、json等客户端形式导出", Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1)));
+                fieldInfo.FieldName = string.Concat(AppValues.AUTO_FIELD_NAME_PREFIX, fieldInfo.ColumnSeq);
+                fieldInfo.IsIgnoreClientExport = true;
+
+                // 读取填写的数据类型
+                fieldInfo.DataTypeString = dt.Rows[AppValues.DATA_FIELD_DATA_TYPE_INDEX][columnIndex].ToString().Trim();
+                fieldInfo.DataType = _AnalyzeDataType(fieldInfo.DataTypeString);
+            }
         }
         else
         {

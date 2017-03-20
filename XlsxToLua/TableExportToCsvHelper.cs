@@ -19,7 +19,7 @@ public class TableExportToCsvHelper
             rowContentList.Add(stringBuilder);
         }
         // 生成其他列的内容（将array、dict这样的集合类型下属字段作为独立字段处理）
-        List<FieldInfo> allFieldInfoIgnoreSetDataStructure = tableInfo.GetAllFieldInfoIgnoreSetDataStructure();
+        List<FieldInfo> allFieldInfoIgnoreSetDataStructure = tableInfo.GetAllClientFieldInfoIgnoreSetDataStructure();
         for (int i = 1; i < allFieldInfoIgnoreSetDataStructure.Count; ++i)
             _GetOneFieldCsvContent(allFieldInfoIgnoreSetDataStructure[i], rowContentList);
 

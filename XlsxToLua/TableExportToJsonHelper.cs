@@ -15,7 +15,7 @@ public class TableExportToJsonHelper
         content.Append("[");
 
         // 逐行读取表格内容生成json
-        List<FieldInfo> allField = tableInfo.GetAllFieldInfo();
+        List<FieldInfo> allField = tableInfo.GetAllClientFieldInfo();
         int dataCount = tableInfo.GetKeyColumnFieldInfo().Data.Count;
         int fieldCount = allField.Count;
         for (int row = 0; row < dataCount; ++row)

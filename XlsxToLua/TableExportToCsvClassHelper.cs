@@ -13,7 +13,7 @@ public class TableExportToCsvClassHelper
         StringBuilder stringBuilder = new StringBuilder();
         int level = 0;
         bool isAddNamespace = false;
-        List<FieldInfo> allFieldInfo = tableInfo.GetAllFieldInfo();
+        List<FieldInfo> allFieldInfo = tableInfo.GetAllClientFieldInfo();
 
         // 先生成using内容
         if (AppValues.ExportCsvClassUsing != null)

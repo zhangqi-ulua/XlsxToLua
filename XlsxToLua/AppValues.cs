@@ -256,6 +256,11 @@ public class AppValues
     public static DateTime REFERENCE_DATE = new DateTime(1970, 1, 1);
 
     /// <summary>
+    /// 未对某字段命名时，默认给予的字段名前缀
+    /// </summary>
+    public static string AUTO_FIELD_NAME_PREFIX = "未命名字段";
+
+    /// <summary>
     /// 用户输入的要导出的Excel文件所在目录
     /// </summary>
     public static string ExcelFolderPath = null;

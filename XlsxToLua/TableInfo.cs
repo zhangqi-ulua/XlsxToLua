@@ -33,6 +33,21 @@ public class TableInfo
         return _fieldInfo;
     }
 
+    /// <summary>
+    /// 获取所有指定了字段名，需要进行客户端lua、csv、json等方式导出的字段
+    /// </summary>
+    public List<FieldInfo> GetAllClientFieldInfo()
+    {
+        List<FieldInfo> allClientFieldInfo = new List<FieldInfo>();
+        foreach (FieldInfo fieldInfo in _fieldInfo)
+        {
+            if (fieldInfo.IsIgnoreClientExport == false)
+                allClientFieldInfo.Add(fieldInfo);
+        }
+
+        return allClientFieldInfo;
+    }
+
     public FieldInfo GetKeyColumnFieldInfo()
     {
         if (_fieldInfo.Count > 0)
@@ -44,24 +59,24 @@ public class TableInfo
     /// <summary>
     /// 获取依次排列的表格中各字段信息，但无视array、dict型的嵌套结构，将其下属子元素作为独立字段
     /// </summary>
-    public List<FieldInfo> GetAllFieldInfoIgnoreSetDataStructure()
+    public List<FieldInfo> GetAllClientFieldInfoIgnoreSetDataStructure()
     {
         List<FieldInfo> allFieldInfo = new List<FieldInfo>();
-        foreach (FieldInfo fieldInfo in GetAllFieldInfo())
-            _AddFieldInfoFromOneField(fieldInfo, allFieldInfo);
+        foreach (FieldInfo fieldInfo in _fieldInfo)
+            _AddClientFieldInfoFromOneField(fieldInfo, allFieldInfo);
 
         return allFieldInfo;
     }
 
-    public void _AddFieldInfoFromOneField(FieldInfo fieldInfo, List<FieldInfo> allFieldInfo)
+    public void _AddClientFieldInfoFromOneField(FieldInfo fieldInfo, List<FieldInfo> allFieldInfo)
     {
         if (fieldInfo.DataType == DataType.Array || fieldInfo.DataType == DataType.Dict)
         {
             allFieldInfo.Add(fieldInfo);
             foreach (FieldInfo childField in fieldInfo.ChildField)
-                _AddFieldInfoFromOneField(childField, allFieldInfo);
+                _AddClientFieldInfoFromOneField(childField, allFieldInfo);
         }
-        else
+        else if (fieldInfo.IsIgnoreClientExport == false)
             allFieldInfo.Add(fieldInfo);
     }
 }
@@ -107,10 +122,13 @@ public class FieldInfo
     public string DatabaseFieldName { get; set; }
     // 导出到数据库中对应的字段数据类型
     public string DatabaseFieldType { get; set; }
+    // 是否忽略进行lua、csv、json等客户端方式导出（未填写字段名但填写了数据库导出信息的字段，仅进行数据库导出）
+    public bool IsIgnoreClientExport { get; set; }
 
     public FieldInfo()
     {
         ExtraParam = new Dictionary<string, object>();
+        IsIgnoreClientExport = false;
     }
 }
 

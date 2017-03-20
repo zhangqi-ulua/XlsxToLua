@@ -1,5 +1,5 @@
 -- heroId                           int                              英雄ID
--- name                             lang                             英雄名称
+-- name                             lang                             英雄名称（仅客户端用）
 -- rare                             int                              稀有度（11-13）
 -- type                             int                              英雄职业（1：法师，2：战士，3：牧师，4：勇士）
 -- defaultStar                      int                              英雄初始星数

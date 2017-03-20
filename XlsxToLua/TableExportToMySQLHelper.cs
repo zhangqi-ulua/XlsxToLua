@@ -128,6 +128,19 @@ public class TableExportToMySQLHelper
                     return false;
                 }
             }
+            // 警告未设置导出到数据库信息的字段，这些字段将不被导出
+            const string WARNING_INFO_FORMAT = "第{0}列（字段名为{1}）";
+            List<string> warningInfo = new List<string>();
+            foreach (FieldInfo fieldInfo in tableInfo.GetAllFieldInfo())
+            {
+                if (fieldInfo.DataType != DataType.Array && fieldInfo.DataType != DataType.Dict && fieldInfo.DatabaseFieldName == null)
+                    warningInfo.Add(string.Format(WARNING_INFO_FORMAT, Utils.GetExcelColumnName(fieldInfo.ColumnSeq + 1), fieldInfo.FieldName));
+            }
+            if (warningInfo.Count > 0)
+            {
+                Utils.LogWarning("警告：以下字段未设置导出数据库的信息，将被忽略：");
+                Utils.LogWarning(Utils.CombineString(warningInfo, " ,"));
+            }
             // 按Excel表格中字段定义新建数据库表格
             string comment = tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT) && tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT].Count > 0 ? tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_DATABASE_TABLE_COMMENT][0] : string.Empty;
             _CreateTable(tableName, tableInfo, comment, out errorString);
@@ -333,7 +346,8 @@ public class TableExportToMySQLHelper
             foreach (FieldInfo childFieldInfo in fieldInfo.ChildField)
                 _GetOneDatabaseFieldInfo(childFieldInfo, allFieldInfo);
         }
-        else
+        // 忽略未配置导出到数据库信息的字段
+        else if (fieldInfo.DatabaseFieldName != null)
             allFieldInfo.Add(fieldInfo);
     }
 
