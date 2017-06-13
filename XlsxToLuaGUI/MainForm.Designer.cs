@@ -327,9 +327,9 @@
             this.lbProgramPath.AutoSize = true;
             this.lbProgramPath.Location = new System.Drawing.Point(13, 27);
             this.lbProgramPath.Name = "lbProgramPath";
-            this.lbProgramPath.Size = new System.Drawing.Size(89, 12);
+            this.lbProgramPath.Size = new System.Drawing.Size(125, 24);
             this.lbProgramPath.TabIndex = 24;
-            this.lbProgramPath.Text = "工具所在路径：";
+            this.lbProgramPath.Text = "XlsxToLua所在路径：\r\n（不是XlsxToLuaGUI）";
             // 
             // tbProgramPath
             // 

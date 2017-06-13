@@ -5,6 +5,7 @@ using System.Text;
 public class AppValues
 {
     public const string PROGRAM_NAME = "XlsxToLua.exe";
+    public const string GUI_PROGRAM_NAME = "XlsxToLuaGUI.exe";
 
     public const string NEED_COLUMN_INFO_PARAM_STRING = "-columnInfo";
     public const string UNCHECKED_PARAM_STRING = "-unchecked";

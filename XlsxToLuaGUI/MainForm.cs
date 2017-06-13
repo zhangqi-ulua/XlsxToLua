@@ -233,7 +233,8 @@ namespace XlsxToLuaGUI
             {
                 string programPath = tbProgramPath.Text.Trim();
                 string batContent = _GetExecuteParamString();
-                System.Diagnostics.Process.Start(programPath, batContent.Substring(batContent.IndexOf(programPath) + programPath.Length + 1));
+                // System.Diagnostics.Process.Start函数无法识别用/分层的相对路径，故需进行转换
+                System.Diagnostics.Process.Start(programPath.Replace('/', '\\'), batContent.Substring(batContent.IndexOf(programPath) + programPath.Length + 1));
             }
         }
 
@@ -524,6 +525,11 @@ namespace XlsxToLuaGUI
             if (string.IsNullOrEmpty(programPath))
             {
                 MessageBox.Show("必须指定XlsxToLua工具所在路径", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            if (programPath.Contains(AppValues.GUI_PROGRAM_NAME))
+            {
+                MessageBox.Show(string.Format("需要指定的是{0}所在路径而不是{1}所在路径", AppValues.PROGRAM_NAME, AppValues.GUI_PROGRAM_NAME), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             if (!File.Exists(programPath))
