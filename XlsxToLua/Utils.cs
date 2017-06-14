@@ -14,6 +14,37 @@ public class Utils
     private const int OF_SHARE_DENY_NONE = 0x40;
     private static readonly IntPtr HFILE_ERROR = new IntPtr(-1);
 
+
+	private static bool IsFileLocked(string filePath)
+	{
+		if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix) {
+			FileInfo file = new FileInfo (filePath);
+			FileStream stream = null;
+
+			try {
+				stream = file.Open (FileMode.Open, FileAccess.Read, FileShare.None);
+			} catch (IOException) {
+				//the file is unavailable because it is:
+				//still being written to
+				//or being processed by another thread
+				//or does not exist (has already been processed)
+				return true;
+			} finally {
+				if (stream != null)
+					stream.Close ();
+			}
+
+			//file is not locked
+			return false;
+		} else {
+			IntPtr vHandle = _lopen(filePath, OF_READWRITE | OF_SHARE_DENY_NONE);
+			if (vHandle == HFILE_ERROR)
+				return true;
+			CloseHandle(vHandle);
+			return false;
+		}
+	}
+
     /// <summary>
     /// 获取某个文件的状态
     /// </summary>
@@ -21,12 +52,17 @@ public class Utils
     {
         if (File.Exists(filePath))
         {
+			/*
             IntPtr vHandle = _lopen(filePath, OF_READWRITE | OF_SHARE_DENY_NONE);
             if (vHandle == HFILE_ERROR)
                 return FileState.IsOpen;
 
             CloseHandle(vHandle);
             return FileState.Available;
+            */
+			if (IsFileLocked(filePath))
+				return FileState.IsOpen;
+			return FileState.Available;
         }
         else
             return FileState.Inexist;

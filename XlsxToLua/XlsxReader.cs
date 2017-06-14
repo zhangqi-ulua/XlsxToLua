@@ -30,10 +30,12 @@ public class XlsxReader
         try
         {
             // 初始化连接并打开
-            string connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filePath + ";Extended Properties=\"Excel 12.0;HDR=NO;IMEX=1\"";
+			string connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filePath + ";Extended Properties=\"Excel 12.0;HDR=NO;IMEX=1\"";
+			Utils.Log(string.Format("Connect: {0}", filePath), ConsoleColor.Green);
 
             conn = new OleDbConnection(connectionString);
             conn.Open();
+			Utils.Log(string.Format("Connect finished"), ConsoleColor.Green);
 
             // 获取数据源的表定义元数据                       
             DataTable dtSheet = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
