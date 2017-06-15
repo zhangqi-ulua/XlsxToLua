@@ -14,10 +14,45 @@ public class Utils
     private const int OF_SHARE_DENY_NONE = 0x40;
     private static readonly IntPtr HFILE_ERROR = new IntPtr(-1);
 
+	public static bool IsOSX {
+		get {
+			return Environment.OSVersion.Platform == PlatformID.MacOSX
+			|| (Environment.OSVersion.Platform == PlatformID.Unix && (
+			    Directory.Exists ("/Applications")
+			    && Directory.Exists ("/System")
+			    && Directory.Exists ("/Users")
+			    && Directory.Exists ("/Volumes")
+			));
+		}
+	}
+
+	public static bool IsUnix {
+		get {
+			return Environment.OSVersion.Platform == PlatformID.Unix;
+		}
+	}
+
+	public static bool IsLinux {
+		get {
+			return Environment.OSVersion.Platform == PlatformID.Unix && !IsOSX;
+		}
+	}
+
+	public static bool IsWin {
+		get {
+			return !IsOSX && !IsUnix;
+		}
+	}
+
+	public static void NotImplemntedOnOSX(string msg) {
+		if (IsOSX) {
+			throw new NotImplementedException ("Not implemented on OSX: " + msg);
+		}
+	}
 
 	private static bool IsFileLocked(string filePath)
 	{
-		if (Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix) {
+		if (IsOSX || IsUnix) {
 			FileInfo file = new FileInfo (filePath);
 			FileStream stream = null;
 

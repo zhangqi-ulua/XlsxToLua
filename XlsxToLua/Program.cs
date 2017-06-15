@@ -32,6 +32,8 @@ public class Program
     /// </summary>
     static void Main(string[] args)
     {
+		try {
+			
         // 检查第1个参数（Excel表格所在目录）是否正确
         if (args.Length < 1)
             Utils.LogErrorAndExit("错误：未输入Excel表格所在目录");
@@ -808,6 +810,7 @@ public class Program
             // 进行数据库导出
             if (AppValues.IsExportMySQL == true)
             {
+				Utils.NotImplemntedOnOSX ("数据库导出");
                 Utils.Log("\n导出表格数据到MySQL数据库\n");
 
                 string errorString = null;
@@ -832,6 +835,10 @@ public class Program
             // 将错误信息全部输出保存到txt文件中
             Utils.SaveErrorInfoToFile();
         }
+		
+		} catch (Exception e) {
+			Utils.LogErrorAndExit (e.Message);
+		}
 
         Utils.Log("\n按任意键退出本工具");
         Console.ReadKey();

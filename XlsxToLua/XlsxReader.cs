@@ -30,6 +30,7 @@ public class XlsxReader
         try
         {
             // 初始化连接并打开
+//			string connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filePath + ";Extended Properties=\"Excel 12.0;HDR=NO;IMEX=1\"";
 			string connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filePath + ";Extended Properties=\"Excel 12.0;HDR=NO;IMEX=1\"";
 			Utils.Log(string.Format("Connect: {0}", filePath), ConsoleColor.Green);
 
