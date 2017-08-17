@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Assets.Scripts.CsvClass
+namespace Assets.Scripts.CsClass
 {
-    public class TestAllDataTypeData
+    public class TableDataTestAllDataTypePojo
     {
         public int id { get; set; }
         public bool testBool { get; set; }

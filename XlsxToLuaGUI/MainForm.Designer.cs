@@ -83,21 +83,35 @@
             this.cbExcept = new System.Windows.Forms.CheckBox();
             this.tbExceptExcelNames = new System.Windows.Forms.TextBox();
             this.btnChooseExceptExcel = new System.Windows.Forms.Button();
-            this.cbExportCsvClass = new System.Windows.Forms.CheckBox();
-            this.lbExportCsvClassTableNames = new System.Windows.Forms.Label();
-            this.tbExportCsvClassTableNames = new System.Windows.Forms.TextBox();
-            this.btnChooseExportCsvClassFile = new System.Windows.Forms.Button();
-            this.lbExportCsvClassFilePath = new System.Windows.Forms.Label();
-            this.tbExportCsvClassFilePath = new System.Windows.Forms.TextBox();
-            this.btnChooseExportCsvClassFilePath = new System.Windows.Forms.Button();
-            this.lbExportCsvClassNamespace = new System.Windows.Forms.Label();
-            this.tbExportCsvClassNamespace = new System.Windows.Forms.TextBox();
-            this.lbExportCsvClassUsing = new System.Windows.Forms.Label();
-            this.tbExportCsvClassUsing = new System.Windows.Forms.TextBox();
+            this.cbExportCsClass = new System.Windows.Forms.CheckBox();
+            this.lbExportCsClassTableNames = new System.Windows.Forms.Label();
+            this.tbExportCsClassTableNames = new System.Windows.Forms.TextBox();
+            this.btnChooseExportCsClassFile = new System.Windows.Forms.Button();
+            this.lbExportCsClassFilePath = new System.Windows.Forms.Label();
+            this.tbExportCsClassFilePath = new System.Windows.Forms.TextBox();
+            this.btnChooseExportCsClassFilePath = new System.Windows.Forms.Button();
+            this.lbExportCsClassNamespace = new System.Windows.Forms.Label();
+            this.tbExportCsClassNamespace = new System.Windows.Forms.TextBox();
+            this.lbExportCsClassUsing = new System.Windows.Forms.Label();
+            this.tbExportCsClassUsing = new System.Windows.Forms.TextBox();
             this.lbExportCsvClassNamePrefix = new System.Windows.Forms.Label();
             this.tbExportCsvClassNamePrefix = new System.Windows.Forms.TextBox();
             this.lbExportCsvClassNamePostfix = new System.Windows.Forms.Label();
             this.tbExportCsvClassNamePostfix = new System.Windows.Forms.TextBox();
+            this.cbExportJavaClass = new System.Windows.Forms.CheckBox();
+            this.lbExportJavaClassTableNames = new System.Windows.Forms.Label();
+            this.lbExportJavaClassFilePath = new System.Windows.Forms.Label();
+            this.tbExportJavaClassTableNames = new System.Windows.Forms.TextBox();
+            this.lbExportJavaClassPackage = new System.Windows.Forms.Label();
+            this.lbExportJavaClassImport = new System.Windows.Forms.Label();
+            this.cbExportJavaClassIsUseDate = new System.Windows.Forms.CheckBox();
+            this.cbExportJavaClassIsGenerateConstructorWithoutFields = new System.Windows.Forms.CheckBox();
+            this.cbExportJavaClassIsGenerateConstructorWithAllFields = new System.Windows.Forms.CheckBox();
+            this.btnChooseExportJavaClassFile = new System.Windows.Forms.Button();
+            this.tbExportJavaClassFilePath = new System.Windows.Forms.TextBox();
+            this.btnChooseExportJavaClassFilePath = new System.Windows.Forms.Button();
+            this.tbExportJavaClassPackage = new System.Windows.Forms.TextBox();
+            this.tbExportJavaClassImport = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // lbExcelFolderPath
@@ -283,7 +297,7 @@
             // 
             // btnSaveConfig
             // 
-            this.btnSaveConfig.Location = new System.Drawing.Point(668, 538);
+            this.btnSaveConfig.Location = new System.Drawing.Point(343, 628);
             this.btnSaveConfig.Name = "btnSaveConfig";
             this.btnSaveConfig.Size = new System.Drawing.Size(75, 23);
             this.btnSaveConfig.TabIndex = 20;
@@ -293,7 +307,7 @@
             // 
             // btnLoadConfig
             // 
-            this.btnLoadConfig.Location = new System.Drawing.Point(758, 538);
+            this.btnLoadConfig.Location = new System.Drawing.Point(433, 628);
             this.btnLoadConfig.Name = "btnLoadConfig";
             this.btnLoadConfig.Size = new System.Drawing.Size(75, 23);
             this.btnLoadConfig.TabIndex = 21;
@@ -304,7 +318,7 @@
             // btnExecute
             // 
             this.btnExecute.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnExecute.Location = new System.Drawing.Point(880, 527);
+            this.btnExecute.Location = new System.Drawing.Point(555, 617);
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(117, 39);
             this.btnExecute.TabIndex = 22;
@@ -314,7 +328,7 @@
             // 
             // btnGenerateBat
             // 
-            this.btnGenerateBat.Location = new System.Drawing.Point(1042, 538);
+            this.btnGenerateBat.Location = new System.Drawing.Point(717, 628);
             this.btnGenerateBat.Name = "btnGenerateBat";
             this.btnGenerateBat.Size = new System.Drawing.Size(133, 23);
             this.btnGenerateBat.TabIndex = 23;
@@ -594,11 +608,11 @@
             // cbIsUseRelativePath
             // 
             this.cbIsUseRelativePath.AutoSize = true;
-            this.cbIsUseRelativePath.Location = new System.Drawing.Point(669, 497);
+            this.cbIsUseRelativePath.Location = new System.Drawing.Point(356, 597);
             this.cbIsUseRelativePath.Name = "cbIsUseRelativePath";
-            this.cbIsUseRelativePath.Size = new System.Drawing.Size(144, 16);
+            this.cbIsUseRelativePath.Size = new System.Drawing.Size(264, 16);
             this.cbIsUseRelativePath.TabIndex = 51;
-            this.cbIsUseRelativePath.Text = "使用相对路径进行配置";
+            this.cbIsUseRelativePath.Text = "使用相对路径进行配置（相对于本工具路径）";
             this.cbIsUseRelativePath.UseVisualStyleBackColor = true;
             // 
             // cbExcept
@@ -628,120 +642,120 @@
             this.btnChooseExceptExcel.UseVisualStyleBackColor = true;
             this.btnChooseExceptExcel.Click += new System.EventHandler(this.btnChooseExceptExcel_Click);
             // 
-            // cbExportCsvClass
+            // cbExportCsClass
             // 
-            this.cbExportCsvClass.AutoSize = true;
-            this.cbExportCsvClass.Location = new System.Drawing.Point(651, 193);
-            this.cbExportCsvClass.Name = "cbExportCsvClass";
-            this.cbExportCsvClass.Size = new System.Drawing.Size(222, 16);
-            this.cbExportCsvClass.TabIndex = 55;
-            this.cbExportCsvClass.Text = "额外导出部分表格为csv对应C#类文件";
-            this.cbExportCsvClass.UseVisualStyleBackColor = true;
+            this.cbExportCsClass.AutoSize = true;
+            this.cbExportCsClass.Location = new System.Drawing.Point(651, 232);
+            this.cbExportCsClass.Name = "cbExportCsClass";
+            this.cbExportCsClass.Size = new System.Drawing.Size(222, 16);
+            this.cbExportCsClass.TabIndex = 55;
+            this.cbExportCsClass.Text = "额外导出部分表格为csv对应C#类文件";
+            this.cbExportCsClass.UseVisualStyleBackColor = true;
             // 
-            // lbExportCsvClassTableNames
+            // lbExportCsClassTableNames
             // 
-            this.lbExportCsvClassTableNames.AutoSize = true;
-            this.lbExportCsvClassTableNames.Location = new System.Drawing.Point(679, 219);
-            this.lbExportCsvClassTableNames.Name = "lbExportCsvClassTableNames";
-            this.lbExportCsvClassTableNames.Size = new System.Drawing.Size(251, 12);
-            this.lbExportCsvClassTableNames.TabIndex = 56;
-            this.lbExportCsvClassTableNames.Text = "需导出的表格名（用|分隔，全部则用$all）：";
+            this.lbExportCsClassTableNames.AutoSize = true;
+            this.lbExportCsClassTableNames.Location = new System.Drawing.Point(679, 258);
+            this.lbExportCsClassTableNames.Name = "lbExportCsClassTableNames";
+            this.lbExportCsClassTableNames.Size = new System.Drawing.Size(251, 12);
+            this.lbExportCsClassTableNames.TabIndex = 56;
+            this.lbExportCsClassTableNames.Text = "需导出的表格名（用|分隔，全部则用$all）：";
             // 
-            // tbExportCsvClassTableNames
+            // tbExportCsClassTableNames
             // 
-            this.tbExportCsvClassTableNames.Location = new System.Drawing.Point(934, 216);
-            this.tbExportCsvClassTableNames.Name = "tbExportCsvClassTableNames";
-            this.tbExportCsvClassTableNames.Size = new System.Drawing.Size(206, 21);
-            this.tbExportCsvClassTableNames.TabIndex = 57;
+            this.tbExportCsClassTableNames.Location = new System.Drawing.Point(934, 255);
+            this.tbExportCsClassTableNames.Name = "tbExportCsClassTableNames";
+            this.tbExportCsClassTableNames.Size = new System.Drawing.Size(206, 21);
+            this.tbExportCsClassTableNames.TabIndex = 57;
             // 
-            // btnChooseExportCsvClassFile
+            // btnChooseExportCsClassFile
             // 
-            this.btnChooseExportCsvClassFile.Location = new System.Drawing.Point(1155, 214);
-            this.btnChooseExportCsvClassFile.Name = "btnChooseExportCsvClassFile";
-            this.btnChooseExportCsvClassFile.Size = new System.Drawing.Size(75, 23);
-            this.btnChooseExportCsvClassFile.TabIndex = 58;
-            this.btnChooseExportCsvClassFile.Text = "选择";
-            this.btnChooseExportCsvClassFile.UseVisualStyleBackColor = true;
-            this.btnChooseExportCsvClassFile.Click += new System.EventHandler(this.btnChooseExportCsvClassFile_Click);
+            this.btnChooseExportCsClassFile.Location = new System.Drawing.Point(1155, 253);
+            this.btnChooseExportCsClassFile.Name = "btnChooseExportCsClassFile";
+            this.btnChooseExportCsClassFile.Size = new System.Drawing.Size(75, 23);
+            this.btnChooseExportCsClassFile.TabIndex = 58;
+            this.btnChooseExportCsClassFile.Text = "选择";
+            this.btnChooseExportCsClassFile.UseVisualStyleBackColor = true;
+            this.btnChooseExportCsClassFile.Click += new System.EventHandler(this.btnChooseExportCsClassFile_Click);
             // 
-            // lbExportCsvClassFilePath
+            // lbExportCsClassFilePath
             // 
-            this.lbExportCsvClassFilePath.AutoSize = true;
-            this.lbExportCsvClassFilePath.Location = new System.Drawing.Point(679, 251);
-            this.lbExportCsvClassFilePath.Name = "lbExportCsvClassFilePath";
-            this.lbExportCsvClassFilePath.Size = new System.Drawing.Size(113, 12);
-            this.lbExportCsvClassFilePath.TabIndex = 59;
-            this.lbExportCsvClassFilePath.Text = "C#类文件导出路径：";
+            this.lbExportCsClassFilePath.AutoSize = true;
+            this.lbExportCsClassFilePath.Location = new System.Drawing.Point(679, 290);
+            this.lbExportCsClassFilePath.Name = "lbExportCsClassFilePath";
+            this.lbExportCsClassFilePath.Size = new System.Drawing.Size(113, 12);
+            this.lbExportCsClassFilePath.TabIndex = 59;
+            this.lbExportCsClassFilePath.Text = "C#类文件导出路径：";
             // 
-            // tbExportCsvClassFilePath
+            // tbExportCsClassFilePath
             // 
-            this.tbExportCsvClassFilePath.Location = new System.Drawing.Point(790, 244);
-            this.tbExportCsvClassFilePath.Name = "tbExportCsvClassFilePath";
-            this.tbExportCsvClassFilePath.Size = new System.Drawing.Size(350, 21);
-            this.tbExportCsvClassFilePath.TabIndex = 60;
+            this.tbExportCsClassFilePath.Location = new System.Drawing.Point(790, 283);
+            this.tbExportCsClassFilePath.Name = "tbExportCsClassFilePath";
+            this.tbExportCsClassFilePath.Size = new System.Drawing.Size(350, 21);
+            this.tbExportCsClassFilePath.TabIndex = 60;
             // 
-            // btnChooseExportCsvClassFilePath
+            // btnChooseExportCsClassFilePath
             // 
-            this.btnChooseExportCsvClassFilePath.Location = new System.Drawing.Point(1155, 246);
-            this.btnChooseExportCsvClassFilePath.Name = "btnChooseExportCsvClassFilePath";
-            this.btnChooseExportCsvClassFilePath.Size = new System.Drawing.Size(75, 23);
-            this.btnChooseExportCsvClassFilePath.TabIndex = 61;
-            this.btnChooseExportCsvClassFilePath.Text = "选择";
-            this.btnChooseExportCsvClassFilePath.UseVisualStyleBackColor = true;
-            this.btnChooseExportCsvClassFilePath.Click += new System.EventHandler(this.btnChooseExportCsvClassFilePath_Click);
+            this.btnChooseExportCsClassFilePath.Location = new System.Drawing.Point(1155, 285);
+            this.btnChooseExportCsClassFilePath.Name = "btnChooseExportCsClassFilePath";
+            this.btnChooseExportCsClassFilePath.Size = new System.Drawing.Size(75, 23);
+            this.btnChooseExportCsClassFilePath.TabIndex = 61;
+            this.btnChooseExportCsClassFilePath.Text = "选择";
+            this.btnChooseExportCsClassFilePath.UseVisualStyleBackColor = true;
+            this.btnChooseExportCsClassFilePath.Click += new System.EventHandler(this.btnChooseExportCsClassFilePath_Click);
             // 
-            // lbExportCsvClassNamespace
+            // lbExportCsClassNamespace
             // 
-            this.lbExportCsvClassNamespace.AutoSize = true;
-            this.lbExportCsvClassNamespace.Location = new System.Drawing.Point(679, 283);
-            this.lbExportCsvClassNamespace.Name = "lbExportCsvClassNamespace";
-            this.lbExportCsvClassNamespace.Size = new System.Drawing.Size(113, 12);
-            this.lbExportCsvClassNamespace.TabIndex = 62;
-            this.lbExportCsvClassNamespace.Text = "C#类所属命名空间：";
+            this.lbExportCsClassNamespace.AutoSize = true;
+            this.lbExportCsClassNamespace.Location = new System.Drawing.Point(679, 322);
+            this.lbExportCsClassNamespace.Name = "lbExportCsClassNamespace";
+            this.lbExportCsClassNamespace.Size = new System.Drawing.Size(113, 12);
+            this.lbExportCsClassNamespace.TabIndex = 62;
+            this.lbExportCsClassNamespace.Text = "C#类所属命名空间：";
             // 
-            // tbExportCsvClassNamespace
+            // tbExportCsClassNamespace
             // 
-            this.tbExportCsvClassNamespace.Location = new System.Drawing.Point(790, 280);
-            this.tbExportCsvClassNamespace.Name = "tbExportCsvClassNamespace";
-            this.tbExportCsvClassNamespace.Size = new System.Drawing.Size(350, 21);
-            this.tbExportCsvClassNamespace.TabIndex = 63;
+            this.tbExportCsClassNamespace.Location = new System.Drawing.Point(790, 319);
+            this.tbExportCsClassNamespace.Name = "tbExportCsClassNamespace";
+            this.tbExportCsClassNamespace.Size = new System.Drawing.Size(350, 21);
+            this.tbExportCsClassNamespace.TabIndex = 63;
             // 
-            // lbExportCsvClassUsing
+            // lbExportCsClassUsing
             // 
-            this.lbExportCsvClassUsing.AutoSize = true;
-            this.lbExportCsvClassUsing.Location = new System.Drawing.Point(679, 315);
-            this.lbExportCsvClassUsing.Name = "lbExportCsvClassUsing";
-            this.lbExportCsvClassUsing.Size = new System.Drawing.Size(197, 12);
-            this.lbExportCsvClassUsing.TabIndex = 64;
-            this.lbExportCsvClassUsing.Text = "C#类引用类库（用英文逗号分隔）：";
+            this.lbExportCsClassUsing.AutoSize = true;
+            this.lbExportCsClassUsing.Location = new System.Drawing.Point(679, 354);
+            this.lbExportCsClassUsing.Name = "lbExportCsClassUsing";
+            this.lbExportCsClassUsing.Size = new System.Drawing.Size(197, 12);
+            this.lbExportCsClassUsing.TabIndex = 64;
+            this.lbExportCsClassUsing.Text = "C#类引用类库（用英文逗号分隔）：";
             // 
-            // tbExportCsvClassUsing
+            // tbExportCsClassUsing
             // 
-            this.tbExportCsvClassUsing.Location = new System.Drawing.Point(880, 312);
-            this.tbExportCsvClassUsing.Name = "tbExportCsvClassUsing";
-            this.tbExportCsvClassUsing.Size = new System.Drawing.Size(350, 21);
-            this.tbExportCsvClassUsing.TabIndex = 65;
+            this.tbExportCsClassUsing.Location = new System.Drawing.Point(880, 351);
+            this.tbExportCsClassUsing.Name = "tbExportCsClassUsing";
+            this.tbExportCsClassUsing.Size = new System.Drawing.Size(350, 21);
+            this.tbExportCsClassUsing.TabIndex = 65;
             // 
             // lbExportCsvClassNamePrefix
             // 
             this.lbExportCsvClassNamePrefix.AutoSize = true;
-            this.lbExportCsvClassNamePrefix.Location = new System.Drawing.Point(679, 347);
+            this.lbExportCsvClassNamePrefix.Location = new System.Drawing.Point(649, 197);
             this.lbExportCsvClassNamePrefix.Name = "lbExportCsvClassNamePrefix";
-            this.lbExportCsvClassNamePrefix.Size = new System.Drawing.Size(161, 12);
+            this.lbExportCsvClassNamePrefix.Size = new System.Drawing.Size(209, 12);
             this.lbExportCsvClassNamePrefix.TabIndex = 66;
-            this.lbExportCsvClassNamePrefix.Text = "自动生成类名时的类名前缀：";
+            this.lbExportCsvClassNamePrefix.Text = "自动生成C#或Java类名时的类名前缀：";
             // 
             // tbExportCsvClassNamePrefix
             // 
-            this.tbExportCsvClassNamePrefix.Location = new System.Drawing.Point(840, 344);
+            this.tbExportCsvClassNamePrefix.Location = new System.Drawing.Point(864, 194);
             this.tbExportCsvClassNamePrefix.Name = "tbExportCsvClassNamePrefix";
-            this.tbExportCsvClassNamePrefix.Size = new System.Drawing.Size(149, 21);
+            this.tbExportCsvClassNamePrefix.Size = new System.Drawing.Size(144, 21);
             this.tbExportCsvClassNamePrefix.TabIndex = 67;
             // 
             // lbExportCsvClassNamePostfix
             // 
             this.lbExportCsvClassNamePostfix.AutoSize = true;
-            this.lbExportCsvClassNamePostfix.Location = new System.Drawing.Point(1036, 350);
+            this.lbExportCsvClassNamePostfix.Location = new System.Drawing.Point(1039, 197);
             this.lbExportCsvClassNamePostfix.Name = "lbExportCsvClassNamePostfix";
             this.lbExportCsvClassNamePostfix.Size = new System.Drawing.Size(41, 12);
             this.lbExportCsvClassNamePostfix.TabIndex = 68;
@@ -749,31 +763,171 @@
             // 
             // tbExportCsvClassNamePostfix
             // 
-            this.tbExportCsvClassNamePostfix.Location = new System.Drawing.Point(1081, 344);
+            this.tbExportCsvClassNamePostfix.Location = new System.Drawing.Point(1086, 194);
             this.tbExportCsvClassNamePostfix.Name = "tbExportCsvClassNamePostfix";
-            this.tbExportCsvClassNamePostfix.Size = new System.Drawing.Size(149, 21);
+            this.tbExportCsvClassNamePostfix.Size = new System.Drawing.Size(144, 21);
             this.tbExportCsvClassNamePostfix.TabIndex = 69;
+            // 
+            // cbExportJavaClass
+            // 
+            this.cbExportJavaClass.AutoSize = true;
+            this.cbExportJavaClass.Location = new System.Drawing.Point(651, 391);
+            this.cbExportJavaClass.Name = "cbExportJavaClass";
+            this.cbExportJavaClass.Size = new System.Drawing.Size(234, 16);
+            this.cbExportJavaClass.TabIndex = 70;
+            this.cbExportJavaClass.Text = "额外导出部分表格为csv对应Java类文件";
+            this.cbExportJavaClass.UseVisualStyleBackColor = true;
+            // 
+            // lbExportJavaClassTableNames
+            // 
+            this.lbExportJavaClassTableNames.AutoSize = true;
+            this.lbExportJavaClassTableNames.Location = new System.Drawing.Point(679, 417);
+            this.lbExportJavaClassTableNames.Name = "lbExportJavaClassTableNames";
+            this.lbExportJavaClassTableNames.Size = new System.Drawing.Size(251, 12);
+            this.lbExportJavaClassTableNames.TabIndex = 71;
+            this.lbExportJavaClassTableNames.Text = "需导出的表格名（用|分隔，全部则用$all）：";
+            // 
+            // lbExportJavaClassFilePath
+            // 
+            this.lbExportJavaClassFilePath.AutoSize = true;
+            this.lbExportJavaClassFilePath.Location = new System.Drawing.Point(679, 449);
+            this.lbExportJavaClassFilePath.Name = "lbExportJavaClassFilePath";
+            this.lbExportJavaClassFilePath.Size = new System.Drawing.Size(125, 12);
+            this.lbExportJavaClassFilePath.TabIndex = 72;
+            this.lbExportJavaClassFilePath.Text = "Java类文件导出路径：";
+            // 
+            // tbExportJavaClassTableNames
+            // 
+            this.tbExportJavaClassTableNames.Location = new System.Drawing.Point(936, 414);
+            this.tbExportJavaClassTableNames.Name = "tbExportJavaClassTableNames";
+            this.tbExportJavaClassTableNames.Size = new System.Drawing.Size(206, 21);
+            this.tbExportJavaClassTableNames.TabIndex = 73;
+            // 
+            // lbExportJavaClassPackage
+            // 
+            this.lbExportJavaClassPackage.AutoSize = true;
+            this.lbExportJavaClassPackage.Location = new System.Drawing.Point(679, 483);
+            this.lbExportJavaClassPackage.Name = "lbExportJavaClassPackage";
+            this.lbExportJavaClassPackage.Size = new System.Drawing.Size(101, 12);
+            this.lbExportJavaClassPackage.TabIndex = 74;
+            this.lbExportJavaClassPackage.Text = "Java类对应包名：";
+            // 
+            // lbExportJavaClassImport
+            // 
+            this.lbExportJavaClassImport.AutoSize = true;
+            this.lbExportJavaClassImport.Location = new System.Drawing.Point(679, 515);
+            this.lbExportJavaClassImport.Name = "lbExportJavaClassImport";
+            this.lbExportJavaClassImport.Size = new System.Drawing.Size(209, 12);
+            this.lbExportJavaClassImport.TabIndex = 75;
+            this.lbExportJavaClassImport.Text = "Java类引用类库（用英文逗号分隔）：";
+            // 
+            // cbExportJavaClassIsUseDate
+            // 
+            this.cbExportJavaClassIsUseDate.AutoSize = true;
+            this.cbExportJavaClassIsUseDate.Checked = true;
+            this.cbExportJavaClassIsUseDate.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbExportJavaClassIsUseDate.Location = new System.Drawing.Point(681, 547);
+            this.cbExportJavaClassIsUseDate.Name = "cbExportJavaClassIsUseDate";
+            this.cbExportJavaClassIsUseDate.Size = new System.Drawing.Size(192, 16);
+            this.cbExportJavaClassIsUseDate.TabIndex = 76;
+            this.cbExportJavaClassIsUseDate.Text = "时间型使用Date而不是Calendar";
+            this.cbExportJavaClassIsUseDate.UseVisualStyleBackColor = true;
+            // 
+            // cbExportJavaClassIsGenerateConstructorWithoutFields
+            // 
+            this.cbExportJavaClassIsGenerateConstructorWithoutFields.AutoSize = true;
+            this.cbExportJavaClassIsGenerateConstructorWithoutFields.Location = new System.Drawing.Point(900, 547);
+            this.cbExportJavaClassIsGenerateConstructorWithoutFields.Name = "cbExportJavaClassIsGenerateConstructorWithoutFields";
+            this.cbExportJavaClassIsGenerateConstructorWithoutFields.Size = new System.Drawing.Size(120, 16);
+            this.cbExportJavaClassIsGenerateConstructorWithoutFields.TabIndex = 77;
+            this.cbExportJavaClassIsGenerateConstructorWithoutFields.Text = "生成无参构造函数";
+            this.cbExportJavaClassIsGenerateConstructorWithoutFields.UseVisualStyleBackColor = true;
+            // 
+            // cbExportJavaClassIsGenerateConstructorWithAllFields
+            // 
+            this.cbExportJavaClassIsGenerateConstructorWithAllFields.AutoSize = true;
+            this.cbExportJavaClassIsGenerateConstructorWithAllFields.Location = new System.Drawing.Point(1062, 547);
+            this.cbExportJavaClassIsGenerateConstructorWithAllFields.Name = "cbExportJavaClassIsGenerateConstructorWithAllFields";
+            this.cbExportJavaClassIsGenerateConstructorWithAllFields.Size = new System.Drawing.Size(168, 16);
+            this.cbExportJavaClassIsGenerateConstructorWithAllFields.TabIndex = 78;
+            this.cbExportJavaClassIsGenerateConstructorWithAllFields.Text = "生成含所有参数的构造函数";
+            this.cbExportJavaClassIsGenerateConstructorWithAllFields.UseVisualStyleBackColor = true;
+            // 
+            // btnChooseExportJavaClassFile
+            // 
+            this.btnChooseExportJavaClassFile.Location = new System.Drawing.Point(1155, 412);
+            this.btnChooseExportJavaClassFile.Name = "btnChooseExportJavaClassFile";
+            this.btnChooseExportJavaClassFile.Size = new System.Drawing.Size(75, 23);
+            this.btnChooseExportJavaClassFile.TabIndex = 79;
+            this.btnChooseExportJavaClassFile.Text = "选择";
+            this.btnChooseExportJavaClassFile.UseVisualStyleBackColor = true;
+            this.btnChooseExportJavaClassFile.Click += new System.EventHandler(this.btnChooseExportJavaClassFile_Click);
+            // 
+            // tbExportJavaClassFilePath
+            // 
+            this.tbExportJavaClassFilePath.Location = new System.Drawing.Point(802, 446);
+            this.tbExportJavaClassFilePath.Name = "tbExportJavaClassFilePath";
+            this.tbExportJavaClassFilePath.Size = new System.Drawing.Size(340, 21);
+            this.tbExportJavaClassFilePath.TabIndex = 80;
+            // 
+            // btnChooseExportJavaClassFilePath
+            // 
+            this.btnChooseExportJavaClassFilePath.Location = new System.Drawing.Point(1155, 444);
+            this.btnChooseExportJavaClassFilePath.Name = "btnChooseExportJavaClassFilePath";
+            this.btnChooseExportJavaClassFilePath.Size = new System.Drawing.Size(75, 23);
+            this.btnChooseExportJavaClassFilePath.TabIndex = 81;
+            this.btnChooseExportJavaClassFilePath.Text = "选择";
+            this.btnChooseExportJavaClassFilePath.UseVisualStyleBackColor = true;
+            this.btnChooseExportJavaClassFilePath.Click += new System.EventHandler(this.btnChooseExportJavaClassFilePath_Click);
+            // 
+            // tbExportJavaClassPackage
+            // 
+            this.tbExportJavaClassPackage.Location = new System.Drawing.Point(802, 480);
+            this.tbExportJavaClassPackage.Name = "tbExportJavaClassPackage";
+            this.tbExportJavaClassPackage.Size = new System.Drawing.Size(340, 21);
+            this.tbExportJavaClassPackage.TabIndex = 82;
+            // 
+            // tbExportJavaClassImport
+            // 
+            this.tbExportJavaClassImport.Location = new System.Drawing.Point(894, 512);
+            this.tbExportJavaClassImport.Name = "tbExportJavaClassImport";
+            this.tbExportJavaClassImport.Size = new System.Drawing.Size(336, 21);
+            this.tbExportJavaClassImport.TabIndex = 83;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1246, 587);
+            this.ClientSize = new System.Drawing.Size(1246, 678);
+            this.Controls.Add(this.tbExportJavaClassImport);
+            this.Controls.Add(this.tbExportJavaClassPackage);
+            this.Controls.Add(this.btnChooseExportJavaClassFilePath);
+            this.Controls.Add(this.tbExportJavaClassFilePath);
+            this.Controls.Add(this.btnChooseExportJavaClassFile);
+            this.Controls.Add(this.cbExportJavaClassIsGenerateConstructorWithAllFields);
+            this.Controls.Add(this.cbExportJavaClassIsGenerateConstructorWithoutFields);
+            this.Controls.Add(this.cbExportJavaClassIsUseDate);
+            this.Controls.Add(this.lbExportJavaClassImport);
+            this.Controls.Add(this.lbExportJavaClassPackage);
+            this.Controls.Add(this.tbExportJavaClassTableNames);
+            this.Controls.Add(this.lbExportJavaClassFilePath);
+            this.Controls.Add(this.lbExportJavaClassTableNames);
+            this.Controls.Add(this.cbExportJavaClass);
             this.Controls.Add(this.tbExportCsvClassNamePostfix);
             this.Controls.Add(this.lbExportCsvClassNamePostfix);
             this.Controls.Add(this.tbExportCsvClassNamePrefix);
             this.Controls.Add(this.lbExportCsvClassNamePrefix);
-            this.Controls.Add(this.tbExportCsvClassUsing);
-            this.Controls.Add(this.lbExportCsvClassUsing);
-            this.Controls.Add(this.tbExportCsvClassNamespace);
-            this.Controls.Add(this.lbExportCsvClassNamespace);
-            this.Controls.Add(this.btnChooseExportCsvClassFilePath);
-            this.Controls.Add(this.tbExportCsvClassFilePath);
-            this.Controls.Add(this.lbExportCsvClassFilePath);
-            this.Controls.Add(this.btnChooseExportCsvClassFile);
-            this.Controls.Add(this.tbExportCsvClassTableNames);
-            this.Controls.Add(this.lbExportCsvClassTableNames);
-            this.Controls.Add(this.cbExportCsvClass);
+            this.Controls.Add(this.tbExportCsClassUsing);
+            this.Controls.Add(this.lbExportCsClassUsing);
+            this.Controls.Add(this.tbExportCsClassNamespace);
+            this.Controls.Add(this.lbExportCsClassNamespace);
+            this.Controls.Add(this.btnChooseExportCsClassFilePath);
+            this.Controls.Add(this.tbExportCsClassFilePath);
+            this.Controls.Add(this.lbExportCsClassFilePath);
+            this.Controls.Add(this.btnChooseExportCsClassFile);
+            this.Controls.Add(this.tbExportCsClassTableNames);
+            this.Controls.Add(this.lbExportCsClassTableNames);
+            this.Controls.Add(this.cbExportCsClass);
             this.Controls.Add(this.btnChooseExceptExcel);
             this.Controls.Add(this.tbExceptExcelNames);
             this.Controls.Add(this.cbExcept);
@@ -897,21 +1051,35 @@
         private System.Windows.Forms.CheckBox cbExcept;
         private System.Windows.Forms.TextBox tbExceptExcelNames;
         private System.Windows.Forms.Button btnChooseExceptExcel;
-        private System.Windows.Forms.CheckBox cbExportCsvClass;
-        private System.Windows.Forms.Label lbExportCsvClassTableNames;
-        private System.Windows.Forms.TextBox tbExportCsvClassTableNames;
-        private System.Windows.Forms.Button btnChooseExportCsvClassFile;
-        private System.Windows.Forms.Label lbExportCsvClassFilePath;
-        private System.Windows.Forms.TextBox tbExportCsvClassFilePath;
-        private System.Windows.Forms.Button btnChooseExportCsvClassFilePath;
-        private System.Windows.Forms.Label lbExportCsvClassNamespace;
-        private System.Windows.Forms.TextBox tbExportCsvClassNamespace;
-        private System.Windows.Forms.Label lbExportCsvClassUsing;
-        private System.Windows.Forms.TextBox tbExportCsvClassUsing;
+        private System.Windows.Forms.CheckBox cbExportCsClass;
+        private System.Windows.Forms.Label lbExportCsClassTableNames;
+        private System.Windows.Forms.TextBox tbExportCsClassTableNames;
+        private System.Windows.Forms.Button btnChooseExportCsClassFile;
+        private System.Windows.Forms.Label lbExportCsClassFilePath;
+        private System.Windows.Forms.TextBox tbExportCsClassFilePath;
+        private System.Windows.Forms.Button btnChooseExportCsClassFilePath;
+        private System.Windows.Forms.Label lbExportCsClassNamespace;
+        private System.Windows.Forms.TextBox tbExportCsClassNamespace;
+        private System.Windows.Forms.Label lbExportCsClassUsing;
+        private System.Windows.Forms.TextBox tbExportCsClassUsing;
         private System.Windows.Forms.Label lbExportCsvClassNamePrefix;
         private System.Windows.Forms.TextBox tbExportCsvClassNamePrefix;
         private System.Windows.Forms.Label lbExportCsvClassNamePostfix;
         private System.Windows.Forms.TextBox tbExportCsvClassNamePostfix;
+        private System.Windows.Forms.CheckBox cbExportJavaClass;
+        private System.Windows.Forms.Label lbExportJavaClassTableNames;
+        private System.Windows.Forms.Label lbExportJavaClassFilePath;
+        private System.Windows.Forms.TextBox tbExportJavaClassTableNames;
+        private System.Windows.Forms.Label lbExportJavaClassPackage;
+        private System.Windows.Forms.Label lbExportJavaClassImport;
+        private System.Windows.Forms.CheckBox cbExportJavaClassIsUseDate;
+        private System.Windows.Forms.CheckBox cbExportJavaClassIsGenerateConstructorWithoutFields;
+        private System.Windows.Forms.CheckBox cbExportJavaClassIsGenerateConstructorWithAllFields;
+        private System.Windows.Forms.Button btnChooseExportJavaClassFile;
+        private System.Windows.Forms.TextBox tbExportJavaClassFilePath;
+        private System.Windows.Forms.Button btnChooseExportJavaClassFilePath;
+        private System.Windows.Forms.TextBox tbExportJavaClassPackage;
+        private System.Windows.Forms.TextBox tbExportJavaClassImport;
     }
 }
 

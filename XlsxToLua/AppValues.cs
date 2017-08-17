@@ -85,12 +85,22 @@ public class AppValues
     /// <summary>
     /// 声明将指定的Excel文件额外导出为csv对应C#类文件
     /// </summary>
-    public const string EXPORT_CSV_CLASS_PARAM_STRING = "-exportCsvClass";
+    public const string EXPORT_CS_CLASS_PARAM_STRING = "-exportCsClass";
 
     /// <summary>
     /// 声明导出与csv对应C#类文件的参数
     /// </summary>
-    public const string EXPORT_CSV_CLASS_PARAM_PARAM_STRING = "-exportCsvClassParam";
+    public const string EXPORT_CS_CLASS_PARAM_PARAM_STRING = "-exportCsClassParam";
+
+    /// <summary>
+    /// 声明将指定的Excel文件额外导出为csv对应Java类文件
+    /// </summary>
+    public const string EXPORT_JAVA_CLASS_PARAM_STRING = "-exportJavaClass";
+
+    /// <summary>
+    /// 声明导出与csv对应Java类文件的参数
+    /// </summary>
+    public const string EXPORT_JAVA_CLASS_PARAM_PARAM_STRING = "-exportJavaClassParam";
 
     /// <summary>
     /// 声明将指定的Excel文件额外导出为json文件
@@ -130,27 +140,62 @@ public class AppValues
     /// <summary>
     /// 导出csv对应C#类文件参数下属的具体参数，用于配置导出路径
     /// </summary>
-    public const string EXPORT_CSV_CLASS_PARAM_EXPORT_PATH_PARAM_STRING = "exportPath";
-
-    /// <summary>
-    /// 导出csv对应C#类文件参数下属的具体参数，用于配置自动按规则声明类名时，在类名前增加的前缀
-    /// </summary>
-    public const string EXPORT_CSV_CLASS_PARAM_CLASS_NAME_PREFIX = "classNamePrefix";
-
-    /// <summary>
-    /// 导出csv对应C#类文件参数下属的具体参数，用于配置自动按规则声明类名时，在类名前增加的后缀
-    /// </summary>
-    public const string EXPORT_CSV_CLASS_PARAM_CLASS_NAME_POSTFIX = "classNamePostfix";
+    public const string EXPORT_CS_CLASS_PARAM_EXPORT_PATH_PARAM_STRING = "exportPath";
 
     /// <summary>
     /// 导出csv对应C#类文件参数下属的具体参数，用于配置命名空间
     /// </summary>
-    public const string EXPORT_CSV_CLASS_PARAM_NAMESPACE_PARAM_STRING = "namespace";
+    public const string EXPORT_CS_CLASS_PARAM_NAMESPACE_PARAM_STRING = "namespace";
 
     /// <summary>
     /// 导出csv对应C#类文件参数下属的具体参数，用于配置引用类库
     /// </summary>
-    public const string EXPORT_CSV_CLASS_PARAM_USING_PARAM_STRING = "using";
+    public const string EXPORT_CS_CLASS_PARAM_USING_PARAM_STRING = "using";
+
+    /// <summary>
+    /// 导出csv对应Java类文件参数下属的具体参数，用于配置导出路径
+    /// </summary>
+    public const string EXPORT_JAVA_CLASS_PARAM_EXPORT_PATH_PARAM_STRING = "exportPath";
+
+    /// <summary>
+    /// 导出csv对应Java类文件参数下属的具体参数，用于配置包名
+    /// </summary>
+    public const string EXPORT_JAVA_CLASS_PARAM_PACKAGE_PARAM_STRING = "package";
+
+    /// <summary>
+    /// 导出csv对应Java类文件参数下属的具体参数，用于配置引用类库
+    /// </summary>
+    public const string EXPORT_JAVA_CLASS_PARAM_IMPORT_PARAM_STRING = "import";
+
+    /// <summary>
+    /// 导出csv对应Java类文件参数下属的具体参数，用于配置是否将日期型转为Date而不是Calendar类型
+    /// </summary>
+    public const string EXPORT_JAVA_CLASS_PARAM_IS_USE_DATE_PARAM_STRING = "isUseDate";
+
+    /// <summary>
+    /// 导出csv对应Java类文件参数下属的具体参数，用于配置是否生成无参构造函数
+    /// </summary>
+    public const string EXPORT_JAVA_CLASS_PARAM_IS_GENERATE_CONSTRUCTOR_WITHOUT_FIELDS_PARAM_STRING = "isGenerateConstructorWithoutFields";
+
+    /// <summary>
+    /// 导出csv对应Java类文件参数下属的具体参数，用于配置是否生成含全部参数的构造函数
+    /// </summary>
+    public const string EXPORT_JAVA_CLASS_PARAM_IS_GENERATE_CONSTRUCTOR_WITH_ALL_FIELDS_PARAM_STRING = "isGenerateConstructorWithAllFields";
+
+    /// <summary>
+    /// 对导出csv对应C#或Java类文件进行自动命名的参数
+    /// </summary>
+    public const string AUTO_NAME_CSV_CLASS_PARAM_STRING = "-autoNameCsvClassParam";
+
+    /// <summary>
+    /// 对导出csv对应C#或Java类文件自动命名参数下属的具体参数，用于配置在类名前增加的前缀
+    /// </summary>
+    public const string AUTO_NAME_CSV_CLASS_PARAM_CLASS_NAME_PREFIX_PARAM_STRING = "classNamePrefix";
+
+    /// <summary>
+    /// 对导出csv对应C#或Java类文件自动命名参数下属的具体参数，用于配置在类名前增加的后缀
+    /// </summary>
+    public const string AUTO_NAME_CSV_CLASS_PARAM_CLASS_NAME_POSTFIX_PARAM_STRING = "classNamePostfix";
 
     /// <summary>
     /// 导出json文件参数下属的具体参数，用于配置导出路径
@@ -170,7 +215,12 @@ public class AppValues
     /// <summary>
     /// 导出csv对应C#类文件的扩展名（不含点号）
     /// </summary>
-    public static string EXPORT_CSV_CLASS_FILE_EXTENSION = "cs";
+    public static string EXPORT_CS_CLASS_FILE_EXTENSION = "cs";
+
+    /// <summary>
+    /// 导出csv对应Java类文件的扩展名（不含点号）
+    /// </summary>
+    public static string EXPORT_JAVA_CLASS_FILE_EXTENSION = "java";
 
     /// <summary>
     /// 配置文件（配置自定义的检查规则）的文件名
@@ -201,7 +251,7 @@ public class AppValues
     public const string CONFIG_NAME_EXPORT_DATABASE_WRITE_NULL_FOR_EMPTY_STRING = "exportDatabaseWriteNullForEmptyString";
     // 声明某张表格导出为lua table时，是否将主键列的值作为table中的元素
     public const string CONFIG_NAME_ADD_KEY_TO_LUA_TABLE = "addKeyToLuaTable";
-    // 声明某张表格导出csv对应C#类的类名
+    // 声明某张表格导出csv对应C#或Java文件的类名
     public const string CONFIG_NAME_EXPORT_CSV_CLASS_NAME = "exportCsvClassName";
 
     // 声明对某张表格不进行默认导出的参数配置
@@ -393,32 +443,67 @@ public class AppValues
     /// <summary>
     /// 存储本次要额外导出为csv对应C#类文件的Excel文件名
     /// </summary>
-    public static List<string> ExportCsvClassTableNames = new List<string>();
+    public static List<string> ExportCsClassTableNames = new List<string>();
 
     /// <summary>
     /// 导出csv对应C#类文件的存储路径
     /// </summary>
-    public static string ExportCsvClassPath = null;
-
-    /// <summary>
-    /// 导出csv对应C#类的类名前缀
-    /// </summary>
-    public static string ExportCsvClassClassNamePrefix = null;
-
-    /// <summary>
-    /// 导出csv对应C#类的类名后缀
-    /// </summary>
-    public static string ExportCsvClassClassNamePostfix = null;
+    public static string ExportCsClassPath = null;
 
     /// <summary>
     /// 导出csv对应C#类文件中的命名空间
     /// </summary>
-    public static string ExportCsvClassNamespace = null;
+    public static string ExportCsClassNamespace = null;
 
     /// <summary>
     /// 导出csv对应C#类文件中的引用类库
     /// </summary>
-    public static List<string> ExportCsvClassUsing = null;
+    public static List<string> ExportCsClassUsing = null;
+
+    /// <summary>
+    /// 存储本次要额外导出为csv对应Java类文件的Excel文件名
+    /// </summary>
+    public static List<string> ExportJavaClassTableNames = new List<string>();
+
+    /// <summary>
+    /// 导出csv对应Java类文件的存储路径
+    /// </summary>
+    public static string ExportJavaClassPath = null;
+
+    /// <summary>
+    /// 导出csv对应Java类文件的包名
+    /// </summary>
+    public static string ExportJavaClassPackage = null;
+
+    /// <summary>
+    /// 导出csv对应Java类文件中的引用类库
+    /// </summary>
+    public static List<string> ExportJavaClassImport = null;
+
+    /// <summary>
+    /// 导出csv对应Java类文件中，是否将时间型转为Date而不是Calendar，默认为true
+    /// </summary>
+    public static bool ExportJavaClassIsUseDate = true;
+
+    /// <summary>
+    /// 导出csv对应Java类文件中，是否生成无参构造函数，默认为false
+    /// </summary>
+    public static bool ExportJavaClassisGenerateConstructorWithoutFields = false;
+
+    /// <summary>
+    /// 导出csv对应Java类文件中，是否生成含全部参数的构造函数，默认为false
+    /// </summary>
+    public static bool ExportJavaClassIsGenerateConstructorWithAllFields = false;
+
+    /// <summary>
+    /// 导出csv对应C#或Java类的类名前缀
+    /// </summary>
+    public static string ExportCsvClassClassNamePrefix = null;
+
+    /// <summary>
+    /// 导出csv对应C#或Java类的类名后缀
+    /// </summary>
+    public static string ExportCsvClassClassNamePostfix = null;
 
     /// <summary>
     /// 存储本次要额外导出为json文件的Excel文件名
