@@ -112,6 +112,8 @@
             this.btnChooseExportJavaClassFilePath = new System.Windows.Forms.Button();
             this.tbExportJavaClassPackage = new System.Windows.Forms.TextBox();
             this.tbExportJavaClassImport = new System.Windows.Forms.TextBox();
+            this.cbIsExportJsonArrayFormat = new System.Windows.Forms.CheckBox();
+            this.cbIsExportJsonMapIncludeKeyColumnValue = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // lbExcelFolderPath
@@ -297,7 +299,7 @@
             // 
             // btnSaveConfig
             // 
-            this.btnSaveConfig.Location = new System.Drawing.Point(343, 628);
+            this.btnSaveConfig.Location = new System.Drawing.Point(679, 635);
             this.btnSaveConfig.Name = "btnSaveConfig";
             this.btnSaveConfig.Size = new System.Drawing.Size(75, 23);
             this.btnSaveConfig.TabIndex = 20;
@@ -307,7 +309,7 @@
             // 
             // btnLoadConfig
             // 
-            this.btnLoadConfig.Location = new System.Drawing.Point(433, 628);
+            this.btnLoadConfig.Location = new System.Drawing.Point(769, 635);
             this.btnLoadConfig.Name = "btnLoadConfig";
             this.btnLoadConfig.Size = new System.Drawing.Size(75, 23);
             this.btnLoadConfig.TabIndex = 21;
@@ -318,7 +320,7 @@
             // btnExecute
             // 
             this.btnExecute.Font = new System.Drawing.Font("宋体", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.btnExecute.Location = new System.Drawing.Point(555, 617);
+            this.btnExecute.Location = new System.Drawing.Point(891, 624);
             this.btnExecute.Name = "btnExecute";
             this.btnExecute.Size = new System.Drawing.Size(117, 39);
             this.btnExecute.TabIndex = 22;
@@ -328,7 +330,7 @@
             // 
             // btnGenerateBat
             // 
-            this.btnGenerateBat.Location = new System.Drawing.Point(717, 628);
+            this.btnGenerateBat.Location = new System.Drawing.Point(1053, 635);
             this.btnGenerateBat.Name = "btnGenerateBat";
             this.btnGenerateBat.Size = new System.Drawing.Size(133, 23);
             this.btnGenerateBat.TabIndex = 23;
@@ -608,7 +610,7 @@
             // cbIsUseRelativePath
             // 
             this.cbIsUseRelativePath.AutoSize = true;
-            this.cbIsUseRelativePath.Location = new System.Drawing.Point(356, 597);
+            this.cbIsUseRelativePath.Location = new System.Drawing.Point(691, 596);
             this.cbIsUseRelativePath.Name = "cbIsUseRelativePath";
             this.cbIsUseRelativePath.Size = new System.Drawing.Size(264, 16);
             this.cbIsUseRelativePath.TabIndex = 51;
@@ -894,11 +896,37 @@
             this.tbExportJavaClassImport.Size = new System.Drawing.Size(336, 21);
             this.tbExportJavaClassImport.TabIndex = 83;
             // 
+            // cbIsExportJsonArrayFormat
+            // 
+            this.cbIsExportJsonArrayFormat.AutoSize = true;
+            this.cbIsExportJsonArrayFormat.Checked = true;
+            this.cbIsExportJsonArrayFormat.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbIsExportJsonArrayFormat.Location = new System.Drawing.Point(45, 581);
+            this.cbIsExportJsonArrayFormat.Name = "cbIsExportJsonArrayFormat";
+            this.cbIsExportJsonArrayFormat.Size = new System.Drawing.Size(366, 16);
+            this.cbIsExportJsonArrayFormat.TabIndex = 84;
+            this.cbIsExportJsonArrayFormat.Text = "生成为各行数据对应的json object包含在一个json array的形式";
+            this.cbIsExportJsonArrayFormat.UseVisualStyleBackColor = true;
+            // 
+            // cbIsExportJsonMapIncludeKeyColumnValue
+            // 
+            this.cbIsExportJsonMapIncludeKeyColumnValue.AutoSize = true;
+            this.cbIsExportJsonMapIncludeKeyColumnValue.Checked = true;
+            this.cbIsExportJsonMapIncludeKeyColumnValue.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbIsExportJsonMapIncludeKeyColumnValue.Location = new System.Drawing.Point(45, 614);
+            this.cbIsExportJsonMapIncludeKeyColumnValue.Name = "cbIsExportJsonMapIncludeKeyColumnValue";
+            this.cbIsExportJsonMapIncludeKeyColumnValue.Size = new System.Drawing.Size(564, 16);
+            this.cbIsExportJsonMapIncludeKeyColumnValue.TabIndex = 85;
+            this.cbIsExportJsonMapIncludeKeyColumnValue.Text = "若生成包含在一个json object的形式，使每行字段信息对应的json object中包含主键列对应的键值对";
+            this.cbIsExportJsonMapIncludeKeyColumnValue.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1246, 678);
+            this.ClientSize = new System.Drawing.Size(1246, 687);
+            this.Controls.Add(this.cbIsExportJsonMapIncludeKeyColumnValue);
+            this.Controls.Add(this.cbIsExportJsonArrayFormat);
             this.Controls.Add(this.tbExportJavaClassImport);
             this.Controls.Add(this.tbExportJavaClassPackage);
             this.Controls.Add(this.btnChooseExportJavaClassFilePath);
@@ -1080,6 +1108,8 @@
         private System.Windows.Forms.Button btnChooseExportJavaClassFilePath;
         private System.Windows.Forms.TextBox tbExportJavaClassPackage;
         private System.Windows.Forms.TextBox tbExportJavaClassImport;
+        private System.Windows.Forms.CheckBox cbIsExportJsonArrayFormat;
+        private System.Windows.Forms.CheckBox cbIsExportJsonMapIncludeKeyColumnValue;
     }
 }
 

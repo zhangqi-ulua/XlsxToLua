@@ -1,5 +1,5 @@
-[
-	{
+{
+	"1":{
 		"id":1,
 		"heroId":1,
 		"heroQuality":10,
@@ -7,7 +7,7 @@
 		"propId":200001,
 		"equipRank":1
 	},
-	{
+	"2":{
 		"id":2,
 		"heroId":1,
 		"heroQuality":10,
@@ -15,7 +15,7 @@
 		"propId":200002,
 		"equipRank":1
 	},
-	{
+	"3":{
 		"id":3,
 		"heroId":1,
 		"heroQuality":10,
@@ -23,7 +23,7 @@
 		"propId":200003,
 		"equipRank":1
 	},
-	{
+	"4":{
 		"id":4,
 		"heroId":1,
 		"heroQuality":10,
@@ -31,7 +31,7 @@
 		"propId":200004,
 		"equipRank":1
 	},
-	{
+	"5":{
 		"id":5,
 		"heroId":1,
 		"heroQuality":20,
@@ -39,7 +39,7 @@
 		"propId":200005,
 		"equipRank":5
 	},
-	{
+	"6":{
 		"id":6,
 		"heroId":1,
 		"heroQuality":20,
@@ -47,7 +47,7 @@
 		"propId":200006,
 		"equipRank":5
 	},
-	{
+	"7":{
 		"id":7,
 		"heroId":1,
 		"heroQuality":20,
@@ -55,7 +55,7 @@
 		"propId":200007,
 		"equipRank":5
 	},
-	{
+	"8":{
 		"id":8,
 		"heroId":1,
 		"heroQuality":20,
@@ -63,7 +63,7 @@
 		"propId":200008,
 		"equipRank":5
 	},
-	{
+	"9":{
 		"id":9,
 		"heroId":1,
 		"heroQuality":21,
@@ -71,7 +71,7 @@
 		"propId":200001,
 		"equipRank":10
 	},
-	{
+	"10":{
 		"id":10,
 		"heroId":1,
 		"heroQuality":21,
@@ -79,7 +79,7 @@
 		"propId":200002,
 		"equipRank":10
 	},
-	{
+	"11":{
 		"id":11,
 		"heroId":1,
 		"heroQuality":21,
@@ -87,7 +87,7 @@
 		"propId":200003,
 		"equipRank":10
 	},
-	{
+	"12":{
 		"id":12,
 		"heroId":1,
 		"heroQuality":21,
@@ -95,7 +95,7 @@
 		"propId":200004,
 		"equipRank":10
 	},
-	{
+	"13":{
 		"id":13,
 		"heroId":1,
 		"heroQuality":30,
@@ -103,7 +103,7 @@
 		"propId":200005,
 		"equipRank":20
 	},
-	{
+	"14":{
 		"id":14,
 		"heroId":1,
 		"heroQuality":30,
@@ -111,7 +111,7 @@
 		"propId":200006,
 		"equipRank":20
 	},
-	{
+	"15":{
 		"id":15,
 		"heroId":1,
 		"heroQuality":30,
@@ -119,7 +119,7 @@
 		"propId":200007,
 		"equipRank":20
 	},
-	{
+	"16":{
 		"id":16,
 		"heroId":1,
 		"heroQuality":30,
@@ -127,7 +127,7 @@
 		"propId":200008,
 		"equipRank":20
 	},
-	{
+	"17":{
 		"id":17,
 		"heroId":1,
 		"heroQuality":31,
@@ -135,7 +135,7 @@
 		"propId":200001,
 		"equipRank":25
 	},
-	{
+	"18":{
 		"id":18,
 		"heroId":1,
 		"heroQuality":31,
@@ -143,7 +143,7 @@
 		"propId":200002,
 		"equipRank":25
 	},
-	{
+	"19":{
 		"id":19,
 		"heroId":1,
 		"heroQuality":31,
@@ -151,7 +151,7 @@
 		"propId":200003,
 		"equipRank":25
 	},
-	{
+	"20":{
 		"id":20,
 		"heroId":1,
 		"heroQuality":31,
@@ -159,7 +159,7 @@
 		"propId":200004,
 		"equipRank":25
 	},
-	{
+	"21":{
 		"id":21,
 		"heroId":1,
 		"heroQuality":32,
@@ -167,7 +167,7 @@
 		"propId":200005,
 		"equipRank":30
 	},
-	{
+	"22":{
 		"id":22,
 		"heroId":1,
 		"heroQuality":32,
@@ -175,7 +175,7 @@
 		"propId":200006,
 		"equipRank":30
 	},
-	{
+	"23":{
 		"id":23,
 		"heroId":1,
 		"heroQuality":32,
@@ -183,7 +183,7 @@
 		"propId":200007,
 		"equipRank":30
 	},
-	{
+	"24":{
 		"id":24,
 		"heroId":1,
 		"heroQuality":32,
@@ -191,7 +191,7 @@
 		"propId":200008,
 		"equipRank":30
 	},
-	{
+	"25":{
 		"id":25,
 		"heroId":1,
 		"heroQuality":40,
@@ -199,7 +199,7 @@
 		"propId":200001,
 		"equipRank":40
 	},
-	{
+	"26":{
 		"id":26,
 		"heroId":1,
 		"heroQuality":40,
@@ -207,7 +207,7 @@
 		"propId":200002,
 		"equipRank":40
 	},
-	{
+	"27":{
 		"id":27,
 		"heroId":1,
 		"heroQuality":40,
@@ -215,7 +215,7 @@
 		"propId":200003,
 		"equipRank":40
 	},
-	{
+	"28":{
 		"id":28,
 		"heroId":1,
 		"heroQuality":40,
@@ -223,7 +223,7 @@
 		"propId":200004,
 		"equipRank":40
 	},
-	{
+	"29":{
 		"id":29,
 		"heroId":1,
 		"heroQuality":41,
@@ -231,7 +231,7 @@
 		"propId":200005,
 		"equipRank":45
 	},
-	{
+	"30":{
 		"id":30,
 		"heroId":1,
 		"heroQuality":41,
@@ -239,7 +239,7 @@
 		"propId":200006,
 		"equipRank":45
 	},
-	{
+	"31":{
 		"id":31,
 		"heroId":1,
 		"heroQuality":41,
@@ -247,7 +247,7 @@
 		"propId":200007,
 		"equipRank":45
 	},
-	{
+	"32":{
 		"id":32,
 		"heroId":1,
 		"heroQuality":41,
@@ -255,7 +255,7 @@
 		"propId":200008,
 		"equipRank":45
 	},
-	{
+	"33":{
 		"id":33,
 		"heroId":1,
 		"heroQuality":42,
@@ -263,7 +263,7 @@
 		"propId":200001,
 		"equipRank":50
 	},
-	{
+	"34":{
 		"id":34,
 		"heroId":1,
 		"heroQuality":42,
@@ -271,7 +271,7 @@
 		"propId":200002,
 		"equipRank":50
 	},
-	{
+	"35":{
 		"id":35,
 		"heroId":1,
 		"heroQuality":42,
@@ -279,7 +279,7 @@
 		"propId":200003,
 		"equipRank":50
 	},
-	{
+	"36":{
 		"id":36,
 		"heroId":1,
 		"heroQuality":42,
@@ -287,7 +287,7 @@
 		"propId":200004,
 		"equipRank":50
 	},
-	{
+	"37":{
 		"id":37,
 		"heroId":1,
 		"heroQuality":43,
@@ -295,7 +295,7 @@
 		"propId":200005,
 		"equipRank":55
 	},
-	{
+	"38":{
 		"id":38,
 		"heroId":1,
 		"heroQuality":43,
@@ -303,7 +303,7 @@
 		"propId":200006,
 		"equipRank":55
 	},
-	{
+	"39":{
 		"id":39,
 		"heroId":1,
 		"heroQuality":43,
@@ -311,7 +311,7 @@
 		"propId":200007,
 		"equipRank":55
 	},
-	{
+	"40":{
 		"id":40,
 		"heroId":1,
 		"heroQuality":43,
@@ -319,4 +319,4 @@
 		"propId":200008,
 		"equipRank":55
 	}
-]
+}

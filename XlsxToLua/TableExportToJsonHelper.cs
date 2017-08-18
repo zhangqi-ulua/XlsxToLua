@@ -11,45 +11,106 @@ public class TableExportToJsonHelper
     {
         StringBuilder content = new StringBuilder();
 
-        // 生成json字符串开头，每行数据为一个json object，作为整张表json array的元素
-        content.Append("[");
-
-        // 逐行读取表格内容生成json
-        List<FieldInfo> allField = tableInfo.GetAllClientFieldInfo();
-        int dataCount = tableInfo.GetKeyColumnFieldInfo().Data.Count;
-        int fieldCount = allField.Count;
-        for (int row = 0; row < dataCount; ++row)
+        // 若生成为各行数据对应的json object包含在一个json array的形式
+        if (AppValues.ExportJsonIsExportJsonArrayFormat == true)
         {
-            // 生成一行数据json object的开头
-            content.Append("{");
+            // 生成json字符串开头，每行数据为一个json object，作为整张表json array的元素
+            content.Append("[");
 
-            for (int column = 0; column < fieldCount; ++column)
+            // 逐行读取表格内容生成json
+            List<FieldInfo> allField = tableInfo.GetAllClientFieldInfo();
+            int dataCount = tableInfo.GetKeyColumnFieldInfo().Data.Count;
+            int fieldCount = allField.Count;
+            for (int row = 0; row < dataCount; ++row)
             {
-                string oneFieldString = _GetOneField(allField[column], row, out errorString);
-                if (errorString != null)
+                // 生成一行数据json object的开头
+                content.Append("{");
+
+                for (int column = 0; column < fieldCount; ++column)
                 {
-                    errorString = string.Format("额外导出表格{0}为json文件失败，", tableInfo.TableName) + errorString;
-                    return false;
+                    string oneFieldString = _GetOneField(allField[column], row, out errorString);
+                    if (errorString != null)
+                    {
+                        errorString = string.Format("额外导出表格{0}为json文件失败，", tableInfo.TableName) + errorString;
+                        return false;
+                    }
+                    else
+                        content.Append(oneFieldString);
                 }
-                else
-                    content.Append(oneFieldString);
+
+                // 去掉本行最后一个字段后多余的英文逗号，json语法不像lua那样最后一个字段后的逗号可有可无
+                content.Remove(content.Length - 1, 1);
+                // 生成一行数据json object的结尾
+                content.Append("}");
+                // 每行的json object后加英文逗号
+                content.Append(",");
             }
 
-            // 去掉本行最后一个字段后多余的英文逗号，json语法不像lua那样最后一个字段后的逗号可有可无
-            content.Remove(content.Length - 1, 1);
-            // 生成一行数据json object的结尾
+            // 去掉最后一行后多余的英文逗号，此处要特殊处理当表格中没有任何数据行时的情况
+            if (content.Length > 1)
+                content.Remove(content.Length - 1, 1);
+            // 生成json字符串结尾
+            content.Append("]");
+        }
+        else
+        {
+            // 生成json字符串开头，每行数据以表格主键列为key，各字段信息组成的json object为value，作为整张表json object的元素
+            content.Append("{");
+
+            // 逐行读取表格内容生成json
+            List<FieldInfo> allField = tableInfo.GetAllClientFieldInfo();
+            FieldInfo keyColumnInfo = tableInfo.GetKeyColumnFieldInfo();
+            int dataCount = keyColumnInfo.Data.Count;
+            int fieldCount = allField.Count;
+            for (int row = 0; row < dataCount; ++row)
+            {
+                // 将主键列的值作为key
+                string keyString = null;
+                if (keyColumnInfo.DataType == DataType.String)
+                    keyString = _GetStringValue(keyColumnInfo, row);
+                else if (keyColumnInfo.DataType == DataType.Int || keyColumnInfo.DataType == DataType.Long)
+                    keyString = _GetNumberValue(keyColumnInfo, row);
+                else
+                {
+                    errorString = string.Format("ExportTableToJson函数中未定义{0}类型的主键数值导出至json文件的形式", keyColumnInfo.DataType);
+                    Utils.LogErrorAndExit(errorString);
+                    return false;
+                }
+
+                content.Append("\"").Append(keyString).Append("\"");
+                // 生成一行数据json object的开头
+                content.Append(":{");
+
+                int startColumn = (AppValues.ExportJsonIsExportJsonMapIncludeKeyColumnValue == true ? 0 : 1);
+                for (int column = startColumn; column < fieldCount; ++column)
+                {
+                    string oneFieldString = _GetOneField(allField[column], row, out errorString);
+                    if (errorString != null)
+                    {
+                        errorString = string.Format("额外导出表格{0}为json文件失败，", tableInfo.TableName) + errorString;
+                        return false;
+                    }
+                    else
+                        content.Append(oneFieldString);
+                }
+
+                // 去掉本行最后一个字段后多余的英文逗号，json语法不像lua那样最后一个字段后的逗号可有可无
+                content.Remove(content.Length - 1, 1);
+                // 生成一行数据json object的结尾
+                content.Append("}");
+                // 每行的json object后加英文逗号
+                content.Append(",");
+            }
+
+            // 去掉最后一行后多余的英文逗号，此处要特殊处理当表格中没有任何数据行时的情况
+            if (content.Length > 1)
+                content.Remove(content.Length - 1, 1);
+            // 生成json字符串结尾
             content.Append("}");
-            // 每行的json object后加英文逗号
-            content.Append(",");
         }
 
-        // 去掉最后一行后多余的英文逗号，此处要特殊处理当表格中没有任何数据行时的情况
-        if (content.Length > 1)
-            content.Remove(content.Length - 1, 1);
-        // 生成json字符串结尾
-        content.Append("]");
-
         string exportString = content.ToString();
+
         // 如果声明了要整理为带缩进格式的形式
         if (AppValues.ExportJsonIsFormat == true)
             exportString = _FormatJson(exportString);

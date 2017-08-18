@@ -678,6 +678,26 @@ public class Program
                                     else
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的值错误，必须为true或false", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.EXPORT_JSON_PARAM_IS_FORMAT_PARAM_STRING));
                                 }
+                                else if (AppValues.EXPORT_JSON_PARAM_IS_EXPORT_JSON_ARRAY_FORMAT_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    value = value.Trim();
+                                    if ("true".Equals(value, StringComparison.CurrentCultureIgnoreCase))
+                                        AppValues.ExportJsonIsExportJsonArrayFormat = true;
+                                    else if ("false".Equals(value, StringComparison.CurrentCultureIgnoreCase))
+                                        AppValues.ExportJsonIsExportJsonArrayFormat = false;
+                                    else
+                                        Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的值错误，必须为true或false", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.EXPORT_JSON_PARAM_IS_EXPORT_JSON_ARRAY_FORMAT_PARAM_STRING));
+                                }
+                                else if (AppValues.EXPORT_JSON_PARAM_IS_MAP_INCLUDE_KEY_COLUMN_VALUE_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
+                                {
+                                    value = value.Trim();
+                                    if ("true".Equals(value, StringComparison.CurrentCultureIgnoreCase))
+                                        AppValues.ExportJsonIsExportJsonMapIncludeKeyColumnValue = true;
+                                    else if ("false".Equals(value, StringComparison.CurrentCultureIgnoreCase))
+                                        AppValues.ExportJsonIsExportJsonMapIncludeKeyColumnValue = false;
+                                    else
+                                        Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的值错误，必须为true或false", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.EXPORT_JSON_PARAM_IS_MAP_INCLUDE_KEY_COLUMN_VALUE_PARAM_STRING));
+                                }
                                 else
                                     Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}非法", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, key));
                             }

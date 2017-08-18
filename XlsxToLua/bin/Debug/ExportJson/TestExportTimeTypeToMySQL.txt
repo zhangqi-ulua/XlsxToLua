@@ -1,5 +1,5 @@
-[
-	{
+{
+	"1":{
 		"id":1,
 		"testExportDateToDatetime":"2016-07-01 00:00:00",
 		"testExportDateToReferenceSec":"2016-07-01 00:00:00",
@@ -10,7 +10,7 @@
 		"testExportTimeToReferenceSec":"00:00:00",
 		"testExportTimeToVarchar":"00:00:00"
 	},
-	{
+	"2":{
 		"id":2,
 		"testExportDateToDatetime":"2016-07-01 01:00:01",
 		"testExportDateToReferenceSec":"2016-07-01 00:00:00",
@@ -21,7 +21,7 @@
 		"testExportTimeToReferenceSec":"00:32:00",
 		"testExportTimeToVarchar":"00:32:00"
 	},
-	{
+	"3":{
 		"id":3,
 		"testExportDateToDatetime":"2016-10-10 00:00:00",
 		"testExportDateToReferenceSec":"2016-07-01 10:10:00",
@@ -32,7 +32,7 @@
 		"testExportTimeToReferenceSec":"10:10:00",
 		"testExportTimeToVarchar":"10:10:00"
 	},
-	{
+	"4":{
 		"id":4,
 		"testExportDateToDatetime":"2016-10-10 10:10:10",
 		"testExportDateToReferenceSec":"2016-10-10 00:00:10",
@@ -43,4 +43,4 @@
 		"testExportTimeToReferenceSec":"03:00:32",
 		"testExportTimeToVarchar":"03:00:32"
 	}
-]
+}

@@ -1,5 +1,5 @@
-[
-	{
+{
+	"1":{
 		"heroId":1,
 		"name":"英雄法师",
 		"rare":11,
@@ -38,7 +38,7 @@
 			"petPhrase":"I will kill you!"
 		}
 	},
-	{
+	"2":{
 		"heroId":2,
 		"name":"英雄战士",
 		"rare":11,
@@ -47,7 +47,7 @@
 		"isOpen":true,
 		"attributes":null
 	},
-	{
+	"3":{
 		"heroId":3,
 		"name":"英雄牧师",
 		"rare":11,
@@ -56,7 +56,7 @@
 		"isOpen":false,
 		"attributes":null
 	},
-	{
+	"4":{
 		"heroId":4,
 		"name":"英雄勇士",
 		"rare":11,
@@ -95,4 +95,4 @@
 			"petPhrase":"Death to all who oppose me!"
 		}
 	}
-]
+}

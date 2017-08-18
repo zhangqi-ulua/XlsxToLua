@@ -1,5 +1,5 @@
-[
-	{
+{
+	"100001":{
 		"id":100001,
 		"type":1,
 		"subType":-1,
@@ -9,7 +9,7 @@
 		"icon":"item1",
 		"sellPrice":500
 	},
-	{
+	"100002":{
 		"id":100002,
 		"type":1,
 		"subType":-1,
@@ -19,7 +19,7 @@
 		"icon":"item1",
 		"sellPrice":800
 	},
-	{
+	"200001":{
 		"id":200001,
 		"type":2,
 		"subType":-1,
@@ -29,7 +29,7 @@
 		"icon":"item1",
 		"sellPrice":800
 	},
-	{
+	"200002":{
 		"id":200002,
 		"type":2,
 		"subType":-1,
@@ -39,7 +39,7 @@
 		"icon":"item1",
 		"sellPrice":800
 	},
-	{
+	"200003":{
 		"id":200003,
 		"type":2,
 		"subType":-1,
@@ -49,7 +49,7 @@
 		"icon":"item1",
 		"sellPrice":800
 	},
-	{
+	"200004":{
 		"id":200004,
 		"type":2,
 		"subType":-1,
@@ -59,7 +59,7 @@
 		"icon":"item1",
 		"sellPrice":800
 	},
-	{
+	"200005":{
 		"id":200005,
 		"type":2,
 		"subType":-1,
@@ -69,7 +69,7 @@
 		"icon":"item1",
 		"sellPrice":800
 	},
-	{
+	"200006":{
 		"id":200006,
 		"type":2,
 		"subType":-1,
@@ -79,7 +79,7 @@
 		"icon":"item1",
 		"sellPrice":800
 	},
-	{
+	"200007":{
 		"id":200007,
 		"type":2,
 		"subType":-1,
@@ -89,7 +89,7 @@
 		"icon":"item1",
 		"sellPrice":800
 	},
-	{
+	"200008":{
 		"id":200008,
 		"type":2,
 		"subType":-1,
@@ -99,4 +99,4 @@
 		"icon":"item1",
 		"sellPrice":800
 	}
-]
+}

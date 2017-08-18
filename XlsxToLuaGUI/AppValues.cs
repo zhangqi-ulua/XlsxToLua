@@ -49,6 +49,8 @@ public class AppValues
     public const string EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH = "exportPath";
     public const string EXPORT_JSON_PARAM_SUBTYPE_EXTENSION = "extension";
     public const string EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT = "isFormat";
+    public const string EXPORT_JSON_PARAM_SUBTYPE_IS_EXPORT_JSON_ARRAY_FORMAT = "isExportJsonArrayFormat";
+    public const string EXPORT_JSON_PARAM_SUBTYPE_IS_MAP_INCLUDE_KEY_COLUMN_VALUE = "isMapIncludeKeyColumnValue";
 
     public const string EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING = "$all";
 

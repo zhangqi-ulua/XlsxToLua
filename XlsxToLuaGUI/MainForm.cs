@@ -449,6 +449,10 @@ namespace XlsxToLuaGUI
                         configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JSON).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbIsExportJsonWithFormat.Checked == true)
                         configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbIsExportJsonArrayFormat.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_EXPORT_JSON_ARRAY_FORMAT).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbIsExportJsonMapIncludeKeyColumnValue.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_MAP_INCLUDE_KEY_COLUMN_VALUE).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbExportJavaClassIsUseDate.Checked == true)
                         configStringBuilder.Append(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_USE_DATE).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbExportJavaClassIsGenerateConstructorWithoutFields.Checked == true)
@@ -582,6 +586,10 @@ namespace XlsxToLuaGUI
                 cbIsExportCsvColumnDataType.Checked = config.ContainsKey(isExportCsvColumnDataTypeKey);
                 string isExportJsonWithFormatKey = string.Concat(AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT);
                 cbIsExportJsonWithFormat.Checked = config.ContainsKey(isExportJsonWithFormatKey);
+                string isExportJsonArrayFormat = string.Concat(AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_EXPORT_JSON_ARRAY_FORMAT);
+                cbIsExportJsonArrayFormat.Checked = config.ContainsKey(isExportJsonArrayFormat);
+                string isExportJsonMapIncludeKeyColumnValue = string.Concat(AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_MAP_INCLUDE_KEY_COLUMN_VALUE);
+                cbIsExportJsonMapIncludeKeyColumnValue.Checked = config.ContainsKey(isExportJsonMapIncludeKeyColumnValue);
                 string exportJavaClassIsUseDate = string.Concat(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_USE_DATE);
                 cbExportJavaClassIsUseDate.Checked = config.ContainsKey(exportJavaClassIsUseDate);
                 string exportJavaClassIsGenerateConstructorWithoutFields = string.Concat(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_GENERATE_CONSTRUCTOR_WITHOUT_FIELDS);
@@ -1103,6 +1111,12 @@ namespace XlsxToLuaGUI
                 // 是否将生成的json字符串整理为带缩进格式的形式
                 bool isFormat = cbIsExportJsonWithFormat.Checked;
                 exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT, isFormat == true ? "true" : "false"));
+                // 是否生成为各行数据对应的json object包含在一个json array的形式
+                bool isExportJsonArrayFormat = cbIsExportJsonArrayFormat.Checked;
+                exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_EXPORT_JSON_ARRAY_FORMAT, isExportJsonArrayFormat == true ? "true" : "false"));
+                // 若生成包含在一个json object的形式，是否使每行字段信息对应的json object中包含主键列对应的键值对
+                bool isExportJsonMapIncludeKeyColumnValue = cbIsExportJsonMapIncludeKeyColumnValue.Checked;
+                exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_MAP_INCLUDE_KEY_COLUMN_VALUE, isExportJsonMapIncludeKeyColumnValue == true ? "true" : "false"));
 
                 stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, Utils.CombineString(exportJsonParamList, "|"));
             }
