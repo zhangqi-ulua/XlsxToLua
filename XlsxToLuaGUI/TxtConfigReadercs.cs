@@ -36,8 +36,7 @@ public class TxtConfigReader
                     return null;
                 }
                 string key = line.Substring(0, separatorIndex);
-                // 进行替换是因为StreamReader读取文件时自动将\n提换为了\\n，故需要进行还原
-                string value = line.Substring(separatorIndex + 1).Replace("\\n", "\n");
+                string value = line.Substring(separatorIndex + 1);
                 if (result.ContainsKey(key))
                 {
                     errorString = string.Format("错误：第{0}行中的key({1})重复定义", lineNumber, key);
