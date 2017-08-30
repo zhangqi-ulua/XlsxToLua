@@ -1,5 +1,5 @@
-[
-	{
+{
+	"100001":{
 		"id":100001,
 		"testBool":false,
 		"testLang":"",
@@ -34,7 +34,7 @@
 			"testExportJsonStringInDict":"正常2"
 		}
 	},
-	{
+	"100002":{
 		"id":100002,
 		"testBool":true,
 		"testLang":"使用增加英雄经验100点",
@@ -102,7 +102,7 @@
 			"testExportJsonStringInDict":"[带括号}"
 		}
 	},
-	{
+	"100003":{
 		"id":100003,
 		"testBool":true,
 		"testLang":"使用增加英雄经验200点",
@@ -182,7 +182,7 @@
 			"testExportJsonStringInDict":"带\\\"引号"
 		}
 	},
-	{
+	"100004":{
 		"id":100004,
 		"testBool":false,
 		"testLang":"使用增加英雄经验500点",
@@ -281,4 +281,4 @@
 			"testExportJsonStringInDict":"混{{\\\"]合}"
 		}
 	}
-]
+}

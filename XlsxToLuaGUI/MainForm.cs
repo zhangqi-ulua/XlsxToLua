@@ -177,20 +177,20 @@ namespace XlsxToLuaGUI
             }
         }
 
-        private void btnChooseExportCsvClassFile_Click(object sender, EventArgs e)
+        private void btnChooseExportCsClassFile_Click(object sender, EventArgs e)
         {
             string errorString = null;
             string chooseExcelNames = _GetChoosePartExcelFile(out errorString);
             if (errorString == null)
             {
                 if (chooseExcelNames != null)
-                    tbExportCsvClassTableNames.Text = chooseExcelNames;
+                    tbExportCsClassTableNames.Text = chooseExcelNames;
             }
             else
                 MessageBox.Show(errorString, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void btnChooseExportCsvClassFilePath_Click(object sender, EventArgs e)
+        private void btnChooseExportCsClassFilePath_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             dialog.Description = "请选择csv对应C#类文件导出目录";
@@ -198,7 +198,32 @@ namespace XlsxToLuaGUI
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 string folderPath = dialog.SelectedPath;
-                tbExportCsvClassFilePath.Text = folderPath;
+                tbExportCsClassFilePath.Text = folderPath;
+            }
+        }
+
+        private void btnChooseExportJavaClassFile_Click(object sender, EventArgs e)
+        {
+            string errorString = null;
+            string chooseExcelNames = _GetChoosePartExcelFile(out errorString);
+            if (errorString == null)
+            {
+                if (chooseExcelNames != null)
+                    tbExportJavaClassTableNames.Text = chooseExcelNames;
+            }
+            else
+                MessageBox.Show(errorString, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void btnChooseExportJavaClassFilePath_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "请选择csv对应Java类文件导出目录";
+            dialog.ShowNewFolderButton = false;
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string folderPath = dialog.SelectedPath;
+                tbExportJavaClassFilePath.Text = folderPath;
             }
         }
 
@@ -327,34 +352,55 @@ namespace XlsxToLuaGUI
                     if (!string.IsNullOrEmpty(csvFileSplitString))
                         configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_SPLIT_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csvFileSplitString);
 
-                    string exportCsvClassExcelNames = tbExportCsvClassTableNames.Text.Trim();
-                    if (!string.IsNullOrEmpty(exportCsvClassExcelNames))
-                        configStringBuilder.Append(AppValues.EXPORT_CSV_CLASS_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsvClassExcelNames);
+                    string exportCsClassExcelNames = tbExportCsClassTableNames.Text.Trim();
+                    if (!string.IsNullOrEmpty(exportCsClassExcelNames))
+                        configStringBuilder.Append(AppValues.EXPORT_CS_CLASS_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsClassExcelNames);
 
-                    string exportCsvClassFilePath = tbExportCsvClassFilePath.Text.Trim();
-                    if (!string.IsNullOrEmpty(exportCsvClassFilePath))
+                    string exportCsClassFilePath = tbExportCsClassFilePath.Text.Trim();
+                    if (!string.IsNullOrEmpty(exportCsClassFilePath))
                     {
-                        if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsvClassFilePath))
-                            exportCsvClassFilePath = programUri.MakeRelativeUri(new Uri(exportCsvClassFilePath)).ToString();
+                        if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsClassFilePath))
+                            exportCsClassFilePath = programUri.MakeRelativeUri(new Uri(exportCsClassFilePath)).ToString();
 
-                        configStringBuilder.Append(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsvClassFilePath);
+                        configStringBuilder.Append(AppValues.EXPORT_CS_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsClassFilePath);
                     }
 
-                    string csvClassNamespace = tbExportCsvClassNamespace.Text.Trim();
-                    if (!string.IsNullOrEmpty(csvClassNamespace))
-                        configStringBuilder.Append(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_NAMESPACE).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csvClassNamespace);
+                    string csClassNamespace = tbExportCsClassNamespace.Text.Trim();
+                    if (!string.IsNullOrEmpty(csClassNamespace))
+                        configStringBuilder.Append(AppValues.EXPORT_CS_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_NAMESPACE).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csClassNamespace);
 
-                    string csvClassUsing = tbExportCsvClassUsing.Text.Trim();
-                    if (!string.IsNullOrEmpty(csvClassUsing))
-                        configStringBuilder.Append(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_USING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csvClassUsing);
+                    string csClassUsing = tbExportCsClassUsing.Text.Trim();
+                    if (!string.IsNullOrEmpty(csClassUsing))
+                        configStringBuilder.Append(AppValues.EXPORT_CS_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_USING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csClassUsing);
+
+                    string exportJavaClassExcelNames = tbExportJavaClassTableNames.Text.Trim();
+                    if (!string.IsNullOrEmpty(exportJavaClassExcelNames))
+                        configStringBuilder.Append(AppValues.EXPORT_JAVA_CLASS_PARAM_STRING).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportJavaClassExcelNames);
+
+                    string exportJavaClassFilePath = tbExportJavaClassFilePath.Text.Trim();
+                    if (!string.IsNullOrEmpty(exportJavaClassFilePath))
+                    {
+                        if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportJavaClassFilePath))
+                            exportJavaClassFilePath = programUri.MakeRelativeUri(new Uri(exportJavaClassFilePath)).ToString();
+
+                        configStringBuilder.Append(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportJavaClassFilePath);
+                    }
+
+                    string javaClassPackage = tbExportJavaClassPackage.Text.Trim();
+                    if (!string.IsNullOrEmpty(javaClassPackage))
+                        configStringBuilder.Append(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_PACKAGE).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(javaClassPackage);
+
+                    string javaClassImport = tbExportJavaClassImport.Text.Trim();
+                    if (!string.IsNullOrEmpty(javaClassImport))
+                        configStringBuilder.Append(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IMPORT).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(javaClassImport);
 
                     string csvClassNamePrefix = tbExportCsvClassNamePrefix.Text.Trim();
                     if (!string.IsNullOrEmpty(csvClassNamePrefix))
-                        configStringBuilder.Append(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_PREFIX).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csvClassNamePrefix);
+                        configStringBuilder.Append(AppValues.AUTO_NAME_CSV_CLASS_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.AUTO_NAME_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_PREFIX).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csvClassNamePrefix);
 
                     string csvClassNamePostfix = tbExportCsvClassNamePostfix.Text.Trim();
                     if (!string.IsNullOrEmpty(csvClassNamePostfix))
-                        configStringBuilder.Append(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_POSTFIX).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csvClassNamePostfix);
+                        configStringBuilder.Append(AppValues.AUTO_NAME_CSV_CLASS_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.AUTO_NAME_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_POSTFIX).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(csvClassNamePostfix);
 
                     string exportJsonExcelNames = tbExportJsonTableNames.Text.Trim();
                     if (!string.IsNullOrEmpty(exportJsonExcelNames))
@@ -395,12 +441,24 @@ namespace XlsxToLuaGUI
                         configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_NAME).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbIsExportCsvColumnDataType.Checked == true)
                         configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_DATA_TYPE).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
-                    if (cbExportCsvClass.Checked == true)
-                        configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV_CLASS).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbExportCsClass.Checked == true)
+                        configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CS_CLASS).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbExportJavaClass.Checked == true)
+                        configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JAVA_CLASS).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbExportJson.Checked == true)
                         configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JSON).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbIsExportJsonWithFormat.Checked == true)
                         configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbIsExportJsonArrayFormat.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_EXPORT_JSON_ARRAY_FORMAT).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbIsExportJsonMapIncludeKeyColumnValue.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_MAP_INCLUDE_KEY_COLUMN_VALUE).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbExportJavaClassIsUseDate.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_USE_DATE).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbExportJavaClassIsGenerateConstructorWithoutFields.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_GENERATE_CONSTRUCTOR_WITHOUT_FIELDS).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
+                    if (cbExportJavaClassIsGenerateConstructorWithAllFields.Checked == true)
+                        configStringBuilder.Append(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_GENERATE_CONSTRUCTOR_WITH_ALL_FIELDS).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
                     if (cbIsUseRelativePath.Checked == true)
                         configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_USE_RELATIVE_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(TRUE_STRING);
 
@@ -456,8 +514,10 @@ namespace XlsxToLuaGUI
                     tbExceptExcelNames.Text = config[AppValues.EXCEPT_EXPORT_PARAM_STRING];
                 if (config.ContainsKey(AppValues.EXPORT_CSV_PARAM_STRING))
                     tbExportCsvTableNames.Text = config[AppValues.EXPORT_CSV_PARAM_STRING];
-                if (config.ContainsKey(AppValues.EXPORT_CSV_CLASS_PARAM_STRING))
-                    tbExportCsvClassTableNames.Text = config[AppValues.EXPORT_CSV_CLASS_PARAM_STRING];
+                if (config.ContainsKey(AppValues.EXPORT_CS_CLASS_PARAM_STRING))
+                    tbExportCsClassTableNames.Text = config[AppValues.EXPORT_CS_CLASS_PARAM_STRING];
+                if (config.ContainsKey(AppValues.EXPORT_JAVA_CLASS_PARAM_STRING))
+                    tbExportJavaClassTableNames.Text = config[AppValues.EXPORT_JAVA_CLASS_PARAM_STRING];
                 if (config.ContainsKey(AppValues.EXPORT_JSON_PARAM_STRING))
                     tbExportJsonTableNames.Text = config[AppValues.EXPORT_JSON_PARAM_STRING];
 
@@ -473,23 +533,35 @@ namespace XlsxToLuaGUI
                 if (config.ContainsKey(csvFileSplitStringKey))
                     tbCsvFileSplitString.Text = config[csvFileSplitStringKey];
 
-                string exportCsvClassFilePathKey = string.Concat(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_EXPORT_PATH);
-                if (config.ContainsKey(exportCsvClassFilePathKey))
-                    tbExportCsvClassFilePath.Text = config[exportCsvClassFilePathKey];
+                string exportCsClassFilePathKey = string.Concat(AppValues.EXPORT_CS_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_EXPORT_PATH);
+                if (config.ContainsKey(exportCsClassFilePathKey))
+                    tbExportCsClassFilePath.Text = config[exportCsClassFilePathKey];
 
-                string exportCsvClassNamespace = string.Concat(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_NAMESPACE);
-                if (config.ContainsKey(exportCsvClassNamespace))
-                    tbExportCsvClassNamespace.Text = config[exportCsvClassNamespace];
+                string exportCsClassNamespace = string.Concat(AppValues.EXPORT_CS_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_NAMESPACE);
+                if (config.ContainsKey(exportCsClassNamespace))
+                    tbExportCsClassNamespace.Text = config[exportCsClassNamespace];
 
-                string exportCsvClassUsing = string.Concat(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_USING);
-                if (config.ContainsKey(exportCsvClassUsing))
-                    tbExportCsvClassUsing.Text = config[exportCsvClassUsing];
+                string exportCsClassUsing = string.Concat(AppValues.EXPORT_CS_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_USING);
+                if (config.ContainsKey(exportCsClassUsing))
+                    tbExportCsClassUsing.Text = config[exportCsClassUsing];
 
-                string exportCsvClassNamePrefix = string.Concat(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_PREFIX);
+                string exportJavaClassFilePathKey = string.Concat(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_EXPORT_PATH);
+                if (config.ContainsKey(exportJavaClassFilePathKey))
+                    tbExportJavaClassFilePath.Text = config[exportJavaClassFilePathKey];
+
+                string exportJavaClassPackage = string.Concat(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_PACKAGE);
+                if (config.ContainsKey(exportJavaClassPackage))
+                    tbExportJavaClassPackage.Text = config[exportJavaClassPackage];
+
+                string exportJavaClassImport = string.Concat(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IMPORT);
+                if (config.ContainsKey(exportJavaClassImport))
+                    tbExportJavaClassImport.Text = config[exportJavaClassImport];
+
+                string exportCsvClassNamePrefix = string.Concat(AppValues.AUTO_NAME_CSV_CLASS_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.AUTO_NAME_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_PREFIX);
                 if (config.ContainsKey(exportCsvClassNamePrefix))
                     tbExportCsvClassNamePrefix.Text = config[exportCsvClassNamePrefix];
 
-                string exportCsvClassNamePostfix = string.Concat(AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_POSTFIX);
+                string exportCsvClassNamePostfix = string.Concat(AppValues.AUTO_NAME_CSV_CLASS_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.AUTO_NAME_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_POSTFIX);
                 if (config.ContainsKey(exportCsvClassNamePostfix))
                     tbExportCsvClassNamePostfix.Text = config[exportCsvClassNamePostfix];
 
@@ -504,7 +576,8 @@ namespace XlsxToLuaGUI
                 cbPart.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_PART);
                 cbExcept.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXCEPT);
                 cbExportCsv.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV);
-                cbExportCsvClass.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV_CLASS);
+                cbExportCsClass.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CS_CLASS);
+                cbExportJavaClass.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JAVA_CLASS);
                 cbExportJson.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JSON);
                 cbIsUseRelativePath.Checked = config.ContainsKey(AppValues.SAVE_CONFIG_KEY_IS_CHECKED_USE_RELATIVE_PATH);
                 string isExportCsvColumnNameKey = string.Concat(AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_NAME);
@@ -513,6 +586,16 @@ namespace XlsxToLuaGUI
                 cbIsExportCsvColumnDataType.Checked = config.ContainsKey(isExportCsvColumnDataTypeKey);
                 string isExportJsonWithFormatKey = string.Concat(AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT);
                 cbIsExportJsonWithFormat.Checked = config.ContainsKey(isExportJsonWithFormatKey);
+                string isExportJsonArrayFormat = string.Concat(AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_EXPORT_JSON_ARRAY_FORMAT);
+                cbIsExportJsonArrayFormat.Checked = config.ContainsKey(isExportJsonArrayFormat);
+                string isExportJsonMapIncludeKeyColumnValue = string.Concat(AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_MAP_INCLUDE_KEY_COLUMN_VALUE);
+                cbIsExportJsonMapIncludeKeyColumnValue.Checked = config.ContainsKey(isExportJsonMapIncludeKeyColumnValue);
+                string exportJavaClassIsUseDate = string.Concat(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_USE_DATE);
+                cbExportJavaClassIsUseDate.Checked = config.ContainsKey(exportJavaClassIsUseDate);
+                string exportJavaClassIsGenerateConstructorWithoutFields = string.Concat(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_GENERATE_CONSTRUCTOR_WITHOUT_FIELDS);
+                cbExportJavaClassIsGenerateConstructorWithoutFields.Checked = config.ContainsKey(exportJavaClassIsGenerateConstructorWithoutFields);
+                string exportJavaClassIsGenerateConstructorWithAllFields = string.Concat(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_GENERATE_CONSTRUCTOR_WITH_ALL_FIELDS);
+                cbExportJavaClassIsGenerateConstructorWithAllFields.Checked = config.ContainsKey(exportJavaClassIsGenerateConstructorWithAllFields);
 
                 MessageBox.Show("载入配置文件成功", "恭喜", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -722,43 +805,92 @@ namespace XlsxToLuaGUI
                 }
             }
             // 若设置额外导出部分Excel表格为csv对应C#类文件，检查声明的各种参数是否正确
-            if (cbExportCsvClass.Checked == true)
+            if (cbExportCsClass.Checked == true)
             {
                 // 检查设置的要额外导出为csv对应C#类文件的Excel表格名是否正确
-                string exportCsvClassExcelNames = tbExportCsvClassTableNames.Text.Trim();
-                if (string.IsNullOrEmpty(exportCsvClassExcelNames))
+                string exportCsClassExcelNames = tbExportCsClassTableNames.Text.Trim();
+                if (string.IsNullOrEmpty(exportCsClassExcelNames))
                 {
                     MessageBox.Show(string.Format("勾选了额外导出部分Excel表格为csv对应C#类文件的选项，就必须指定要额外导出为csv对应C#类文件的Excel文件名，若要全部导出，请指定{0}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-                if (!exportCsvClassExcelNames.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+                if (!exportCsClassExcelNames.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    string[] fileNames = exportCsvClassExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                    List<string> exportCsvClassTableNames = new List<string>();
+                    string[] fileNames = exportCsClassExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    List<string> exportCsClassTableNames = new List<string>();
                     foreach (string fileName in fileNames)
-                        exportCsvClassTableNames.Add(fileName.Trim());
+                        exportCsClassTableNames.Add(fileName.Trim());
 
                     // 检查指定要额外导出为csv对应C#类文件的Excel表格是否存在
-                    foreach (string exportCsvClassExcelFileName in exportCsvClassTableNames)
+                    foreach (string exportCsClassExcelFileName in exportCsClassTableNames)
                     {
-                        if (!existExcelFileNames.Contains(exportCsvClassExcelFileName))
+                        if (!existExcelFileNames.Contains(exportCsClassExcelFileName))
                         {
-                            MessageBox.Show(string.Format("指定要额外导出csv对应C#类文件的Excel表格（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportCsvClassExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show(string.Format("指定要额外导出csv对应C#类文件的Excel表格（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportCsClassExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return false;
                         }
                     }
                 }
 
                 // 检查设置的导出csv对应C#类文件的存储路径是否正确
-                string exportCsvClassFilePath = tbExportCsvClassFilePath.Text.Trim();
-                if (string.IsNullOrEmpty(exportCsvClassFilePath))
+                string exportCsClassFilePath = tbExportCsClassFilePath.Text.Trim();
+                if (string.IsNullOrEmpty(exportCsClassFilePath))
                 {
                     MessageBox.Show("勾选了额外导出部分Excel表格为csv对应C#类文件的选项，就必须指定导出csv对应C#类文件的存储路径", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-                if (!Directory.Exists(exportCsvClassFilePath))
+                if (!Directory.Exists(exportCsClassFilePath))
                 {
                     MessageBox.Show("指定的csv对应C#类文件导出目录不存在", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            // 若设置额外导出部分Excel表格为csv对应Java类文件，检查声明的各种参数是否正确
+            if (cbExportJavaClass.Checked == true)
+            {
+                // 检查设置的要额外导出为csv对应Java类文件的Excel表格名是否正确
+                string exportJavaClassExcelNames = tbExportJavaClassTableNames.Text.Trim();
+                if (string.IsNullOrEmpty(exportJavaClassExcelNames))
+                {
+                    MessageBox.Show(string.Format("勾选了额外导出部分Excel表格为csv对应Java类文件的选项，就必须指定要额外导出为csv对应Java类文件的Excel文件名，若要全部导出，请指定{0}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                if (!exportJavaClassExcelNames.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    string[] fileNames = exportJavaClassExcelNames.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                    List<string> exportJavaClassTableNames = new List<string>();
+                    foreach (string fileName in fileNames)
+                        exportJavaClassTableNames.Add(fileName.Trim());
+
+                    // 检查指定要额外导出为csv对应C#类文件的Excel表格是否存在
+                    foreach (string exportJavaClassExcelFileName in exportJavaClassTableNames)
+                    {
+                        if (!existExcelFileNames.Contains(exportJavaClassExcelFileName))
+                        {
+                            MessageBox.Show(string.Format("指定要额外导出csv对应Java类文件的Excel表格（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(excelFolderPath, string.Concat(exportJavaClassExcelFileName, ".xlsx"))), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return false;
+                        }
+                    }
+                }
+
+                // 检查设置的导出csv对应Java类文件的存储路径是否正确
+                string exportJavaClassFilePath = tbExportJavaClassFilePath.Text.Trim();
+                if (string.IsNullOrEmpty(exportJavaClassFilePath))
+                {
+                    MessageBox.Show("勾选了额外导出部分Excel表格为csv对应Java类文件的选项，就必须指定导出csv对应Java类文件的存储路径", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                if (!Directory.Exists(exportJavaClassFilePath))
+                {
+                    MessageBox.Show("指定的csv对应Java类文件导出目录不存在", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                // 检查导出csv对应Java类文件的包名是否填写
+                string exportJavaClassPackage = tbExportJavaClassPackage.Text.Trim();
+                if (string.IsNullOrEmpty(exportJavaClassPackage))
+                {
+                    MessageBox.Show("勾选了额外导出部分Excel表格为csv对应Java类文件的选项，就必须指定导出csv对应Java类文件的包名", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
             }
@@ -890,35 +1022,73 @@ namespace XlsxToLuaGUI
 
                 stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_CSV_PARAM_PARAM_STRING, Utils.CombineString(exportCsvParamList, "|"));
             }
-            if (cbExportCsvClass.Checked == true)
+            // 自动对导出csv对应的C#或Java类文件命名时添加的前后缀
+            string csvClassNamePrefix = tbExportCsvClassNamePrefix.Text.Trim();
+            string csvClassNamePostfix = tbExportCsvClassNamePostfix.Text.Trim();
+            if (!string.IsNullOrEmpty(csvClassNamePrefix) || !string.IsNullOrEmpty(csvClassNamePostfix))
+            {
+                List<string> autoNameCsvClassParamList = new List<string>();
+                const string KEY_AND_VALUE_FORMAT = "{0}={1}";
+                if (!string.IsNullOrEmpty(csvClassNamePrefix))
+                    autoNameCsvClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.AUTO_NAME_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_PREFIX, csvClassNamePrefix));
+                if (!string.IsNullOrEmpty(csvClassNamePostfix))
+                    autoNameCsvClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.AUTO_NAME_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_POSTFIX, csvClassNamePostfix));
+
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.AUTO_NAME_CSV_CLASS_PARAM_STRING, Utils.CombineString(autoNameCsvClassParamList, "|"));
+            }
+            if (cbExportCsClass.Checked == true)
             {
                 // 声明要额外导出为csv对应C#类文件的Excel表格
-                string exportCsvClassTableNames = tbExportCsvClassTableNames.Text.Trim();
-                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_CSV_CLASS_PARAM_STRING, exportCsvClassTableNames);
+                string exportCsClassTableNames = tbExportCsClassTableNames.Text.Trim();
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_CS_CLASS_PARAM_STRING, exportCsClassTableNames);
 
                 // 声明csv对应C#类文件的导出参数
-                List<string> exportCsvClassParamList = new List<string>();
+                List<string> exportCsClassParamList = new List<string>();
                 // 导出路径
                 const string KEY_AND_VALUE_FORMAT = "{0}={1}";
-                string exportCsvClassFilePath = tbExportCsvClassFilePath.Text.Trim();
-                if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsvClassFilePath))
-                    exportCsvClassFilePath = programUri.MakeRelativeUri(new Uri(exportCsvClassFilePath)).ToString();
+                string exportCsClassFilePath = tbExportCsClassFilePath.Text.Trim();
+                if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsClassFilePath))
+                    exportCsClassFilePath = programUri.MakeRelativeUri(new Uri(exportCsClassFilePath)).ToString();
 
-                exportCsvClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_EXPORT_PATH, exportCsvClassFilePath));
+                exportCsClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_EXPORT_PATH, exportCsClassFilePath));
                 // C#类文件命名空间
-                string csvClassNamespace = tbExportCsvClassNamespace.Text.Trim();
-                exportCsvClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_NAMESPACE, csvClassNamespace));
+                string csvClassNamespace = tbExportCsClassNamespace.Text.Trim();
+                exportCsClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_NAMESPACE, csvClassNamespace));
                 // C#类文件引用类库
-                string csvClassUsing = tbExportCsvClassUsing.Text.Trim();
-                exportCsvClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_USING, csvClassUsing));
-                // C#类名前缀
-                string csvClassNamePrefix = tbExportCsvClassNamePrefix.Text.Trim();
-                exportCsvClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_PREFIX, csvClassNamePrefix));
-                // C#类名后缀
-                string csvClassNamePostfix = tbExportCsvClassNamePostfix.Text.Trim();
-                exportCsvClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_POSTFIX, csvClassNamePostfix));
+                string csvClassUsing = tbExportCsClassUsing.Text.Trim();
+                exportCsClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_USING, csvClassUsing));
 
-                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_CSV_CLASS_PARAM_PARAM_STRING, Utils.CombineString(exportCsvClassParamList, "|"));
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_CS_CLASS_PARAM_PARAM_STRING, Utils.CombineString(exportCsClassParamList, "|"));
+            }
+            if (cbExportJavaClass.Checked == true)
+            {
+                // 声明要额外导出为csv对应Java类文件的Excel表格
+                string exportJavaClassTableNames = tbExportJavaClassTableNames.Text.Trim();
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_JAVA_CLASS_PARAM_STRING, exportJavaClassTableNames);
+
+                // 声明csv对应Java类文件的导出参数
+                List<string> exportJavaClassParamList = new List<string>();
+                // 导出路径
+                const string KEY_AND_VALUE_FORMAT = "{0}={1}";
+                string exportJavaClassFilePath = tbExportJavaClassFilePath.Text.Trim();
+                if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportJavaClassFilePath))
+                    exportJavaClassFilePath = programUri.MakeRelativeUri(new Uri(exportJavaClassFilePath)).ToString();
+
+                exportJavaClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_EXPORT_PATH, exportJavaClassFilePath));
+                // Java类文件的包名
+                string javaClassPackage = tbExportJavaClassPackage.Text.Trim();
+                exportJavaClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_PACKAGE, javaClassPackage));
+                // Java类文件引用类库
+                string javaClassImport = tbExportJavaClassImport.Text.Trim();
+                exportJavaClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IMPORT, javaClassImport));
+                // 是否对Java类文件中的时间型使用Date而不是Calendar
+                exportJavaClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_USE_DATE, cbExportJavaClassIsUseDate.Checked == true ? "true" : "false"));
+                // 是否为Java类文件生成无参构造函数
+                exportJavaClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_GENERATE_CONSTRUCTOR_WITHOUT_FIELDS, cbExportJavaClassIsGenerateConstructorWithoutFields.Checked == true ? "true" : "false"));
+                // 是否为Java类文件生成含全部参数的构造函数
+                exportJavaClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_GENERATE_CONSTRUCTOR_WITH_ALL_FIELDS, cbExportJavaClassIsGenerateConstructorWithAllFields.Checked == true ? "true" : "false"));
+
+                stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, Utils.CombineString(exportJavaClassParamList, "|"));
             }
             if (cbExportJson.Checked == true)
             {
@@ -941,6 +1111,12 @@ namespace XlsxToLuaGUI
                 // 是否将生成的json字符串整理为带缩进格式的形式
                 bool isFormat = cbIsExportJsonWithFormat.Checked;
                 exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT, isFormat == true ? "true" : "false"));
+                // 是否生成为各行数据对应的json object包含在一个json array的形式
+                bool isExportJsonArrayFormat = cbIsExportJsonArrayFormat.Checked;
+                exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_EXPORT_JSON_ARRAY_FORMAT, isExportJsonArrayFormat == true ? "true" : "false"));
+                // 若生成包含在一个json object的形式，是否使每行字段信息对应的json object中包含主键列对应的键值对
+                bool isExportJsonMapIncludeKeyColumnValue = cbIsExportJsonMapIncludeKeyColumnValue.Checked;
+                exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_IS_MAP_INCLUDE_KEY_COLUMN_VALUE, isExportJsonMapIncludeKeyColumnValue == true ? "true" : "false"));
 
                 stringBuilder.AppendFormat("\"{0}({1})\" ", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, Utils.CombineString(exportJsonParamList, "|"));
             }

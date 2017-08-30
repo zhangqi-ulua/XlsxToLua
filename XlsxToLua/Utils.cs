@@ -525,12 +525,30 @@ public class Utils
         }
     }
 
-    public static bool SaveCsvClassFile(string className, string content)
+    public static bool SaveCsClassFile(string className, string content)
     {
         try
         {
-            string fileName = string.Concat(className, ".", AppValues.EXPORT_CSV_CLASS_FILE_EXTENSION);
-            string savePath = Utils.CombinePath(AppValues.ExportCsvClassPath, fileName);
+            string fileName = string.Concat(className, ".", AppValues.EXPORT_CS_CLASS_FILE_EXTENSION);
+            string savePath = Utils.CombinePath(AppValues.ExportCsClassPath, fileName);
+            StreamWriter writer = new StreamWriter(savePath, false, new UTF8Encoding(false));
+            writer.Write(content);
+            writer.Flush();
+            writer.Close();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool SaveJavaClassFile(string className, string content)
+    {
+        try
+        {
+            string fileName = string.Concat(className, ".", AppValues.EXPORT_JAVA_CLASS_FILE_EXTENSION);
+            string savePath = Utils.CombinePath(AppValues.ExportJavaClassPath, fileName);
             StreamWriter writer = new StreamWriter(savePath, false, new UTF8Encoding(false));
             writer.Write(content);
             writer.Flush();

@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-public class TableExportToCsvClassHelper
+public class TableExportToCsClassHelper
 {
     private static string _SET_DATA_TYPE_USING_STRING = "System.Collections.Generic";
-    private static string _CSV_CLASS_GET_SET_STRING = "{ get; set; }";
-    private static string _CSV_CLASS_INDENTATION_STRING = "    ";
+    private static string _CS_CLASS_GET_SET_STRING = "{ get; set; }";
+    private static string _CS_CLASS_INDENTATION_STRING = "    ";
 
-    public static bool ExportTableToCsvClass(TableInfo tableInfo, out string errorString)
+    public static bool ExportTableToCsClass(TableInfo tableInfo, out string errorString)
     {
         StringBuilder stringBuilder = new StringBuilder();
         int level = 0;
@@ -16,18 +16,18 @@ public class TableExportToCsvClassHelper
         List<FieldInfo> allFieldInfo = tableInfo.GetAllClientFieldInfo();
 
         // 先生成using内容
-        if (AppValues.ExportCsvClassUsing != null)
+        if (AppValues.ExportCsClassUsing != null)
         {
-            for (int i = 0; i < AppValues.ExportCsvClassUsing.Count; ++i)
+            for (int i = 0; i < AppValues.ExportCsClassUsing.Count; ++i)
             {
-                string usingString = AppValues.ExportCsvClassUsing[i];
+                string usingString = AppValues.ExportCsClassUsing[i];
                 stringBuilder.AppendLine(string.Concat("using ", usingString, ";"));
             }
 
             isAddNamespace = true;
         }
         // 如果未声明对System.Collections.Generic的引用，但实际用到了List或Dictionary，将强制进行添加
-        if (AppValues.ExportCsvClassUsing == null || !AppValues.ExportCsvClassUsing.Contains(_SET_DATA_TYPE_USING_STRING))
+        if (AppValues.ExportCsClassUsing == null || !AppValues.ExportCsClassUsing.Contains(_SET_DATA_TYPE_USING_STRING))
         {
             foreach (FieldInfo fieldInfo in allFieldInfo)
             {
@@ -45,9 +45,9 @@ public class TableExportToCsvClassHelper
             stringBuilder.AppendLine();
 
         // 再生成命名空间
-        if (AppValues.ExportCsvClassNamespace != null)
+        if (AppValues.ExportCsClassNamespace != null)
         {
-            stringBuilder.AppendLine(string.Concat("namespace ", AppValues.ExportCsvClassNamespace));
+            stringBuilder.AppendLine(string.Concat("namespace ", AppValues.ExportCsClassNamespace));
             stringBuilder.AppendLine("{");
             ++level;
         }
@@ -91,33 +91,33 @@ public class TableExportToCsvClassHelper
         // 类名首字母大写
         string firstLetter = className[0].ToString().ToUpper();
         className = string.Concat(firstLetter, className.Substring(1));
-        stringBuilder.Append(_GetCsvClassIndentation(level));
+        stringBuilder.Append(_GetCsClassIndentation(level));
         stringBuilder.AppendLine(string.Concat("public class ", className));
         // 开始类定义
-        stringBuilder.Append(_GetCsvClassIndentation(level));
+        stringBuilder.Append(_GetCsClassIndentation(level));
         stringBuilder.AppendLine("{");
         ++level;
         // 逐个生成类字段信息
         foreach (FieldInfo fieldInfo in allFieldInfo)
         {
-            stringBuilder.Append(_GetCsvClassIndentation(level));
+            stringBuilder.Append(_GetCsClassIndentation(level));
             stringBuilder.Append("public ");
-            stringBuilder.Append(_GetCsvClassFieldDefine(fieldInfo));
-            stringBuilder.AppendLine(string.Concat(" ", fieldInfo.FieldName, " ", _CSV_CLASS_GET_SET_STRING));
+            stringBuilder.Append(_GetCsClassFieldDefine(fieldInfo));
+            stringBuilder.AppendLine(string.Concat(" ", fieldInfo.FieldName, " ", _CS_CLASS_GET_SET_STRING));
         }
         --level;
         // 闭合类定义
-        stringBuilder.Append(_GetCsvClassIndentation(level));
+        stringBuilder.Append(_GetCsClassIndentation(level));
         stringBuilder.AppendLine("}");
         --level;
         // 闭合命名空间
-        if (AppValues.ExportCsvClassNamespace != null)
+        if (AppValues.ExportCsClassNamespace != null)
         {
             stringBuilder.AppendLine("}");
             --level;
         }
 
-        if (Utils.SaveCsvClassFile(className, stringBuilder.ToString()) == true)
+        if (Utils.SaveCsClassFile(className, stringBuilder.ToString()) == true)
         {
             errorString = null;
             return true;
@@ -129,7 +129,7 @@ public class TableExportToCsvClassHelper
         }
     }
 
-    private static string _GetCsvClassFieldDefine(FieldInfo fieldInfo)
+    private static string _GetCsClassFieldDefine(FieldInfo fieldInfo)
     {
         StringBuilder stringBuilder = new StringBuilder();
         switch (fieldInfo.DataType)
@@ -156,7 +156,7 @@ public class TableExportToCsvClassHelper
             case DataType.Array:
                 {
                     stringBuilder.Append("List<");
-                    stringBuilder.Append(_GetCsvClassFieldDefine(fieldInfo.ChildField[0]));
+                    stringBuilder.Append(_GetCsClassFieldDefine(fieldInfo.ChildField[0]));
                     stringBuilder.Append(">");
                     break;
                 }
@@ -190,9 +190,9 @@ public class TableExportToCsvClassHelper
                                 }
                             case TableStringValueType.DataInIndex:
                                 {
-                                    string valueDataTypeString = _GetCsvClassTableStringDataType(fieldInfo.TableStringFormatDefine.ValueDefine.DataInIndexDefine.DataType);
+                                    string valueDataTypeString = _GetCsClassTableStringDataType(fieldInfo.TableStringFormatDefine.ValueDefine.DataInIndexDefine.DataType);
                                     if (valueDataTypeString == null)
-                                        Utils.LogErrorAndExit("用_GetCsvClassFieldDefine函数导出csv对应C#类文件中tableString型字段的seq型key的dataInIndex型value的数据类型非法");
+                                        Utils.LogErrorAndExit("用_GetCsClassFieldDefine函数导出csv对应C#类文件中tableString型字段的seq型key的dataInIndex型value的数据类型非法");
                                     else
                                         stringBuilder.Append(valueDataTypeString);
 
@@ -200,7 +200,7 @@ public class TableExportToCsvClassHelper
                                 }
                             default:
                                 {
-                                    Utils.LogErrorAndExit("用_GetCsvClassFieldDefine函数导出csv对应C#类文件中tableString型字段的seq型key的value类型非法");
+                                    Utils.LogErrorAndExit("用_GetCsClassFieldDefine函数导出csv对应C#类文件中tableString型字段的seq型key的value类型非法");
                                     break;
                                 }
                         }
@@ -211,9 +211,9 @@ public class TableExportToCsvClassHelper
                     {
                         stringBuilder.Append("Dictionary<");
                         // key
-                        string keyDataTypeString = _GetCsvClassTableStringDataType(fieldInfo.TableStringFormatDefine.KeyDefine.DataInIndexDefine.DataType);
+                        string keyDataTypeString = _GetCsClassTableStringDataType(fieldInfo.TableStringFormatDefine.KeyDefine.DataInIndexDefine.DataType);
                         if (keyDataTypeString == null)
-                            Utils.LogErrorAndExit("用_GetCsvClassFieldDefine函数导出csv对应C#类文件中tableString型字段的dataInIndex型key的数据类型非法");
+                            Utils.LogErrorAndExit("用_GetCsClassFieldDefine函数导出csv对应C#类文件中tableString型字段的dataInIndex型key的数据类型非法");
                         else
                             stringBuilder.Append(keyDataTypeString);
 
@@ -233,9 +233,9 @@ public class TableExportToCsvClassHelper
                                 }
                             case TableStringValueType.DataInIndex:
                                 {
-                                    string valueDataTypeString = _GetCsvClassTableStringDataType(fieldInfo.TableStringFormatDefine.KeyDefine.DataInIndexDefine.DataType);
+                                    string valueDataTypeString = _GetCsClassTableStringDataType(fieldInfo.TableStringFormatDefine.KeyDefine.DataInIndexDefine.DataType);
                                     if (valueDataTypeString == null)
-                                        Utils.LogErrorAndExit("用_GetCsvClassFieldDefine函数导出csv对应C#类文件中tableString型字段的dataInIndex型key的dataInIndex型value的数据类型非法");
+                                        Utils.LogErrorAndExit("用_GetCsClassFieldDefine函数导出csv对应C#类文件中tableString型字段的dataInIndex型key的dataInIndex型value的数据类型非法");
                                     else
                                         stringBuilder.Append(valueDataTypeString);
 
@@ -243,7 +243,7 @@ public class TableExportToCsvClassHelper
                                 }
                             default:
                                 {
-                                    Utils.LogErrorAndExit("用_GetCsvClassFieldDefine函数导出csv对应C#类文件中tableString型字段的dataInIndex型key的value类型非法");
+                                    Utils.LogErrorAndExit("用_GetCsClassFieldDefine函数导出csv对应C#类文件中tableString型字段的dataInIndex型key的value类型非法");
                                     break;
                                 }
                         }
@@ -251,13 +251,13 @@ public class TableExportToCsvClassHelper
                         stringBuilder.Append(">");
                     }
                     else
-                        Utils.LogErrorAndExit("用_GetCsvClassFieldDefine函数导出csv对应C#类文件中tableString型字段的key非法");
+                        Utils.LogErrorAndExit("用_GetCsClassFieldDefine函数导出csv对应C#类文件中tableString型字段的key非法");
 
                     break;
                 }
             default:
                 {
-                    Utils.LogErrorAndExit("用_GetCsvClassFieldDefine函数导出csv对应C#类文件的字段DataType非法");
+                    Utils.LogErrorAndExit("用_GetCsClassFieldDefine函数导出csv对应C#类文件的字段DataType非法");
                     break;
                 }
         }
@@ -265,7 +265,7 @@ public class TableExportToCsvClassHelper
         return stringBuilder.ToString();
     }
 
-    private static string _GetCsvClassTableStringDataType(DataType dataType)
+    private static string _GetCsClassTableStringDataType(DataType dataType)
     {
         switch (dataType)
         {
@@ -282,11 +282,11 @@ public class TableExportToCsvClassHelper
         }
     }
 
-    private static string _GetCsvClassIndentation(int level)
+    private static string _GetCsClassIndentation(int level)
     {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < level; ++i)
-            stringBuilder.Append(_CSV_CLASS_INDENTATION_STRING);
+            stringBuilder.Append(_CS_CLASS_INDENTATION_STRING);
 
         return stringBuilder.ToString();
     }

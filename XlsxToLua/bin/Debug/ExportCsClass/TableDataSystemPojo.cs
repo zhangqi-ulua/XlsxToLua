@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Assets.Scripts.CsvClass
+namespace Assets.Scripts.CsClass
 {
-    public class SystemData
+    public class TableDataSystemPojo
     {
         public int systemId { get; set; }
         public string systemName { get; set; }

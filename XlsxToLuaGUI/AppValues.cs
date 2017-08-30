@@ -18,10 +18,13 @@ public class AppValues
     public const string ALLOWED_NULL_NUMBER_PARAM_STRING = "-allowedNullNumber";
     public const string EXPORT_CSV_PARAM_STRING = "-exportCsv";
     public const string EXPORT_CSV_PARAM_PARAM_STRING = "-exportCsvParam";
-    public const string EXPORT_CSV_CLASS_PARAM_STRING = "-exportCsvClass";
-    public const string EXPORT_CSV_CLASS_PARAM_PARAM_STRING = "-exportCsvClassParam";
+    public const string EXPORT_CS_CLASS_PARAM_STRING = "-exportCsClass";
+    public const string EXPORT_CS_CLASS_PARAM_PARAM_STRING = "-exportCsClassParam";
+    public const string EXPORT_JAVA_CLASS_PARAM_STRING = "-exportJavaClass";
+    public const string EXPORT_JAVA_CLASS_PARAM_PARAM_STRING = "-exportJavaClassParam";
     public const string EXPORT_JSON_PARAM_STRING = "-exportJson";
     public const string EXPORT_JSON_PARAM_PARAM_STRING = "-exportJsonParam";
+    public const string AUTO_NAME_CSV_CLASS_PARAM_STRING = "-autoNameCsvClassParam";
 
     public const string EXPORT_CSV_PARAM_SUBTYPE_EXPORT_PATH = "exportPath";
     public const string EXPORT_CSV_PARAM_SUBTYPE_EXTENSION = "extension";
@@ -29,15 +32,25 @@ public class AppValues
     public const string EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_NAME = "isExportColumnName";
     public const string EXPORT_CSV_PARAM_SUBTYPE_IS_EXPORT_COLUMN_DATA_TYPE = "isExportColumnDataType";
 
-    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_EXPORT_PATH = "exportPath";
-    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_NAMESPACE = "namespace";
-    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_USING = "using";
-    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_PREFIX = "classNamePrefix";
-    public const string EXPORT_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_POSTFIX = "classNamePostfix";
+    public const string EXPORT_CS_CLASS_PARAM_SUBTYPE_EXPORT_PATH = "exportPath";
+    public const string EXPORT_CS_CLASS_PARAM_SUBTYPE_NAMESPACE = "namespace";
+    public const string EXPORT_CS_CLASS_PARAM_SUBTYPE_USING = "using";
+
+    public const string EXPORT_JAVA_CLASS_PARAM_SUBTYPE_EXPORT_PATH = "exportPath";
+    public const string EXPORT_JAVA_CLASS_PARAM_SUBTYPE_PACKAGE = "package";
+    public const string EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IMPORT = "import";
+    public const string EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_USE_DATE = "isUseDate";
+    public const string EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_GENERATE_CONSTRUCTOR_WITHOUT_FIELDS = "isGenerateConstructorWithoutFields";
+    public const string EXPORT_JAVA_CLASS_PARAM_SUBTYPE_IS_GENERATE_CONSTRUCTOR_WITH_ALL_FIELDS = "isGenerateConstructorWithAllFields";
+
+    public const string AUTO_NAME_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_PREFIX = "classNamePrefix";
+    public const string AUTO_NAME_CSV_CLASS_PARAM_SUBTYPE_CLASS_NAME_POSTFIX = "classNamePostfix";
 
     public const string EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH = "exportPath";
     public const string EXPORT_JSON_PARAM_SUBTYPE_EXTENSION = "extension";
     public const string EXPORT_JSON_PARAM_SUBTYPE_IS_FORMAT = "isFormat";
+    public const string EXPORT_JSON_PARAM_SUBTYPE_IS_EXPORT_JSON_ARRAY_FORMAT = "isExportJsonArrayFormat";
+    public const string EXPORT_JSON_PARAM_SUBTYPE_IS_MAP_INCLUDE_KEY_COLUMN_VALUE = "isMapIncludeKeyColumnValue";
 
     public const string EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING = "$all";
 
@@ -50,7 +63,8 @@ public class AppValues
     public const string SAVE_CONFIG_KEY_IS_CHECKED_PART = "isCheckedPart";
     public const string SAVE_CONFIG_KEY_IS_CHECKED_EXCEPT = "isCheckedExcept";
     public const string SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV = "isCheckedExportCsv";
-    public const string SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CSV_CLASS = "isCheckedExportCsvClass";
+    public const string SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_CS_CLASS = "isCheckedExportCsClass";
+    public const string SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JAVA_CLASS = "isCheckedExportJavaClass";
     public const string SAVE_CONFIG_KEY_IS_CHECKED_EXPORT_JSON = "isCheckedExportJson";
     public const string SAVE_CONFIG_KEY_IS_CHECKED_USE_RELATIVE_PATH = "isCheckedUseRelativePath";
 

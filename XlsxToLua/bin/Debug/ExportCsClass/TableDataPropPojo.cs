@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Assets.Scripts.CsvClass
+namespace Assets.Scripts.CsClass
 {
-    public class PropData
+    public class TableDataPropPojo
     {
         public int id { get; set; }
         public int type { get; set; }
