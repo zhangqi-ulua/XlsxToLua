@@ -36,6 +36,8 @@ public class Program
     /// </summary>
     static void Main(string[] args)
     {
+		// Test 
+		// args = new string[] { "TestExcel2", "foo", "-noClient", "lang.txt", "-allowedNullNumber", "-columnInfo" };
 		try {
 			
         // 检查第1个参数（Excel表格所在目录）是否正确

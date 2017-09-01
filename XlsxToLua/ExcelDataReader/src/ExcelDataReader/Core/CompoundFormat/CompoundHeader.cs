@@ -1,18 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 
-namespace ExcelDataReader.Core.BinaryFormat
+namespace ExcelDataReader.Core.CompoundFormat
 {
     /// <summary>
     /// Represents Excel file header
     /// </summary>
-    internal class XlsHeader
+    internal class CompoundHeader
     {
-        public bool IsRawBiffStream { get; set; }
-
-        public int RawBiffVersion { get; set; }
-
         /// <summary>
         /// Gets or sets the file signature
         /// </summary>

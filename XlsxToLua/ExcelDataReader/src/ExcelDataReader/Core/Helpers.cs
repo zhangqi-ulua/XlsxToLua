@@ -14,11 +14,11 @@ namespace ExcelDataReader.Core
         private static readonly Regex EscapeRegex = new Regex("_x([0-9A-F]{4,4})_");
 
         /// <summary>
-        /// Determines whether [is single byte] [the specified encoding].
+        /// Determines whether the encoding is single byte or not.
         /// </summary>
         /// <param name="encoding">The encoding.</param>
         /// <returns>
-        ///     <c>true</c> if [is single byte] [the specified encoding]; otherwise, <c>false</c>.
+        ///     <see langword="true"/> if the specified encoding is single byte; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool IsSingleByteEncoding(Encoding encoding)
         {
@@ -35,21 +35,47 @@ namespace ExcelDataReader.Core
             return EscapeRegex.Replace(input, m => ((char)uint.Parse(m.Groups[1].Value, NumberStyles.HexNumber)).ToString());
         }
 
-        public static object ConvertFromOATime(double value)
+        /// <summary>
+        /// Convert a double from Excel to an OA DateTime double. 
+        /// The returned value is normalized to the '1900' date mode and adjusted for the 1900 leap year bug.
+        /// </summary>
+        public static double AdjustOADateTime(double value, bool date1904)
         {
-            if (value >= 0.0 && value < 60.0)
+            if (!date1904)
             {
-                value++;
+                // Workaround for 1900 leap year bug in Excel
+                if (value >= 0.0 && value < 60.0)
+                {
+                    return value + 1;
+                }
+            }
+            else
+            {
+                return value + 1462.0;
             }
 
-            /*
-            if (date1904)
-            {
-                Value += 1462.0;
-            }
-            */
-            
-            return DateTimeHelper.FromOADate(value);
+            return value;
+        }
+
+        public static bool IsValidOADateTime(double value)
+        {
+            return value > DateTimeHelper.OADateMinAsDouble && value < DateTimeHelper.OADateMaxAsDouble;
+        }
+
+        public static object ConvertFromOATime(double value, bool date1904)
+        {
+            var dateValue = AdjustOADateTime(value, date1904);
+            if (IsValidOADateTime(dateValue))
+                return DateTimeHelper.FromOADate(dateValue);
+            return value;
+        }
+
+        public static object ConvertFromOATime(int value, bool date1904)
+        {
+            var dateValue = AdjustOADateTime(value, date1904);
+            if (IsValidOADateTime(dateValue))
+                return DateTimeHelper.FromOADate(dateValue);
+            return value;
         }
     }
 }

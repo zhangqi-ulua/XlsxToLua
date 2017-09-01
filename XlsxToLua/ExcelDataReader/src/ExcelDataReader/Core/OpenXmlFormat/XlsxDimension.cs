@@ -1,15 +1,15 @@
-using System;
-
 namespace ExcelDataReader.Core.OpenXmlFormat
 {
-    internal class XlsxDimension
+    internal class XlsxDimension : XlsxElement
     {
         public XlsxDimension(string value)
+            : base(XlsxElementType.Dimension)
         {
             ParseDimensions(value);
         }
 
         public XlsxDimension(int rows, int cols)
+            : base(XlsxElementType.Dimension)
         {
             FirstRow = 1;
             LastRow = rows;
@@ -33,8 +33,7 @@ namespace ExcelDataReader.Core.OpenXmlFormat
         {
             string[] parts = value.Split(':');
 
-			int col;
-			int row;
+			int col, row;
             ReferenceHelper.ParseReference(parts[0], out col, out row);
             FirstCol = col;
             FirstRow = row;

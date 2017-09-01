@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,8 +9,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XlsxToLua</RootNamespace>
     <AssemblyName>XlsxToLua</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Commandlineparameters>TestExcel foo ClientVirtual lang.txt -columnInfo -allowedNullNumber -printEmptyStringWhenLangNotMatching</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -33,16 +34,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LitJson">
-      <HintPath>.\LitJson.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\MySql.Data.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>LitJson.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="MySql.Data">
+      <HintPath>MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppValues.cs" />
@@ -61,6 +61,16 @@
     <Compile Include="TxtConfigReader.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="XlsxReader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="ExcelDataReader\src\ExcelDataReader.DataSet\ExcelDataReader.DataSet_mono.csproj">
+      <Project>{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}</Project>
+      <Name>ExcelDataReader.DataSet_mono</Name>
+    </ProjectReference>
+    <ProjectReference Include="ExcelDataReader\src\ExcelDataReader\ExcelDataReader_mono.csproj">
+      <Project>{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}</Project>
+      <Name>ExcelDataReader_mono</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

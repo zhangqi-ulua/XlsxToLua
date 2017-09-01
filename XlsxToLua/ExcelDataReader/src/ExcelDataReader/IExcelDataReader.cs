@@ -1,40 +1,41 @@
-using System;
 using System.Data;
-using System.Text;
 
 namespace ExcelDataReader
 {
+    /// <summary>
+    /// The ExcelDataReader interface
+    /// </summary>
     public interface IExcelDataReader : IDataReader
     {
         /// <summary>
         /// Gets the sheet name.
         /// </summary>
-        /// <value>The sheet name.</value>
         string Name { get; }
 
         /// <summary>
-        /// Gets the state of the visible.
+        /// Gets the sheet VBA code name.
         /// </summary>
-        /// <value>
-        /// The state of the visible.
-        /// </value>
+        string CodeName { get; }
+
+        /// <summary>
+        /// Gets the sheet visible state.
+        /// </summary>
         string VisibleState { get; }
+
+        /// <summary>
+        /// Gets the sheet header and footer -or- <see langword="null"/> if none set.
+        /// </summary>
+        HeaderFooter HeaderFooter { get; }
 
         /// <summary>
         /// Gets the number of results (workbooks).
         /// </summary>
-        /// <value>The results count.</value>
         int ResultsCount { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the first row contains the column names.
+        /// Gets the height of the current row in points.
         /// </summary>
-        /// <value>
-        ///     <c>true</c> if the first row contains column names; otherwise, <c>false</c>.
-        /// </value>
-        bool IsFirstRowAsColumnNames { get; set; }
-
-        Encoding Encoding { get; }
+        double RowHeight { get; }
 
         /// <summary>
         /// Seeks to the first result.

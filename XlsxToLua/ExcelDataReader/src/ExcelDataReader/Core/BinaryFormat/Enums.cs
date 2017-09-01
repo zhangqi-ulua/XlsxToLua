@@ -1,30 +1,6 @@
 // ReSharper disable InconsistentNaming
 namespace ExcelDataReader.Core.BinaryFormat
 {
-    internal enum STGTY : byte
-    {
-        STGTY_INVALID = 0,
-        STGTY_STORAGE = 1,
-        STGTY_STREAM = 2,
-        STGTY_LOCKBYTES = 3,
-        STGTY_PROPERTY = 4,
-        STGTY_ROOT = 5
-    }
-
-    internal enum DECOLOR : byte
-    {
-        DE_RED = 0,
-        DE_BLACK = 1
-    }
-
-    internal enum FATMARKERS : uint
-    {
-        FAT_EndOfChain = 0xFFFFFFFE,
-        FAT_FreeSpace = 0xFFFFFFFF,
-        FAT_FatSector = 0xFFFFFFFD,
-        FAT_DifSector = 0xFFFFFFFC
-    }
-
     internal enum BIFFTYPE : ushort
     {
         WorkbookGlobals = 0x0005,
@@ -76,6 +52,8 @@ namespace ExcelDataReader.Core.BinaryFormat
 
         XF_V2 = 0x0043, // Extended format record, BIFF2
 
+        IXFE = 0x0044, // Index to XF, BIFF2
+
         STYLE = 0x0293,
         BOUNDSHEET = 0x0085,
         COUNTRY = 0x008C,
@@ -105,6 +83,7 @@ namespace ExcelDataReader.Core.BinaryFormat
         GUTS = 0x0080,
         WSBOOL = 0x0081,
         GRIDSET = 0x0082,
+        DEFAULTROWHEIGHT_V2 = 0x0025,
         DEFAULTROWHEIGHT = 0x0225,
         HEADER = 0x0014,
         FOOTER = 0x0015,
@@ -113,7 +92,9 @@ namespace ExcelDataReader.Core.BinaryFormat
         PRINTSETUP = 0x00A1,
         DFAULTCOLWIDTH = 0x0055,
         DIMENSIONS = 0x0200, // Size of area used for data
+        DIMENSIONS_V2 = 0x0000, // BIFF2
 
+        ROW_V2 = 0x0008, // Row record
         ROW = 0x0208, // Row record
 
         WINDOW2 = 0x023E,
@@ -142,9 +123,11 @@ namespace ExcelDataReader.Core.BinaryFormat
 
         LABELSST = 0x00FD, // String cell with value from SST (for BIFF8)
 
-        FORMULA = 0x0406, // Formula cell
+        FORMULA = 0x0006, // Formula cell, BIFF2, BIFF5-8
 
-        FORMULA_OLD = 0x0006, // Formula cell, old format
+        FORMULA_V3 = 0x0206, // Formula cell, BIFF3
+
+        FORMULA_V4 = 0x0406, // Formula cell, BIFF4
 
         BOOLERR = 0x0205, // Boolean or error cell
 
@@ -163,6 +146,8 @@ namespace ExcelDataReader.Core.BinaryFormat
         SHAREDFMLA_OLD = 0x00BC, // One more formula optimization element, old format
 
         STRING = 0x0207, // And one more, for string formula results
+
+        STRING_OLD = 0x0007, // Old string formula results
 
         CF = 0x01B1,
         CODENAME = 0x01BA,

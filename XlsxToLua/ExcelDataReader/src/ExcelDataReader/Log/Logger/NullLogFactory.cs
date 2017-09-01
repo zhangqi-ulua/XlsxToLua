@@ -1,32 +1,41 @@
-﻿namespace ExcelDataReader.Log.Logger
+﻿using System;
+
+namespace ExcelDataReader.Log.Logger
 {
     /// <summary>
     /// The default logger until one is set.
     /// </summary>
-    public class NullLog : ILog, ILog<NullLog>
+    public struct NullLogFactory : ILogFactory, ILog
     {
-        public void InitializeFor(string loggerName)
-        {
-        }
-
+        /// <inheritdoc />
         public void Debug(string message, params object[] formatting)
         {
         }
 
+        /// <inheritdoc />
         public void Info(string message, params object[] formatting)
         {
         }
 
+        /// <inheritdoc />
         public void Warn(string message, params object[] formatting)
         {
         }
 
+        /// <inheritdoc />
         public void Error(string message, params object[] formatting)
         {
         }
 
+        /// <inheritdoc />
         public void Fatal(string message, params object[] formatting)
         {
+        }
+
+        /// <inheritdoc />
+        public ILog Create(Type loggingType)
+        {
+            return this;
         }
     }
 }

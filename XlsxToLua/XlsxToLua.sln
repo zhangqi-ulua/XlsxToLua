@@ -5,16 +5,42 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XlsxToLua", "XlsxToLua.csproj", "{09629110-4ABF-4806-86D8-F7C1C1DCBD9A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelDataReader_mono", "ExcelDataReader\src\ExcelDataReader\ExcelDataReader_mono.csproj", "{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelDataReader.DataSet_mono", "ExcelDataReader\src\ExcelDataReader.DataSet\ExcelDataReader.DataSet_mono.csproj", "{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{09629110-4ABF-4806-86D8-F7C1C1DCBD9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{09629110-4ABF-4806-86D8-F7C1C1DCBD9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09629110-4ABF-4806-86D8-F7C1C1DCBD9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09629110-4ABF-4806-86D8-F7C1C1DCBD9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09629110-4ABF-4806-86D8-F7C1C1DCBD9A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{09629110-4ABF-4806-86D8-F7C1C1DCBD9A}.Debug|x86.Build.0 = Debug|Any CPU
+		{09629110-4ABF-4806-86D8-F7C1C1DCBD9A}.Release|x86.ActiveCfg = Release|Any CPU
+		{09629110-4ABF-4806-86D8-F7C1C1DCBD9A}.Release|x86.Build.0 = Release|Any CPU
+		{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}.Debug|Any CPU.Build.0 = Debug|x86
+		{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}.Release|Any CPU.ActiveCfg = Release|x86
+		{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}.Release|Any CPU.Build.0 = Release|x86
+		{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}.Debug|x86.ActiveCfg = Debug|x86
+		{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}.Debug|x86.Build.0 = Debug|x86
+		{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}.Release|x86.ActiveCfg = Release|x86
+		{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}.Release|x86.Build.0 = Release|x86
+		{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}.Debug|x86.Build.0 = Debug|Any CPU
+		{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}.Release|x86.ActiveCfg = Release|Any CPU
+		{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

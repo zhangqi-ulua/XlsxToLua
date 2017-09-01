@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5E28CFC7-9EEA-4964-B7D1-80EA8F770648}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>ExcelDataReader.DataSet_mono</RootNamespace>
+    <AssemblyName>ExcelDataReader.DataSet_mono</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Serialization" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="ExcelDataReader.DataSet\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ExcelDataReaderExtensions.cs">
+      <Link>ExcelDataReader.DataSet\ExcelDataReaderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="ExcelDataSetConfiguration.cs">
+      <Link>ExcelDataReader.DataSet\ExcelDataSetConfiguration.cs</Link>
+    </Compile>
+    <Compile Include="ExcelDataTableConfiguration.cs">
+      <Link>ExcelDataReader.DataSet\ExcelDataTableConfiguration.cs</Link>
+    </Compile>
+    <Compile Include="Portable\ExtensionAttribute.cs">
+      <Link>ExcelDataReader.DataSet\Portable\ExtensionAttribute.cs</Link>
+    </Compile>
+    <Compile Include="Portable\Func.cs">
+      <Link>ExcelDataReader.DataSet\Portable\Func.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExcelDataReader\ExcelDataReader_mono.csproj">
+      <Project>{D2FEB2D7-95FB-4190-9AA7-B0D7D2B36F05}</Project>
+      <Name>ExcelDataReader_mono</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

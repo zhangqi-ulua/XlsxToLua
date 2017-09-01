@@ -1,21 +1,12 @@
+using System.Text;
+
 namespace ExcelDataReader.Core.BinaryFormat
 {
     internal interface IXlsString
     {
         /// <summary>
-        /// Gets the string value.
+        /// Gets the string value. Encoding is only used with BIFF2-5 byte strings.
         /// </summary>
-        string Value { get; }
-
-        /// <summary>
-        /// Gets the nubmer of characters in the string.
-        /// </summary>
-        ushort CharacterCount { get; }
-
-        uint HeadSize { get;  }
-
-        uint TailSize { get; }
-
-        bool IsMultiByte { get; }
+        string GetValue(Encoding encoding);
     }
 }

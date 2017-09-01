@@ -3,11 +3,10 @@ using System.IO;
 #if !NET20
 using System.IO.Compression;
 #endif
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace ExcelDataReader.Core
 {
-    public partial class ZipWorker : IDisposable
+    internal partial class ZipWorker : IDisposable
     {
         private const string FileSharedStrings = "xl/sharedStrings.{0}";
         private const string FileStyles = "xl/styles.{0}";
@@ -19,8 +18,7 @@ namespace ExcelDataReader.Core
 
         private bool _disposed;
         private Stream _zipStream;
-		private ZipFile _zipFile;
-//        private ZipArchive _zipFile;
+        private ZipArchive _zipFile;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ZipWorker"/> class. 
@@ -28,11 +26,9 @@ namespace ExcelDataReader.Core
         /// <param name="fileStream">The zip file stream.</param>
         public ZipWorker(Stream fileStream)
         {
-			if (fileStream == null)
-				throw new ArgumentNullException(nameof(fileStream));
-			_zipStream = fileStream;
-//            _zipFile = new ZipArchive(fileStream);
-			_zipFile = new ZipFile(fileStream);
+			if (fileStream == null) throw new ArgumentNullException(nameof(fileStream));
+            _zipStream = fileStream;
+            _zipFile = new ZipArchive(fileStream);
         }
 
         /// <summary>
@@ -42,8 +38,7 @@ namespace ExcelDataReader.Core
         public Stream GetSharedStringsStream()
         {
             var zipEntry = _zipFile.GetEntry(string.Format(FileSharedStrings, Format));
-//            return zipEntry?.Open();
-			return zipEntry==null?null:_zipFile.GetInputStream (zipEntry);
+            return zipEntry?.Open();
         }
 
         /// <summary>
@@ -53,8 +48,7 @@ namespace ExcelDataReader.Core
         public Stream GetStylesStream()
         {
             var zipEntry = _zipFile.GetEntry(string.Format(FileStyles, Format));
-//            return zipEntry?.Open();
-			return zipEntry==null?null:_zipFile.GetInputStream (zipEntry);
+            return zipEntry?.Open();
         }
 
         /// <summary>
@@ -64,8 +58,7 @@ namespace ExcelDataReader.Core
         public Stream GetWorkbookStream()
         {
             var zipEntry = _zipFile.GetEntry(string.Format(FileWorkbook, Format));
-//            return zipEntry.Open();
-			return _zipFile.GetInputStream (zipEntry);
+            return zipEntry?.Open();
         }
 
         /// <summary>
@@ -76,8 +69,7 @@ namespace ExcelDataReader.Core
         public Stream GetWorksheetStream(int sheetId)
         {
             var zipEntry = _zipFile.GetEntry(string.Format(FileSheet, sheetId, Format));
-//            return zipEntry.Open();
-			return _zipFile.GetInputStream (zipEntry);
+            return zipEntry?.Open();
         }
 
         public Stream GetWorksheetStream(string sheetPath)
@@ -90,8 +82,7 @@ namespace ExcelDataReader.Core
                 sheetPath = "xl/" + sheetPath;
 
             var zipEntry = _zipFile.GetEntry(sheetPath);
-//            return zipEntry.Open();
-			return _zipFile.GetInputStream (zipEntry);
+            return zipEntry?.Open();
         }
 
         /// <summary>
@@ -101,12 +92,11 @@ namespace ExcelDataReader.Core
         public Stream GetWorkbookRelsStream()
         {
             var zipEntry = _zipFile.GetEntry(string.Format(FileRels, Format));
-//            return zipEntry.Open();
-			return _zipFile.GetInputStream (zipEntry);
+            return zipEntry?.Open();
         }
     }
 
-    public partial class ZipWorker
+    internal partial class ZipWorker
     {
         ~ZipWorker()
         {
@@ -129,8 +119,7 @@ namespace ExcelDataReader.Core
                 {
                     if (_zipFile != null)
                     {
-//                        _zipFile.Dispose();
-						_zipFile.Close();
+                        _zipFile.Dispose();
                         _zipFile = null;
                     }
 

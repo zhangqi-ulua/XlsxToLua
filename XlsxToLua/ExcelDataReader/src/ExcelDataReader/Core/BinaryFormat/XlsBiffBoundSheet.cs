@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 
 namespace ExcelDataReader.Core.BinaryFormat
@@ -7,11 +8,36 @@ namespace ExcelDataReader.Core.BinaryFormat
     /// </summary>
     internal class XlsBiffBoundSheet : XlsBiffRecord
     {
-        internal XlsBiffBoundSheet(byte[] bytes, uint offset, bool isV8, Encoding encoding)
+        private readonly IXlsString _sheetName;
+
+        internal XlsBiffBoundSheet(byte[] bytes, uint offset, int biffVersion)
             : base(bytes, offset)
         {
-            IsV8 = isV8;
-            SheetNameEncoding = encoding;
+            StartOffset = ReadUInt32(0x0);
+            this.Type = (SheetType)ReadByte(0x5);
+            VisibleState = (SheetVisibility)ReadByte(0x4);
+
+            if (biffVersion == 8)
+            {
+                _sheetName = new XlsShortUnicodeString(bytes, offset + 4 + 6);
+            }
+            else if (biffVersion == 5)
+            {
+                _sheetName = new XlsShortByteString(bytes, offset + 4 + 6);
+            }
+            else 
+            {
+                throw new ArgumentException("Unexpected BIFF version " + biffVersion.ToString(), nameof(biffVersion));
+            }
+        }
+
+        internal XlsBiffBoundSheet(uint startOffset, SheetType type, SheetVisibility visibleState, string name)
+            : base(new byte[32], 0)
+        {
+            StartOffset = startOffset;
+            this.Type = type;
+            VisibleState = visibleState;
+            _sheetName = new XlsInternalString(name);
         }
 
         public enum SheetType : byte
@@ -34,51 +60,24 @@ namespace ExcelDataReader.Core.BinaryFormat
         /// <summary>
         /// Gets the worksheet data start offset.
         /// </summary>
-        public uint StartOffset => ReadUInt32(0x0);
+        public uint StartOffset { get; }
 
         /// <summary>
         /// Gets the worksheet type.
         /// </summary>
-        public SheetType Type => (SheetType)ReadByte(0x5);
+        public SheetType Type { get; }
 
         /// <summary>
         /// Gets the visibility of the worksheet.
         /// </summary>
-        public SheetVisibility VisibleState => (SheetVisibility)ReadByte(0x4);
+        public SheetVisibility VisibleState { get; }
 
         /// <summary>
         /// Gets the name of the worksheet.
         /// </summary>
-        public string SheetName
+        public string GetSheetName(Encoding encoding)
         {
-            get
-            {
-                ushort len = ReadByte(0x6);
-
-                const int start = 0x8;
-                if (!IsV8)
-                    return SheetNameEncoding.GetString(Bytes, RecordContentOffset + start, Helpers.IsSingleByteEncoding(SheetNameEncoding) ? len : len * 2);
-
-                if (ReadByte(0x7) == 0)
-                {
-                    byte[] bytes = new byte[len * 2];
-                    for (int i = 0; i < len; i++)
-                    {
-                        bytes[i * 2] = Bytes[RecordContentOffset + start + i];
-                    }
-
-                    return Encoding.Unicode.GetString(bytes, 0, len * 2);
-                }
-
-                return Encoding.Unicode.GetString(Bytes, RecordContentOffset + start, len * 2);
-            }
+            return _sheetName.GetValue(encoding);
         }
-
-        /// <summary>
-        /// Gets a value indicating whether this is a BIFF8 file or not.
-        /// </summary>
-        public bool IsV8 { get; }
-
-        public Encoding SheetNameEncoding { get; }
     }
 }

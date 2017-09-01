@@ -4,18 +4,16 @@ using System.IO;
 using System.Text;
 using ExcelDataReader.Exceptions;
 
-namespace ExcelDataReader.Core.BinaryFormat
+namespace ExcelDataReader.Core.CompoundFormat
 {
-    internal class XlsDocument
+    internal class CompoundDocument
     {
-        public XlsDocument(Stream stream)
+        public CompoundDocument(Stream stream)
         {
             var reader = new BinaryReader(stream);
 
             Header = ReadHeader(reader);
 
-            if (Header.IsRawBiffStream)
-                throw new NotSupportedException("File appears to be a raw BIFF stream which isn't supported (BIFF" + Header.RawBiffVersion + ").");
             if (!Header.IsSignatureValid)
                 throw new HeaderException(Errors.ErrorHeaderSignature);
             if (Header.ByteOrder != 0xFFFE && Header.ByteOrder != 0xFFFF) // Some broken xls files uses 0xFFFF
@@ -28,73 +26,26 @@ namespace ExcelDataReader.Core.BinaryFormat
             MiniSectorTable = ReadSectorTable(reader, miniChain);
 
             var directoryChain = GetSectorChain(Header.RootDirectoryEntryStart, SectorTable);
-            var bytes = ReadRegularStream(stream, directoryChain, Header.RootDirectoryEntryStart, directoryChain.Count * Header.SectorSize);
+            var bytes = ReadRegularStream(stream, directoryChain, directoryChain.Count * Header.SectorSize);
             ReadDirectoryEntries(bytes);
         }
 
-        internal XlsHeader Header { get; }
+        internal CompoundHeader Header { get; }
 
         internal List<uint> SectorTable { get; }
 
         internal List<uint> MiniSectorTable { get; }
 
-        internal XlsDirectoryEntry RootEntry { get; set; }
+        internal CompoundDirectoryEntry RootEntry { get; set; }
 
-        internal List<XlsDirectoryEntry> Entries { get; set; }
+        internal List<CompoundDirectoryEntry> Entries { get; set; }
 
-        internal static bool CheckRawBiffStream(byte[] bytes, out int version)
+        internal static bool IsCompoundDocument(byte[] probe)
         {
-            if (bytes.Length < 8)
-            {
-                throw new ArgumentException("Needs at least 8 bytes to probe", nameof(bytes));
-            }
-
-            version = -1;
-
-            ushort rid = BitConverter.ToUInt16(bytes, 0);
-            ushort size = BitConverter.ToUInt16(bytes, 2);
-            ushort bofVersion = BitConverter.ToUInt16(bytes, 4);
-            ushort type = BitConverter.ToUInt16(bytes, 6);
-
-            switch (rid)
-            {
-                case 0x0009: // BIFF2
-                    if (size != 4)
-                        return false;
-                    if (type != 0x10 && type != 0x20 && type != 0x40)
-                        return false;
-                    version = 2;
-                    return true;
-                case 0x0209: // BIFF3
-                    if (size != 6)
-                        return false;
-                    if (type != 0x10 && type != 0x20 && type != 0x40 && type != 0x0100)
-                        return false;
-                    /* removed this additional check to keep the probe at 8 bytes
-                    ushort notUsed = BitConverter.ToUInt16(bytes, 8);
-                    if (notUsed != 0x00)
-                        return false;*/
-                    version = 3;
-                    return true;
-                case 0x0809: // BIFF5/BIFF8
-                    if (size != 8 || size != 16)
-                        return false;
-                    if (bofVersion != 0x0500 && bofVersion != 0x600)
-                        return false;
-                    if (type != 0x5 && type != 0x6 && type != 0x10 && type != 0x20 && type != 0x40 && type != 0x0100)
-                        return false;
-                    /* removed this additional check to keep the probe at 8 bytes
-                    ushort identifier = BitConverter.ToUInt16(bytes, 10);
-                    if (identifier == 0)
-                        return false;*/
-                    version = bofVersion == 0x0500 ? 5 : 8;
-                    return true;
-            }
-
-            return false;
+            return BitConverter.ToUInt64(probe, 0) == 0xE11AB1A1E011CFD0;
         }
 
-        internal XlsDirectoryEntry FindEntry(string entryName)
+        internal CompoundDirectoryEntry FindEntry(string entryName)
         {
             foreach (var e in Entries)
             {
@@ -103,6 +54,37 @@ namespace ExcelDataReader.Core.BinaryFormat
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Creates a Stream instance to read from the compound document.
+        /// </summary>
+        internal Stream CreateStream(Stream stream, uint baseSector, int length, bool isMini)
+        {
+            return new CompoundStream(this, stream, baseSector, length, isMini);
+        }
+
+        internal long GetMiniSectorOffset(uint sector)
+        {
+            return Header.MiniSectorSize * sector;
+        }
+
+        internal long GetSectorOffset(uint sector)
+        {
+            return 512 + Header.SectorSize * sector;
+        }
+
+        internal List<uint> GetSectorChain(uint sector, List<uint> sectorTable)
+        {
+            List<uint> chain = new List<uint>();
+            while (sector != (uint)FATMARKERS.FAT_EndOfChain)
+            {
+                chain.Add(sector);
+                sector = GetNextSector(sector, sectorTable);
+            }
+
+            TrimSectorChain(chain, FATMARKERS.FAT_FreeSpace);
+            return chain;
         }
 
         /// <summary>
@@ -155,10 +137,10 @@ namespace ExcelDataReader.Core.BinaryFormat
         private byte[] ReadRegularStream(Stream stream, uint baseSector, int length)
         {
             var chain = GetSectorChain(baseSector, SectorTable);
-            return ReadRegularStream(stream, chain, baseSector, length);
+            return ReadRegularStream(stream, chain, length);
         }
 
-        private byte[] ReadRegularStream(Stream stream, List<uint> chain, uint baseSector, int length)
+        private byte[] ReadRegularStream(Stream stream, List<uint> chain, int length)
         {
             var result = new byte[length];
             int resultOffset = 0;
@@ -182,7 +164,7 @@ namespace ExcelDataReader.Core.BinaryFormat
         {
             try
             {
-                Entries = new List<XlsDirectoryEntry>();
+                Entries = new List<CompoundDirectoryEntry>();
                 using (var stream = new MemoryStream(bytes))
                 {
                     using (var reader = new BinaryReader(stream))
@@ -204,9 +186,9 @@ namespace ExcelDataReader.Core.BinaryFormat
             }
         }
 
-        private XlsDirectoryEntry ReadDirectoryEntry(BinaryReader reader)
+        private CompoundDirectoryEntry ReadDirectoryEntry(BinaryReader reader)
         {
-            var result = new XlsDirectoryEntry();
+            var result = new CompoundDirectoryEntry();
             var name = reader.ReadBytes(64);
             var nameLength = reader.ReadUInt16();
 
@@ -231,20 +213,10 @@ namespace ExcelDataReader.Core.BinaryFormat
             return result;
         }
 
-        private XlsHeader ReadHeader(BinaryReader reader)
+        private CompoundHeader ReadHeader(BinaryReader reader)
         {
-            var result = new XlsHeader();
-            var signature = reader.ReadBytes(8);
-
-			int version;
-            if (CheckRawBiffStream(signature, out version))
-            {
-                result.IsRawBiffStream = true;
-                result.RawBiffVersion = version;
-                return result;
-            }
-
-            result.Signature = BitConverter.ToUInt64(signature, 0);
+            var result = new CompoundHeader();
+            result.Signature = reader.ReadUInt64();
             result.ClassId = new Guid(reader.ReadBytes(16));
             result.Version = reader.ReadUInt16();
             result.DllVersion = reader.ReadUInt16();
@@ -284,11 +256,14 @@ namespace ExcelDataReader.Core.BinaryFormat
             {
                 try
                 {
+                    var difSector = Header.DifFirstSector;
                     for (var i = 0; i < Header.DifSectorCount; ++i)
                     {
-                        var difSector = (uint)(Header.DifFirstSector + i);
                         var difContent = ReadSectorAsUInt32s(reader, difSector);
-                        difSectorChain.AddRange(difContent);
+                        difSectorChain.AddRange(difContent.GetRange(0, difContent.Count - 1));
+
+                        // The DIFAT sectors are linked together by the "Next DIFAT Sector Location" in each DIFAT sector:
+                        difSector = difContent[difContent.Count - 1];
                     }
                 }
                 catch (EndOfStreamException ex)
@@ -348,39 +323,14 @@ namespace ExcelDataReader.Core.BinaryFormat
             }
         }
 
-        private long GetMiniSectorOffset(uint sector)
-        {
-            return Header.MiniSectorSize * sector;
-        }
-
-        private long GetSectorOffset(uint sector)
-        {
-            return 512 + Header.SectorSize * sector;
-        }
-
-        private List<uint> GetSectorChain(uint sector, List<uint> sectorTable)
-        {
-            List<uint> chain = new List<uint>();
-            while (sector != (uint)FATMARKERS.FAT_EndOfChain)
-            {
-                chain.Add(sector);
-                sector = GetNextSector(sector, sectorTable);
-            }
-
-            TrimSectorChain(chain, FATMARKERS.FAT_FreeSpace);
-            return chain;
-        }
-
         private uint GetNextSector(uint sector, List<uint> sectorTable)
         {
             if (sector < sectorTable.Count)
             {
                 return sectorTable[(int)sector];
             }
-            else
-            {
-                return (uint)FATMARKERS.FAT_EndOfChain;
-            }
+
+            return (uint)FATMARKERS.FAT_EndOfChain;
         }
     }
 }
