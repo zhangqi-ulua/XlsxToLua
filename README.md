@@ -9,6 +9,11 @@
 感谢蒙大神的 [<b>CSToLua</b>](https://github.com/topameng/CsToLua)(https://github.com/topameng/CsToLua) 以及新推出的[<b>tolua#</b>](https://github.com/topameng/tolua)(https://github.com/topameng/tolua) 对ulua开发unity游戏带来的巨大效率提升<br/>
 感谢众多为ulua社区做出贡献的大神 (http://bbs.ulua.org/article/ulua/uluacstoluagongxianyingxiongbang.html)<br/>
 ______________________________________________________________________________<br/>
+
+感谢mimicryryu fork出了替换微软读取Excel类库为开源的ExcelDataReader，从而支持在mac系统上运行XlsxToLua工具<br/>
+
+地址为：https://github.com/mimicryryu/XlsxToLua<br/>
+______________________________________________________________________________<br/><br/>
 ####更新日志<br/>
 这里仅列举版本新增功能的大致介绍，详细使用请参考PDF版本的使用说明<br/><br/>
 
