@@ -414,6 +414,36 @@ public class Utils
         }
     }
 
+    public static string GetCamelCaseString(string inputString)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (inputString.IndexOf('_') != -1)
+        {
+            bool isUnderlineOfLastChar = false;
+            for (int i = 0; i < inputString.Length; ++i)
+            {
+                char c = inputString[i];
+                if (c == '_')
+                {
+                    isUnderlineOfLastChar = true;
+                    continue;
+                }
+                if (isUnderlineOfLastChar == true)
+                {
+                    stringBuilder.Append(char.ToUpper(c));
+                    isUnderlineOfLastChar = false;
+                }
+                else
+                    stringBuilder.Append(char.ToLower(c));
+            }
+
+            string tempClassName = stringBuilder.ToString();
+            return char.ToLower(tempClassName[0]) + tempClassName.Substring(1);
+        }
+        else
+            return inputString;
+    }
+
     /// <summary>
     /// 将某张Excel表格转换为lua table内容保存到文件
     /// </summary>

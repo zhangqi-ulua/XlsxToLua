@@ -88,38 +88,18 @@ public class TableExportToJavaClassHelper
             className = tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT_CSV_CLASS_NAME][0].Trim();
         if (string.IsNullOrEmpty(className))
         {
-            StringBuilder classNameStringBuilder = new StringBuilder();
-            if (tableInfo.TableName.IndexOf('_') != -1)
-            {
-                bool isUnderlineOfLastChar = false;
-                for (int i = 0; i < tableInfo.TableName.Length; ++i)
-                {
-                    char c = tableInfo.TableName[i];
-                    if (c == '_')
-                    {
-                        isUnderlineOfLastChar = true;
-                        continue;
-                    }
-                    if (isUnderlineOfLastChar == true)
-                    {
-                        classNameStringBuilder.Append(c.ToString().ToUpper());
-                        isUnderlineOfLastChar = false;
-                    }
-                    else
-                        classNameStringBuilder.Append(c.ToString().ToLower());
-                }
+            // 自动命名采用驼峰式
+            className = Utils.GetCamelCaseString(tableInfo.TableName);
 
-                className = classNameStringBuilder[0].ToString();
-            }
-            else
-                className = tableInfo.TableName;
-
-            // 若统一配置了前缀和后缀，需进行添加
-            className = string.Concat(AppValues.ExportCsvClassClassNamePrefix != null ? AppValues.ExportCsvClassClassNamePrefix : string.Empty, className, AppValues.ExportCsvClassClassNamePostfix != null ? AppValues.ExportCsvClassClassNamePostfix : string.Empty);
+            // 若统一配置了前缀和后缀，需进行添加（但注意如果配置了前缀，上面生成的驼峰式类名首字母要改为大写）
+            if (string.IsNullOrEmpty(AppValues.ExportCsvClassClassNamePrefix) == false)
+                className = string.Concat(AppValues.ExportCsvClassClassNamePrefix, char.ToUpper(className[0]), className.Substring(1));
+            if (string.IsNullOrEmpty(AppValues.ExportCsvClassClassNamePostfix) == false)
+                className = className + AppValues.ExportCsvClassClassNamePostfix;
         }
 
         // 类名首字母大写
-        string firstLetter = className[0].ToString().ToUpper();
+        char firstLetter = char.ToUpper(className[0]);
         className = string.Concat(firstLetter, className.Substring(1));
         stringBuilder.AppendLine(string.Concat("public class ", className, " {"));
         // 逐个生成类字段信息
