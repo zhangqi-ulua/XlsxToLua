@@ -91,40 +91,15 @@ namespace XlsxToLuaGUI
 
         private void btnChooseExceptExcel_Click(object sender, EventArgs e)
         {
-            string excelFolderPath = tbExcelFolderPath.Text.Trim();
-            if (string.IsNullOrEmpty(excelFolderPath))
+            string errorString = null;
+            string exceptExcelNames = _GetChoosePartExcelFile(out errorString);
+            if (errorString == null)
             {
-                MessageBox.Show("请先指定Excel文件所在目录", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                if (exceptExcelNames != null)
+                    tbExceptExcelNames.Text = exceptExcelNames;
             }
-            if (!Directory.Exists(excelFolderPath))
-            {
-                MessageBox.Show("指定Excel文件所在目录不存在，请重新设置", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Title = "请选择要忽略导出的Excel表格";
-            dialog.InitialDirectory = excelFolderPath;
-            dialog.Multiselect = true;
-            dialog.Filter = "Excel files (*.xlsx)|*.xlsx";
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                string[] filePaths = dialog.FileNames;
-                // 检查选择的Excel文件是否在设置的Excel所在目录
-                string checkFilePath = Path.GetDirectoryName(filePaths[0]);
-                if (!checkFilePath.Equals(excelFolderPath, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    MessageBox.Show(string.Format("必须在指定的Excel文件所在目录中选择要忽略导出的文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", excelFolderPath, checkFilePath), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                List<string> fileNames = new List<string>();
-                foreach (string filePath in filePaths)
-                    fileNames.Add(Path.GetFileNameWithoutExtension(filePath));
-
-                string exceptExcelFileParam = Utils.CombineString(fileNames, "|");
-                tbExceptExcelNames.Text = exceptExcelFileParam;
-            }
+            else
+                MessageBox.Show(errorString, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void btnChooseProgramPath_Click(object sender, EventArgs e)
@@ -1161,7 +1136,7 @@ namespace XlsxToLuaGUI
                 string checkFilePath = Path.GetDirectoryName(filePaths[0]);
                 if (!Path.GetFullPath(checkFilePath).Equals(Path.GetFullPath(excelFolderPath), StringComparison.CurrentCultureIgnoreCase))
                 {
-                    errorString = string.Format("必须在指定的Excel文件所在目录中选择导出文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", excelFolderPath, checkFilePath);
+                    errorString = string.Format("必须在指定的Excel文件所在目录中选择导出文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", Path.GetFullPath(excelFolderPath), Path.GetFullPath(checkFilePath));
                     return null;
                 }
                 List<string> fileNames = new List<string>();
