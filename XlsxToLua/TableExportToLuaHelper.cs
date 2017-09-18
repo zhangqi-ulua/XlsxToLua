@@ -533,7 +533,7 @@ public class TableExportToLuaHelper
             case DataType.Dict:
             case DataType.Array:
                 {
-                    value = _GetSetValue(fieldInfo, row, level);
+                    value = _GetSetValue(fieldInfo, row, level, out errorString);
                     break;
                 }
             default:
@@ -698,10 +698,9 @@ public class TableExportToLuaHelper
         return content.ToString();
     }
 
-    private static string _GetSetValue(FieldInfo fieldInfo, int row, int level)
+    private static string _GetSetValue(FieldInfo fieldInfo, int row, int level, out string errorString)
     {
         StringBuilder content = new StringBuilder();
-        string errorString = null;
 
         // 如果该dict或array数据用-1标为无效，则赋值为nil
         if ((bool)fieldInfo.Data[row] == false)
@@ -714,9 +713,11 @@ public class TableExportToLuaHelper
             // 逐个对子元素进行生成
             foreach (FieldInfo childField in fieldInfo.ChildField)
             {
-                // 因为只有tableString型数据在导出时才有可能出现错误，而dict或array子元素不可能为tableString型，故这里不会出错
                 string oneFieldString = _GetOneField(childField, row, level, out errorString);
-                content.Append(oneFieldString);
+                if (errorString != null)
+                    return null;
+                else
+                    content.Append(oneFieldString);
             }
             // 包裹dict或array所生成table的右括号
             --level;
@@ -724,6 +725,7 @@ public class TableExportToLuaHelper
             content.Append("}");
         }
 
+        errorString = null;
         return content.ToString();
     }
 

@@ -188,12 +188,12 @@ public class TableExportToJsonHelper
                 }
             case DataType.Dict:
                 {
-                    value = _GetDictValue(fieldInfo, row);
+                    value = _GetDictValue(fieldInfo, row, out errorString);
                     break;
                 }
             case DataType.Array:
                 {
-                    value = _GetArrayValue(fieldInfo, row);
+                    value = _GetArrayValue(fieldInfo, row, out errorString);
                     break;
                 }
             default:
@@ -653,10 +653,9 @@ public class TableExportToJsonHelper
         return result;
     }
 
-    private static string _GetDictValue(FieldInfo fieldInfo, int row)
+    private static string _GetDictValue(FieldInfo fieldInfo, int row, out string errorString)
     {
         StringBuilder content = new StringBuilder();
-        string errorString = null;
 
         // 如果该dict数据用-1标为无效，则赋值为null
         if ((bool)fieldInfo.Data[row] == false)
@@ -669,9 +668,11 @@ public class TableExportToJsonHelper
             // 逐个对子元素进行生成
             foreach (FieldInfo childField in fieldInfo.ChildField)
             {
-                // 因为只有tableString型数据在导出时才有可能出现错误，而dict子元素不可能为tableString型，故这里不会出错
                 string oneFieldString = _GetOneField(childField, row, out errorString);
-                content.Append(oneFieldString);
+                if (errorString != null)
+                    return null;
+                else
+                    content.Append(oneFieldString);
             }
 
             // 去掉最后一个子元素末尾多余的英文逗号
@@ -680,13 +681,13 @@ public class TableExportToJsonHelper
             content.Append("}");
         }
 
+        errorString = null;
         return content.ToString();
     }
 
-    private static string _GetArrayValue(FieldInfo fieldInfo, int row)
+    private static string _GetArrayValue(FieldInfo fieldInfo, int row, out string errorString)
     {
         StringBuilder content = new StringBuilder();
-        string errorString = null;
 
         // 如果该array数据用-1标为无效，则赋值为null
         if ((bool)fieldInfo.Data[row] == false)
@@ -697,21 +698,29 @@ public class TableExportToJsonHelper
             content.Append("[");
 
             // 逐个对子元素进行生成
+            bool hasValidChild = false;
             foreach (FieldInfo childField in fieldInfo.ChildField)
             {
-                // 因为只有tableString型数据在导出时才有可能出现错误，而array子元素不可能为tableString型，故这里不会出错
                 string oneFieldString = _GetOneField(childField, row, out errorString);
+                if (errorString != null)
+                    return null;
+
                 // json array中不允许null元素
                 if (!"null,".Equals(oneFieldString))
+                {
                     content.Append(oneFieldString);
+                    hasValidChild = true;
+                }
             }
 
             // 去掉最后一个子元素末尾多余的英文逗号
-            content.Remove(content.Length - 1, 1);
+            if (hasValidChild == true)
+                content.Remove(content.Length - 1, 1);
 
             content.Append("]");
         }
 
+        errorString = null;
         return content.ToString();
     }
 

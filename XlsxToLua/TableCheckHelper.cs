@@ -384,13 +384,8 @@ public class TableCheckHelper
                 for (int i = 0; i < fieldInfo.Data.Count; ++i)
                 {
                     // 如果int、long、float型字段下取值为null，可能填写的为空值，也可能是父集合类型标为无效
-                    if (fieldInfo.ParentField != null)
-                    {
-                        if ((bool)fieldInfo.ParentField.Data[i] == false)
-                            continue;
-                        else if (fieldInfo.ParentField.ParentField != null && (bool)fieldInfo.ParentField.ParentField.Data[i] == false)
-                            continue;
-                    }
+                    if (fieldInfo.ParentField != null && (bool)fieldInfo.ParentField.Data[i] == false)
+                        continue;
                     else if (fieldInfo.Data[i] == null)
                         emptyDataLines.Add(i);
                 }
@@ -401,13 +396,8 @@ public class TableCheckHelper
             for (int i = 0; i < fieldInfo.Data.Count; ++i)
             {
                 // 如果date、time型字段下取值为null，可能填写的为空值，也可能是父集合类型标为无效
-                if (fieldInfo.ParentField != null)
-                {
-                    if ((bool)fieldInfo.ParentField.Data[i] == false)
-                        continue;
-                    else if (fieldInfo.ParentField.ParentField != null && (bool)fieldInfo.ParentField.ParentField.Data[i] == false)
-                        continue;
-                }
+                if (fieldInfo.ParentField != null && (bool)fieldInfo.ParentField.Data[i] == false)
+                    continue;
                 else if (fieldInfo.Data[i] == null)
                     emptyDataLines.Add(i);
             }
@@ -416,8 +406,10 @@ public class TableCheckHelper
         {
             for (int i = 0; i < fieldInfo.Data.Count; ++i)
             {
-                // json、tableString类型必为独立字段
-                if (fieldInfo.Data[i] == null)
+                // 如果json、tableString型字段下取值为null，可能填写的为空值，也可能是父集合类型标为无效
+                if (fieldInfo.ParentField != null && (bool)fieldInfo.ParentField.Data[i] == false)
+                    continue;
+                else if (fieldInfo.Data[i] == null)
                     emptyDataLines.Add(i);
             }
         }

@@ -130,7 +130,7 @@ public class TableAnalyzeHelper
     private static FieldInfo _AnalyzeOneField(DataTable dt, TableInfo tableInfo, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
         // 判断列号是否越界
-        if (columnIndex > dt.Columns.Count)
+        if (columnIndex >= dt.Columns.Count)
         {
             errorString = "需要解析的列号越界，可能因为dict或array中实际的子元素个数低于声明的个数";
             nextFieldColumnIndex = columnIndex + 1;
@@ -454,7 +454,7 @@ public class TableAnalyzeHelper
         for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
             // 如果本行该字段的父元素标记为无效则该数据也标为无效
-            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+            if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                 fieldInfo.Data.Add(null);
             else
             {
@@ -507,7 +507,7 @@ public class TableAnalyzeHelper
         for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
             // 如果本行该字段的父元素标记为无效则该数据也标为无效
-            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+            if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                 fieldInfo.Data.Add(null);
             else
             {
@@ -560,7 +560,7 @@ public class TableAnalyzeHelper
         for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
             // 如果本行该字段的父元素标记为无效则该数据也标为无效
-            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+            if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                 fieldInfo.Data.Add(null);
             else
             {
@@ -613,7 +613,7 @@ public class TableAnalyzeHelper
         for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
             // 如果本行该字段的父元素标记为无效则该数据也标为无效
-            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+            if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                 fieldInfo.Data.Add(null);
             else
             {
@@ -664,7 +664,7 @@ public class TableAnalyzeHelper
             for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
             {
                 // 如果本行该字段的父元素标记为无效则该数据也标为无效
-                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                     fieldInfo.Data.Add(null);
                 else
                     fieldInfo.Data.Add(dt.Rows[row][columnIndex].ToString().Trim());
@@ -674,7 +674,7 @@ public class TableAnalyzeHelper
         {
             for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
             {
-                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                     fieldInfo.Data.Add(null);
                 else
                     fieldInfo.Data.Add(dt.Rows[row][columnIndex].ToString());
@@ -711,7 +711,7 @@ public class TableAnalyzeHelper
         for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
             // 如果本行该字段的父元素标记为无效则该数据也标为无效
-            if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+            if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
             {
                 fieldInfo.LangKeys.Add(null);
                 fieldInfo.Data.Add(null);
@@ -976,7 +976,7 @@ public class TableAnalyzeHelper
             for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
             {
                 // 如果本行该字段的父元素标记为无效则该数据也标为无效
-                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                     fieldInfo.Data.Add(null);
                 else
                 {
@@ -1004,7 +1004,7 @@ public class TableAnalyzeHelper
             for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
             {
                 // 如果本行该字段的父元素标记为无效则该数据也标为无效
-                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                     fieldInfo.Data.Add(null);
                 else
                 {
@@ -1025,7 +1025,7 @@ public class TableAnalyzeHelper
             for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
             {
                 // 如果本行该字段的父元素标记为无效则该数据也标为无效
-                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                     fieldInfo.Data.Add(null);
                 else
                 {
@@ -1216,7 +1216,7 @@ public class TableAnalyzeHelper
             for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
             {
                 // 如果本行该字段的父元素标记为无效则该数据也标为无效
-                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                     fieldInfo.Data.Add(null);
                 else
                 {
@@ -1245,7 +1245,7 @@ public class TableAnalyzeHelper
             for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
             {
                 // 如果本行该字段的父元素标记为无效则该数据也标为无效
-                if (parentField != null && ((bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false || (parentField.ParentField != null && (bool)parentField.ParentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)))
+                if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                     fieldInfo.Data.Add(null);
                 else
                 {
@@ -1302,30 +1302,37 @@ public class TableAnalyzeHelper
     /// </summary>
     private static bool _AnalyzeJsonType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
-        // 因为array和dict在检查子类型时已经禁止子类型为json型，这里便可不必重复检查父类型不能是集合类型
-
         StringBuilder errorStringBuilder = new StringBuilder();
         fieldInfo.Data = new List<object>();
         fieldInfo.JsonString = new List<string>();
         for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
-            string inputData = dt.Rows[row][columnIndex].ToString().Trim();
-            if (string.IsNullOrEmpty(inputData))
+            // 如果本行该字段的父元素标记为无效则该数据也标为无效
+            if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
             {
                 fieldInfo.Data.Add(null);
                 fieldInfo.JsonString.Add(null);
             }
             else
             {
-                fieldInfo.JsonString.Add(inputData);
-                try
+                string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                if (string.IsNullOrEmpty(inputData))
                 {
-                    JsonData jsonData = JsonMapper.ToObject(inputData);
-                    fieldInfo.Data.Add(jsonData);
+                    fieldInfo.Data.Add(null);
+                    fieldInfo.JsonString.Add(null);
                 }
-                catch (JsonException exception)
+                else
                 {
-                    errorStringBuilder.AppendFormat("第{0}行所填json字符串（{1}）非法，原因为：{2}\n", row + AppValues.DATA_FIELD_DATA_START_INDEX + 1, inputData, exception.Message);
+                    fieldInfo.JsonString.Add(inputData);
+                    try
+                    {
+                        JsonData jsonData = JsonMapper.ToObject(inputData);
+                        fieldInfo.Data.Add(jsonData);
+                    }
+                    catch (JsonException exception)
+                    {
+                        errorStringBuilder.AppendFormat("第{0}行所填json字符串（{1}）非法，原因为：{2}\n", row + AppValues.DATA_FIELD_DATA_START_INDEX + 1, inputData, exception.Message);
+                    }
                 }
             }
         }
@@ -1349,8 +1356,6 @@ public class TableAnalyzeHelper
     /// </summary>
     private static bool _AnalyzeTableStringType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
-        // 因为array和dict在检查子类型时已经禁止子类型为tableString型，这里便可不必重复检查父类型不能是集合类型
-
         // 检查定义字符串是否合法并转为TableStringFormatDefine的定义结构
         fieldInfo.TableStringFormatDefine = _GetTableStringFormatDefine(fieldInfo.DataTypeString, out errorString);
         if (errorString != null)
@@ -1363,11 +1368,17 @@ public class TableAnalyzeHelper
         fieldInfo.Data = new List<object>();
         for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
         {
-            string inputData = dt.Rows[row][columnIndex].ToString().Trim();
-            if (string.IsNullOrEmpty(inputData))
+            // 如果本行该字段的父元素标记为无效则该数据也标为无效
+            if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
                 fieldInfo.Data.Add(null);
             else
-                fieldInfo.Data.Add(inputData);
+            {
+                string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                if (string.IsNullOrEmpty(inputData))
+                    fieldInfo.Data.Add(null);
+                else
+                    fieldInfo.Data.Add(inputData);
+            }
         }
 
         errorString = null;
@@ -1614,16 +1625,18 @@ public class TableAnalyzeHelper
 
     private static bool _AnalyzeArrayType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
-        // 本工具不允许高于两层的集合嵌套
-        if (parentField != null && parentField.ParentField != null)
-        {
-            errorString = "错误：本工具不支持高于两层集合类型的嵌套";
-            nextFieldColumnIndex = columnIndex + 1;
-            return false;
-        }
-
         // dict或array集合类型中，如果定义列中的值填-1代表这行数据的该字段不生效，Data中用true和false代表该集合字段的某行数据是否生效
         fieldInfo.Data = _GetValidInfoForSetData(dt, columnIndex, fieldInfo.TableName);
+        // 为了在多重嵌套的集合结构中快速判断出是不是在任意上层集合中已经被标为无效，这里只要在上层标为无效，在其所有下层都会进行进行标记，从而在判断数据是否有效时只要判断向上一层是否标记为无效即可
+        if (parentField != null)
+        {
+            int dataCount = Math.Min(fieldInfo.Data.Count, parentField.Data.Count);
+            for (int i = 0; i < dataCount; ++i)
+            {
+                if ((bool)parentField.Data[i] == false)
+                    fieldInfo.Data[i] = false;
+            }
+        }
         // 解析array声明的子元素的数据类型和个数
         string childDataTypeString;
         DataType childDataType;
@@ -1648,7 +1661,7 @@ public class TableAnalyzeHelper
             FieldInfo childFieldInfo = _AnalyzeOneField(dt, tableInfo, nextColumnIndex, fieldInfo, out nextFieldColumnIndex, out errorString);
             if (errorString != null)
             {
-                errorString = "array类型数据下属元素的解析存在错误\n" + errorString;
+                errorString = string.Format("array类型数据下属元素（列号：{0}）的解析存在错误\n{1}", Utils.GetExcelColumnName(nextColumnIndex + 1), errorString);
                 return false;
             }
             else
@@ -1729,16 +1742,6 @@ public class TableAnalyzeHelper
                     errorString = string.Format("array类型数据声明不合法，子类型错误，你填写的类型为{0}", defineString);
                     return false;
                 }
-                else if (inputChildDataType == DataType.TableString)
-                {
-                    errorString = "array的子元素不允许为tableString型\n";
-                    return false;
-                }
-                else if (inputChildDataType == DataType.Json)
-                {
-                    errorString = "array的子元素不允许为json型\n";
-                    return false;
-                }
                 childDataType = inputChildDataType;
                 // 判断个数是否合法
                 int count;
@@ -1765,16 +1768,18 @@ public class TableAnalyzeHelper
 
     private static bool _AnalyzeDictType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
     {
-        // 本工具不允许高于两层的集合嵌套
-        if (parentField != null && parentField.ParentField != null)
-        {
-            errorString = "错误：本工具不支持高于两层集合类型的嵌套";
-            nextFieldColumnIndex = columnIndex + 1;
-            return false;
-        }
-
         // dict或array集合类型中，如果定义列中的值填-1代表这行数据的该字段不生效，Data中用true和false代表该集合字段的某行数据是否生效
         fieldInfo.Data = _GetValidInfoForSetData(dt, columnIndex, fieldInfo.TableName);
+        // 为了在多重嵌套的集合结构中快速判断出是不是在任意上层集合中已经被标为无效，这里只要在上层标为无效，在其所有下层都会进行进行标记，从而在判断数据是否有效时只要判断向上一层是否标记为无效即可
+        if (parentField != null)
+        {
+            int dataCount = Math.Min(fieldInfo.Data.Count, parentField.Data.Count);
+            for (int i = 0; i < dataCount; ++i)
+            {
+                if ((bool)parentField.Data[i] == false)
+                    fieldInfo.Data[i] = false;
+            }
+        }
         // 记录dict中子元素的字段名，dict中不允许同名字段
         List<string> inputFieldNames = new List<string>();
         // 解析dict声明的子元素个数
@@ -1795,7 +1800,7 @@ public class TableAnalyzeHelper
             FieldInfo childFieldInfo = _AnalyzeOneField(dt, tableInfo, nextColumnIndex, fieldInfo, out nextFieldColumnIndex, out errorString);
             if (errorString != null)
             {
-                errorString = "dict类型数据下属元素的解析存在错误\n" + errorString;
+                errorString = string.Format("dict类型数据下属元素（列号：{0}）的解析存在错误\n{1}", Utils.GetExcelColumnName(nextColumnIndex + 1), errorString);
                 return false;
             }
             else
@@ -1812,22 +1817,8 @@ public class TableAnalyzeHelper
                     else
                         inputFieldNames.Add(childFieldInfo.FieldName);
 
-                    // 检查dict下属类型是否合法（不支持tableString、json的子类型）
-                    if (childFieldInfo.DataType == DataType.TableString)
-                    {
-                        errorString = "dict的子元素不允许为tableString型\n";
-                        return false;
-                    }
-                    else if (childFieldInfo.DataType == DataType.Json)
-                    {
-                        errorString = "dict的子元素不允许为json型\n";
-                        return false;
-                    }
-                    else
-                    {
-                        fieldInfo.ChildField.Add(childFieldInfo);
-                        --tempCount;
-                    }
+                    fieldInfo.ChildField.Add(childFieldInfo);
+                    --tempCount;
                 }
             }
         }
