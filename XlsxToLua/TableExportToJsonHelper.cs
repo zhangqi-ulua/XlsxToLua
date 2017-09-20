@@ -67,9 +67,15 @@ public class TableExportToJsonHelper
                 // 将主键列的值作为key
                 string keyString = null;
                 if (keyColumnInfo.DataType == DataType.String)
+                {
                     keyString = _GetStringValue(keyColumnInfo, row);
+                    content.Append(keyString);
+                }
                 else if (keyColumnInfo.DataType == DataType.Int || keyColumnInfo.DataType == DataType.Long)
+                {
                     keyString = _GetNumberValue(keyColumnInfo, row);
+                    content.Append("\"").Append(keyString).Append("\"");
+                }
                 else
                 {
                     errorString = string.Format("ExportTableToJson函数中未定义{0}类型的主键数值导出至json文件的形式", keyColumnInfo.DataType);
@@ -77,7 +83,6 @@ public class TableExportToJsonHelper
                     return false;
                 }
 
-                content.Append("\"").Append(keyString).Append("\"");
                 // 生成一行数据json object的开头
                 content.Append(":{");
 
