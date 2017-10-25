@@ -60,6 +60,7 @@
 --       [1]                        string                           1
 --       [2]                        string                           2
 --    testExportJsonStringInDict    string                           普通string
+-- testJson                         json                             测试json
 
 return {
 	[100001] = {
@@ -94,6 +95,11 @@ return {
 				[2] = "",
 			},
 			testExportJsonStringInDict = "正常2",
+		},
+		testJson = {
+			testbool = true,
+			testNumber1 = "12",
+			testNumber2 = "-3.5",
 		},
 	},
 	[100002] = {
@@ -162,6 +168,12 @@ return {
 				[2] = "",
 			},
 			testExportJsonStringInDict = "[带括号}",
+		},
+		testJson = {
+			[1] = "a",
+			[2] = "b",
+			[3] = "c",
+			[4] = 12,
 		},
 	},
 	[100003] = {
@@ -243,6 +255,17 @@ return {
 				[2] = "",
 			},
 			testExportJsonStringInDict = "带\\\"引号",
+		},
+		testJson = {
+			position = {
+				x = 1,
+				y = -0.5,
+			},
+			field = {
+				[1] = "a",
+				[2] = "b",
+				[3] = "value3",
+			},
 		},
 	},
 	[100004] = {
@@ -341,6 +364,10 @@ return {
 				[2] = "",
 			},
 			testExportJsonStringInDict = "混{{\\\"]合}",
+		},
+		testJson = {
+			testString1 = "测试\"引号\"",
+			testString2 = "测试换行\n第二行",
 		},
 	},
 }

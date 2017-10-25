@@ -5,11 +5,11 @@ namespace Assets.Scripts.CsClass
 {
     public class TableDataHeroEquipmentPojo
     {
-        public int id { get; set; }
-        public int heroId { get; set; }
-        public int heroQuality { get; set; }
-        public int seq { get; set; }
-        public int propId { get; set; }
-        public int equipRank { get; set; }
+        public int Id { get; set; }
+        public int HeroId { get; set; }
+        public int HeroQuality { get; set; }
+        public int Seq { get; set; }
+        public int PropId { get; set; }
+        public int EquipRank { get; set; }
     }
 }

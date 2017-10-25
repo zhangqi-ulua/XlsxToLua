@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LitJson;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -191,6 +192,11 @@ public class TableExportToJsonHelper
                     value = _GetTableStringValue(fieldInfo, row, out errorString);
                     break;
                 }
+            case DataType.MapString:
+                {
+                    value = _GetMapStringValue(fieldInfo, row);
+                    break;
+                }
             case DataType.Dict:
                 {
                     value = _GetDictValue(fieldInfo, row, out errorString);
@@ -365,31 +371,41 @@ public class TableExportToJsonHelper
             return "null";
         else
         {
-            // 将json字符串进行格式整理，去除引号之外的所有空白字符
-            StringBuilder stringBuilder = new StringBuilder();
-            string inputJsonString = fieldInfo.JsonString[row];
-            bool isInQuotationMarks = false;
-            for (int i = 0; i < inputJsonString.Length; ++i)
-            {
-                char c = inputJsonString[i];
+            //// 将json字符串进行格式整理，去除引号之外的所有空白字符
+            //StringBuilder stringBuilder = new StringBuilder();
+            //string inputJsonString = fieldInfo.JsonString[row];
+            //bool isInQuotationMarks = false;
+            //for (int i = 0; i < inputJsonString.Length; ++i)
+            //{
+            //    char c = inputJsonString[i];
 
-                if (c == '"')
-                {
-                    stringBuilder.Append('"');
-                    if (i > 0 && inputJsonString[i - 1] != '\\')
-                        isInQuotationMarks = !isInQuotationMarks;
-                }
-                else if (c == ' ')
-                {
-                    if (isInQuotationMarks == true)
-                        stringBuilder.Append(' ');
-                }
-                else if (c != '\n' && c != '\r' && c != '\t')
-                    stringBuilder.Append(c);
-            }
+            //    if (c == '"')
+            //    {
+            //        stringBuilder.Append('"');
+            //        if (i > 0 && inputJsonString[i - 1] != '\\')
+            //            isInQuotationMarks = !isInQuotationMarks;
+            //    }
+            //    else if (c == ' ')
+            //    {
+            //        if (isInQuotationMarks == true)
+            //            stringBuilder.Append(' ');
+            //    }
+            //    else if (c != '\n' && c != '\r' && c != '\t')
+            //        stringBuilder.Append(c);
+            //}
 
-            return stringBuilder.ToString();
+            //return stringBuilder.ToString();
+
+            return JsonMapper.ToJson(fieldInfo.Data[row]);
         }
+    }
+
+    private static string _GetMapStringValue(FieldInfo fieldInfo, int row)
+    {
+        if (fieldInfo.Data[row] == null)
+            return "null";
+        else
+            return JsonMapper.ToJson(fieldInfo.Data[row]);
     }
 
     private static string _GetTableStringValue(FieldInfo fieldInfo, int row, out string errorString)

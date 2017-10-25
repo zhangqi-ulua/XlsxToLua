@@ -5,13 +5,13 @@ namespace Assets.Scripts.CsClass
 {
     public class TableDataPropPojo
     {
-        public int id { get; set; }
-        public int type { get; set; }
-        public int subType { get; set; }
-        public string name { get; set; }
-        public string desc { get; set; }
-        public int quality { get; set; }
-        public string icon { get; set; }
-        public int sellPrice { get; set; }
+        public int Id { get; set; }
+        public int Type { get; set; }
+        public int SubType { get; set; }
+        public string Name { get; set; }
+        public string Desc { get; set; }
+        public int Quality { get; set; }
+        public string Icon { get; set; }
+        public int SellPrice { get; set; }
     }
 }

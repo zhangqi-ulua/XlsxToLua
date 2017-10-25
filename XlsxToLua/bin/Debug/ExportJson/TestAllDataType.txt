@@ -32,6 +32,11 @@
 				""
 			],
 			"testExportJsonStringInDict":"正常2"
+		},
+		"testJson":{
+			"testbool":true,
+			"testNumber1":"12",
+			"testNumber2":"-3.5"
 		}
 	},
 	"100002":{
@@ -100,7 +105,13 @@
 				""
 			],
 			"testExportJsonStringInDict":"[带括号}"
-		}
+		},
+		"testJson":[
+			"a",
+			"b",
+			"c",
+			12
+		]
 	},
 	"100003":{
 		"id":100003,
@@ -180,6 +191,17 @@
 				""
 			],
 			"testExportJsonStringInDict":"带\\\"引号"
+		},
+		"testJson":{
+			"position":{
+				"x":1,
+				"y":-0.5
+			},
+			"field":[
+				"a",
+				"b",
+				"value3"
+			]
 		}
 	},
 	"100004":{
@@ -279,6 +301,10 @@
 				""
 			],
 			"testExportJsonStringInDict":"混{{\\\"]合}"
+		},
+		"testJson":{
+			"testString1":"测试\"引号\"",
+			"testString2":"测试换行\n第二行"
 		}
 	}
 }

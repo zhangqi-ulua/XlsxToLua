@@ -1,0 +1,7 @@
+id|type|params
+Int|Int|MapString
+1|1|position=(x=0.5,y=3),content="测试引号\"以及换行\n,让我们继续冒险旅程吧"
+2|2|buttonName="继续",isAutoHide=true
+3|2|buttonName="继续",isAutoHide=false
+4|2|buttonName="继续",isAutoHide=1
+5|2|buttonName="继续",isAutoHide=0

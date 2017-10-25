@@ -67,7 +67,7 @@ public class Utils
     /// <summary>
     /// 将List中的所有数据用指定分隔符连接为一个新字符串
     /// </summary>
-    public static string CombineString(IList<string> list, string separateString)
+    public static string CombineString<T>(IList<T> list, string separateString)
     {
         if (list == null || list.Count < 1)
             return null;
@@ -412,6 +412,27 @@ public class Utils
             LogError("全部错误信息导出到文本文件失败");
             return false;
         }
+    }
+
+    /// <summary>
+    /// 二分查找
+    /// </summary>
+    public static int binarySearch(List<int> dataList, int key)
+    {
+        int low = 0;
+        int high = dataList.Count - 1;
+        while (low <= high)
+        {
+            int middle = (high + low) / 2;
+            if (dataList[middle] == key)
+                return middle;
+            else if (dataList[middle] < key)
+                low = middle + 1;
+            else
+                high = middle - 1;
+        }
+
+        return -1;
     }
 
     public static string GetCamelCaseString(string inputString)

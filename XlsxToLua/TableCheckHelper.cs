@@ -137,6 +137,11 @@ public class TableCheckHelper
                         CheckFile(fieldInfo, checkRule, out errorString);
                         break;
                     }
+                case TableCheckType.MapString:
+                    {
+                        MapStringCheckHelper.CheckMapString(fieldInfo, checkRule, out errorString);
+                        break;
+                    }
                 case TableCheckType.Func:
                     {
                         CheckFunc(fieldInfo, checkRule, out errorString);
@@ -229,6 +234,13 @@ public class TableCheckHelper
         {
             FieldCheckRule checkRule = new FieldCheckRule();
             checkRule.CheckType = TableCheckType.Ref;
+            checkRule.CheckRuleString = ruleString;
+            oneCheckRule.Add(checkRule);
+        }
+        else if (ruleString.StartsWith("mapString", StringComparison.CurrentCultureIgnoreCase))
+        {
+            FieldCheckRule checkRule = new FieldCheckRule();
+            checkRule.CheckType = TableCheckType.MapString;
             checkRule.CheckRuleString = ruleString;
             oneCheckRule.Add(checkRule);
         }
@@ -402,7 +414,7 @@ public class TableCheckHelper
                     emptyDataLines.Add(i);
             }
         }
-        else if (fieldInfo.DataType == DataType.Json || fieldInfo.DataType == DataType.TableString)
+        else if (fieldInfo.DataType == DataType.Json || fieldInfo.DataType == DataType.TableString || fieldInfo.DataType == DataType.MapString)
         {
             for (int i = 0; i < fieldInfo.Data.Count; ++i)
             {
@@ -415,7 +427,7 @@ public class TableCheckHelper
         }
         else
         {
-            errorString = string.Format("数据非空检查规则只适用于int、long、float、string、lang、date、time、json或tableString类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
+            errorString = string.Format("数据非空检查规则只适用于int、long、float、string、lang、date、time、json、tableString或mapString类型的字段，要检查的这列类型为{0}\n", fieldInfo.DataType.ToString());
             return false;
         }
 
@@ -1436,12 +1448,12 @@ public class TableCheckHelper
     public static FieldInfo GetFieldByIndexDefineString(string indexDefineString, TableInfo tableInfo, out string errorString)
     {
         FieldInfo fieldInfo = null;
-        if (string.IsNullOrEmpty(indexDefineString.Trim()))
+        indexDefineString = indexDefineString.Trim();
+        if (string.IsNullOrEmpty(indexDefineString))
         {
             errorString = "输入的索引定义字符串不允许为空";
             return null;
         }
-        indexDefineString = indexDefineString.Trim();
         // 如果是独立字段
         if (indexDefineString.IndexOf('.') == -1 && indexDefineString.IndexOf('[') == -1)
         {
@@ -2499,6 +2511,7 @@ public enum TableCheckType
     GreaterThan,  // 值大小比较检查（同一行中某个字段的值必须大于另一字段的值）
     Func,         // 自定义检查函数
     File,         // 文件存在性检查
+    MapString,    // mapString类型的内容检查
 }
 
 public struct FieldCheckRule

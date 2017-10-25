@@ -273,6 +273,11 @@ public class TableExportToMySQLHelper
                         // json型直接向数据库写入原始json字符串，但需要对\进行转义
                         values.Add(string.Format("'{0}'", fieldInfo.JsonString[i]).Replace("\\", "\\\\"));
                     }
+                    else if (fieldInfo.DataType == DataType.MapString)
+                    {
+                        // mapString型也直接写入原始mapString数据字符串，并对\进行转义
+                        values.Add(string.Format("'{0}'", fieldInfo.JsonString[i]).Replace("\\", "\\\\"));
+                    }
                     // 这里需要自行处理数据库中某些数据类型（如datetime）中不允许插入空字符串的情况，以及用户设置的string型中空单元格导出至数据库的形式
                     else if (string.IsNullOrEmpty(fieldInfo.Data[i].ToString()))
                     {

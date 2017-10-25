@@ -5,12 +5,12 @@ namespace Assets.Scripts.CsClass
 {
     public class TableDataHeroPojo
     {
-        public int heroId { get; set; }
-        public string name { get; set; }
-        public int rare { get; set; }
-        public int type { get; set; }
-        public int defaultStar { get; set; }
-        public bool isOpen { get; set; }
-        public LitJson.JsonData attributes { get; set; }
+        public int HeroId { get; set; }
+        public string Name { get; set; }
+        public int Rare { get; set; }
+        public int Type { get; set; }
+        public int DefaultStar { get; set; }
+        public bool IsOpen { get; set; }
+        public LitJson.JsonData Attributes { get; set; }
     }
 }

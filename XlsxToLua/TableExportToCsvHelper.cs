@@ -135,6 +135,17 @@ public class TableExportToCsvHelper
                     }
                     break;
                 }
+            case DataType.MapString:
+                {
+                    for (int row = 0; row < rowCount; ++row)
+                    {
+                        StringBuilder stringBuilder = rowContentList[row];
+                        stringBuilder.Append(AppValues.ExportCsvSplitString);
+                        if (fieldInfo.Data[row] != null)
+                            stringBuilder.Append(fieldInfo.JsonString[row]);
+                    }
+                    break;
+                }
             case DataType.Date:
                 {
                     DateFormatType dateFormatType = TableAnalyzeHelper.GetDateFormatType(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_LUA_FORMAT].ToString());

@@ -14,7 +14,7 @@
 --       [2]                        array[int:2]                     array2
 --          [1]                     int                              1
 --          [2]                     int                              2
---    childDict1                    dict[6]                          dict下的dict中嵌套dict和array
+--    childDict1                    dict[7]                          dict下的dict中嵌套dict和array
 --       childChildDict1            dict[3]                          dict下的dict中嵌套的dict
 --          type                    int                              
 --          id                      int                              
@@ -26,17 +26,20 @@
 --       testTableString2           tableString[k:#seq|v:#1(int)]    dict下的dict中嵌套tableString2
 --       testTableString3           tableString[k:#seq|v:#table(type=#1(int),id=#2(int),count=#3(int))]   dict下的dict中嵌套tableString3
 --       testJson                   json                             dict下的dict中嵌套json
+--       testMapString              mapString[content=string,position=(x=float,y=float),buttonName=string,isAutoHide=bool]   dict下的dict中嵌套mapString
 -- testArray1                       array[dict[2]:2]                 array下的dict的多重嵌套
 --    [1]                           dict[2]                          dict1
---       childDict1                 dict[4]                          array下的dict中嵌套dict1
+--       childDict1                 dict[5]                          array下的dict中嵌套dict1
 --          testTableString1        tableString[k:#1(int)|v:#true]   array中的dict下的dict中嵌套tableString1
 --          testTableString2        tableString[k:#seq|v:#1(int)]    array中的dict下的dict中嵌套tableString2
 --          testTableString3        tableString[k:#seq|v:#table(type=#1(int),id=#2(int),count=#3(int))]   array中的dict下的dict中嵌套tableString3
+--          testMapString           mapString[content=string,position=(x=float,y=float),buttonName=string,isAutoHide=bool]   array中的dict下的dict中嵌套mapString
 --          childDict2              dict[2]                          array中的dict下的dict中嵌套dict
 --             name                 string                           
 --             age                  int                              
---       childDict2                 dict[2]                          array下的dict中嵌套dict2
+--       childDict2                 dict[3]                          array下的dict中嵌套dict2
 --          testJson                json                             array中的dict下的dict中嵌套json
+--          testMapString           mapString[content=string,position=(x=float,y=float),buttonName=string,isAutoHide=bool]   array中的dict下的dict中嵌套mapString
 --          testArray               array[int:2]                     array中的dict下的dict中嵌套array
 --             [1]                  int                              
 --             [2]                  int                              
@@ -62,10 +65,11 @@
 --             [2]                  string                           2
 --    [2]                           array[dict[2]:2]                 childArray2
 --       [1]                        dict[2]                          childArrayChildDict1
---          dict1                   dict[3]                          
+--          dict1                   dict[4]                          
 --             testTableString1     tableString[k:#1(int)|v:#true]   array中的array下的dict中dict嵌套tableString1
 --             testTableString2     tableString[k:#seq|v:#1(int)]    array中的array下的dict中dict嵌套tableString2
 --             testTableString3     tableString[k:#seq|v:#table(type=#1(int),id=#2(int),count=#3(int))]   array中的array下的dict中dict嵌套tableString3
+--             testMapString        mapString[content=string,position=(x=float,y=float),buttonName=string,isAutoHide=bool]   array中的array下的dict中dict嵌套mapString
 --          testJson                json                             array中的array下的dict中dict嵌套json
 --       [2]                        dict[2]                          childArrayChildDict2
 --          id                      int                              
@@ -119,6 +123,10 @@ return {
 				testTableString2 = nil,
 				testTableString3 = nil,
 				testJson = nil,
+				testMapString = {
+					buttonName = "继续",
+					isAutoHide = true,
+				},
 			},
 		},
 		testArray1 = {
@@ -145,6 +153,10 @@ return {
 							id = 10002,
 							count = 10,
 						},
+					},
+					testMapString = {
+						buttonName = "继续",
+						isAutoHide = false,
 					},
 					childDict2 = nil,
 				},
@@ -248,6 +260,13 @@ return {
 					},
 					petPhrase = "Death to all who oppose me!",
 				},
+				testMapString = {
+					position = {
+						x = 0.5,
+						y = 3,
+					},
+					content = "让我们继续冒险旅程吧",
+				},
 			},
 		},
 		testArray1 = {
@@ -274,6 +293,10 @@ return {
 							id = 10002,
 							count = 10,
 						},
+					},
+					testMapString = {
+						buttonName = "继续",
+						isAutoHide = true,
 					},
 					childDict2 = {
 						name = "Tom",
@@ -311,6 +334,13 @@ return {
 							[3] = 8,
 						},
 						petPhrase = "Death to all who oppose me!",
+					},
+					testMapString = {
+						position = {
+							x = 0.5,
+							y = 3,
+						},
+						content = "让我们继续冒险旅程吧",
 					},
 					testArray = {
 						[1] = 14,
@@ -368,6 +398,13 @@ return {
 								id = 10002,
 								count = 10,
 							},
+						},
+						testMapString = {
+							position = {
+								x = 0.5,
+								y = 3,
+							},
+							content = "让我们继续冒险旅程吧",
 						},
 					},
 					testJson = {

@@ -329,6 +329,11 @@ public class TableExportToJavaClassHelper
 
                     break;
                 }
+            case DataType.MapString:
+                {
+                    stringBuilder.Append("Object");
+                    break;
+                }
             default:
                 {
                     Utils.LogErrorAndExit("用_GetJavaClassFieldDefine函数导出csv对应Java类文件的字段DataType非法");

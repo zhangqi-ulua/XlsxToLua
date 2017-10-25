@@ -9,6 +9,17 @@ public class TableAnalyzeHelper
 {
     public static TableInfo AnalyzeTable(DataTable dt, string tableName, out string errorString)
     {
+        if (dt.Rows.Count < AppValues.DATA_FIELD_DATA_START_INDEX)
+        {
+            errorString = "表格格式不符合要求，必须在表格前五行中依次声明字段描述、字段名、数据类型、检查规则、导出到MySQL数据库中的配置";
+            return null;
+        }
+        if (dt.Columns.Count < 2)
+        {
+            errorString = "表格中至少需要配置2个字段";
+            return null;
+        }
+
         TableInfo tableInfo = new TableInfo();
         tableInfo.TableName = tableName;
 
@@ -383,6 +394,11 @@ public class TableAnalyzeHelper
                     _AnalyzeTableStringType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
                     break;
                 }
+            case DataType.MapString:
+                {
+                    _AnalyzeMapStringType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
+                    break;
+                }
             case DataType.Array:
                 {
                     _AnalyzeArrayType(fieldInfo, tableInfo, dt, columnIndex, parentField, out nextFieldColumnIndex, out errorString);
@@ -437,6 +453,8 @@ public class TableAnalyzeHelper
             return DataType.Json;
         else if (typeString.StartsWith("tableString", StringComparison.CurrentCultureIgnoreCase))
             return DataType.TableString;
+        else if (typeString.StartsWith("mapString", StringComparison.CurrentCultureIgnoreCase))
+            return DataType.MapString;
         else if (typeString.StartsWith("array", StringComparison.CurrentCultureIgnoreCase))
             return DataType.Array;
         else if (typeString.StartsWith("dict", StringComparison.CurrentCultureIgnoreCase))
@@ -1384,6 +1402,67 @@ public class TableAnalyzeHelper
         errorString = null;
         nextFieldColumnIndex = columnIndex + 1;
         return true;
+    }
+
+    private static bool _AnalyzeMapStringType(FieldInfo fieldInfo, TableInfo tableInfo, DataTable dt, int columnIndex, FieldInfo parentField, out int nextFieldColumnIndex, out string errorString)
+    {
+        StringBuilder errorStringBuilder = new StringBuilder();
+
+        fieldInfo.MapStringFormatDefine = MapStringAnalyzeHelper.GetMapStringFormatDefine(fieldInfo.DataTypeString, out errorString);
+        if (errorString != null)
+        {
+            errorString = string.Format("{0}，你输入的类型定义字符串为{1}", errorString, fieldInfo.DataTypeString);
+            nextFieldColumnIndex = columnIndex + 1;
+            return false;
+        }
+        // 将填写的数据存在FieldInfo的JsonString变量中，然后将数据转为JsonData存在Data变量中
+        fieldInfo.JsonString = new List<string>();
+        fieldInfo.Data = new List<object>();
+        for (int row = AppValues.DATA_FIELD_DATA_START_INDEX; row < dt.Rows.Count; ++row)
+        {
+            // 如果本行该字段的父元素标记为无效则该数据也标为无效
+            if (parentField != null && (bool)parentField.Data[row - AppValues.DATA_FIELD_DATA_START_INDEX] == false)
+            {
+                fieldInfo.JsonString.Add(null);
+                fieldInfo.Data.Add(null);
+            }
+            else
+            {
+                string inputData = dt.Rows[row][columnIndex].ToString().Trim();
+                if (string.IsNullOrEmpty(inputData))
+                {
+                    fieldInfo.JsonString.Add(null);
+                    fieldInfo.Data.Add(null);
+                }
+                else
+                {
+                    fieldInfo.JsonString.Add(inputData);
+
+                    // 将输入的数据转为JsonData
+                    JsonData jsonData = MapStringAnalyzeHelper.GetMapStringData(inputData, fieldInfo.MapStringFormatDefine, out errorString);
+                    if (errorString == null)
+                        fieldInfo.Data.Add(jsonData);
+                    else
+                    {
+                        errorStringBuilder.AppendFormat("第{0}行填写的的数据（{1}）非法，{2}\n", row - AppValues.DATA_FIELD_DATA_START_INDEX + 1, inputData, errorString);
+                        fieldInfo.Data.Add(null);
+                    }
+                }
+            }
+        }
+
+        nextFieldColumnIndex = columnIndex + 1;
+        errorString = errorStringBuilder.ToString();
+        if (string.IsNullOrEmpty(errorString))
+        {
+            errorString = null;
+            return true;
+        }
+        else
+        {
+            errorString = string.Format("以下行中的数据不符合该字段mapString类型（{0}）的格式要求：\n{1}", fieldInfo.DataTypeString, errorString);
+            return false;
+        }
     }
 
     private static TableStringFormatDefine _GetTableStringFormatDefine(string dataTypeString, out string errorString)

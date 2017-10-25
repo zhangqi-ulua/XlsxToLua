@@ -114,6 +114,8 @@ public class FieldInfo
     public Dictionary<string, object> ExtraParam { get; set; }
     // 如果该字段为tableString型，存储解析之后的格式定义
     public TableStringFormatDefine TableStringFormatDefine { get; set; }
+    // 如果该字段为mapString型，存储解析之后的格式定义
+    public MapStringInfo MapStringFormatDefine { get; set; }
     // 如果该字段是array或dict类型，其下属的字段信息存放在该变量中
     public List<FieldInfo> ChildField { get; set; }
     // 如果该字段是array或dict的子元素，存储其父元素的引用
@@ -130,6 +132,33 @@ public class FieldInfo
         ExtraParam = new Dictionary<string, object>();
         IsIgnoreClientExport = false;
     }
+}
+
+/// <summary>
+/// mapString类型的配置信息
+/// </summary>
+public class MapStringInfo
+{
+    // 下属参数配置信息（key：参数变量名， value：此参数的配置信息）
+    public Dictionary<string, MapStringParamInfo> ParamInfo { get; set; }
+
+    public MapStringInfo()
+    {
+        ParamInfo = new Dictionary<string, MapStringParamInfo>();
+    }
+}
+
+/// <summary>
+/// mapString类型下属的参数配置信息
+/// </summary>
+public class MapStringParamInfo
+{
+    // 参数名
+    public string ParamName { get; set; }
+    // 参数的数据类型
+    public DataType DataType { get; set; }
+    // 如果此参数是mapString型，存储下属参数信息
+    public MapStringInfo MapStringInfo { get; set; }
 }
 
 /// <summary>
@@ -151,6 +180,7 @@ public enum DataType
     TableString,
     Array,
     Dict,
+    MapString,
 }
 
 /// <summary>

@@ -83,7 +83,9 @@ public class TableExportToCsClassHelper
             stringBuilder.Append(_GetCsClassIndentation(level));
             stringBuilder.Append("public ");
             stringBuilder.Append(_GetCsClassFieldDefine(fieldInfo));
-            stringBuilder.AppendLine(string.Concat(" ", fieldInfo.FieldName, " ", _CS_CLASS_GET_SET_STRING));
+            // 变量名首字母大写
+            string fieldName = char.ToUpper(fieldInfo.FieldName[0]) + fieldInfo.FieldName.Substring(1);
+            stringBuilder.AppendLine(string.Concat(" ", fieldName, " ", _CS_CLASS_GET_SET_STRING));
         }
         --level;
         // 闭合类定义
@@ -233,6 +235,11 @@ public class TableExportToCsClassHelper
                     else
                         Utils.LogErrorAndExit("用_GetCsClassFieldDefine函数导出csv对应C#类文件中tableString型字段的key非法");
 
+                    break;
+                }
+            case DataType.MapString:
+                {
+                    stringBuilder.Append("LitJson.JsonData");
                     break;
                 }
             default:

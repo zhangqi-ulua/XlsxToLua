@@ -44,7 +44,11 @@
 				"testTableString1":null,
 				"testTableString2":null,
 				"testTableString3":null,
-				"testJson":null
+				"testJson":null,
+				"testMapString":{
+					"buttonName":"继续",
+					"isAutoHide":true
+				}
 			}
 		},
 		"testArray1":[
@@ -72,6 +76,10 @@
 							"count":10
 						}
 					],
+					"testMapString":{
+						"buttonName":"继续",
+						"isAutoHide":false
+					},
 					"childDict2":null
 				},
 				"childDict2":null
@@ -171,6 +179,13 @@
 						8
 					],
 					"petPhrase":"Death to all who oppose me!"
+				},
+				"testMapString":{
+					"position":{
+						"x":0.5,
+						"y":3.0
+					},
+					"content":"让我们继续冒险旅程吧"
 				}
 			}
 		},
@@ -199,6 +214,10 @@
 							"count":10
 						}
 					],
+					"testMapString":{
+						"buttonName":"继续",
+						"isAutoHide":true
+					},
 					"childDict2":{
 						"name":"Tom",
 						"age":10
@@ -235,6 +254,13 @@
 							8
 						],
 						"petPhrase":"Death to all who oppose me!"
+					},
+					"testMapString":{
+						"position":{
+							"x":0.5,
+							"y":3.0
+						},
+						"content":"让我们继续冒险旅程吧"
 					},
 					"testArray":[
 						14,
@@ -292,7 +318,14 @@
 								"id":10002,
 								"count":10
 							}
-						]
+						],
+						"testMapString":{
+							"position":{
+								"x":0.5,
+								"y":3.0
+							},
+							"content":"让我们继续冒险旅程吧"
+						}
 					},
 					"testJson":{
 						"attack":{
