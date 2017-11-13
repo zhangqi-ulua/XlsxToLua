@@ -251,6 +251,11 @@ public class Program
                             paramStringList.Add(paramString.Substring(lastSplitParamChatIndex + 1, index - lastSplitParamChatIndex - 1));
                             lastSplitParamChatIndex = index;
                         }
+                        // 还要加上最后一个|后面的参数
+                        if (lastSplitParamChatIndex == -1)
+                            paramStringList.Add(paramString);
+                        else if (lastSplitParamChatIndex + 1 < paramString.Length - 1)
+                            paramStringList.Add(paramString.Substring(lastSplitParamChatIndex + 1));
                         // 解析各个具体参数
                         foreach (string oneParamString in paramStringList)
                         {
