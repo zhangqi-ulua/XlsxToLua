@@ -613,15 +613,16 @@ public class TableCheckHelper
     }
 
     /// <summary>
-    /// 用于int、long、float三种数值类型或date、time两种时间类型的范围检查
+    /// 用于int、long、float三种数值类型或date、time两种时间类型的范围检查，或string、lang两种字符串类型的长度检查
     /// </summary>
     public static bool CheckRange(FieldInfo fieldInfo, FieldCheckRule checkRule, out string errorString)
     {
         bool isNumberDataType = fieldInfo.DataType == DataType.Int || fieldInfo.DataType == DataType.Long || fieldInfo.DataType == DataType.Float;
         bool isTimeDataType = fieldInfo.DataType == DataType.Date || fieldInfo.DataType == DataType.Time;
-        if (isNumberDataType == false && isTimeDataType == false)
+        bool isStringDataType = fieldInfo.DataType == DataType.String || fieldInfo.DataType == DataType.Lang;
+        if (isNumberDataType == false && isTimeDataType == false && isStringDataType == false)
         {
-            errorString = string.Format("值范围检查只能用于int、long、float三种数值类型或date、time两种时间类型的字段，而该字段为{0}型\n", fieldInfo.DataType);
+            errorString = string.Format("值范围检查只能用于int、long、float三种数值类型或date、time两种时间类型的字段，或者用于检查string、lang型字符串的长度，而该字段为{0}型\n", fieldInfo.DataType);
             return false;
         }
         // 检查填写的检查规则是否正确
@@ -670,7 +671,7 @@ public class TableCheckHelper
         else
         {
             isCheckFloor = true;
-            if (isNumberDataType == true)
+            if (isNumberDataType == true || isStringDataType == true)
             {
                 if (double.TryParse(floorString, out floorValue) == false)
                 {
@@ -718,7 +719,7 @@ public class TableCheckHelper
         else
         {
             isCheckCeil = true;
-            if (isNumberDataType == true)
+            if (isNumberDataType == true || isStringDataType == true)
             {
                 if (double.TryParse(ceilString, out ceilValue) == false)
                 {
@@ -761,7 +762,7 @@ public class TableCheckHelper
             }
         }
         // 判断上限是否大于下限
-        if (isNumberDataType == true)
+        if (isNumberDataType == true || isStringDataType == true)
         {
             if (isCheckFloor == true && isCheckCeil == true && floorValue >= ceilValue)
             {
@@ -797,6 +798,12 @@ public class TableCheckHelper
                         if (inputValue < floorValue)
                             illegalValue.Add(i, fieldInfo.Data[i]);
                     }
+                    else if (isStringDataType == true)
+                    {
+                        int lengh = fieldInfo.Data[i].ToString().Length;
+                        if (lengh < floorValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
                     else
                     {
                         DateTime inputValue = (DateTime)fieldInfo.Data[i];
@@ -816,6 +823,12 @@ public class TableCheckHelper
                     {
                         double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
                         if (inputValue <= floorValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else if (isStringDataType == true)
+                    {
+                        int lengh = fieldInfo.Data[i].ToString().Length;
+                        if (lengh <= floorValue)
                             illegalValue.Add(i, fieldInfo.Data[i]);
                     }
                     else
@@ -842,6 +855,12 @@ public class TableCheckHelper
                         if (inputValue > ceilValue)
                             illegalValue.Add(i, fieldInfo.Data[i]);
                     }
+                    else if (isStringDataType == true)
+                    {
+                        int lengh = fieldInfo.Data[i].ToString().Length;
+                        if (lengh > ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
                     else
                     {
                         DateTime inputValue = (DateTime)fieldInfo.Data[i];
@@ -861,6 +880,12 @@ public class TableCheckHelper
                     {
                         double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
                         if (inputValue >= ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else if (isStringDataType == true)
+                    {
+                        int lengh = fieldInfo.Data[i].ToString().Length;
+                        if (lengh >= ceilValue)
                             illegalValue.Add(i, fieldInfo.Data[i]);
                     }
                     else
@@ -887,6 +912,12 @@ public class TableCheckHelper
                         if (inputValue <= floorValue || inputValue >= ceilValue)
                             illegalValue.Add(i, fieldInfo.Data[i]);
                     }
+                    else if (isStringDataType == true)
+                    {
+                        int lengh = fieldInfo.Data[i].ToString().Length;
+                        if (lengh <= floorValue || lengh >= ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
                     else
                     {
                         DateTime inputValue = (DateTime)fieldInfo.Data[i];
@@ -906,6 +937,12 @@ public class TableCheckHelper
                     {
                         double inputValue = Convert.ToDouble(fieldInfo.Data[i]);
                         if (inputValue < floorValue || inputValue >= ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
+                    else if (isStringDataType == true)
+                    {
+                        int lengh = fieldInfo.Data[i].ToString().Length;
+                        if (lengh < floorValue || lengh >= ceilValue)
                             illegalValue.Add(i, fieldInfo.Data[i]);
                     }
                     else
@@ -929,6 +966,12 @@ public class TableCheckHelper
                         if (inputValue <= floorValue || inputValue > ceilValue)
                             illegalValue.Add(i, fieldInfo.Data[i]);
                     }
+                    else if (isStringDataType == true)
+                    {
+                        int lengh = fieldInfo.Data[i].ToString().Length;
+                        if (lengh <= floorValue || lengh > ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
                     else
                     {
                         DateTime inputValue = (DateTime)fieldInfo.Data[i];
@@ -950,6 +993,12 @@ public class TableCheckHelper
                         if (inputValue < floorValue || inputValue > ceilValue)
                             illegalValue.Add(i, fieldInfo.Data[i]);
                     }
+                    else if (isStringDataType == true)
+                    {
+                        int lengh = fieldInfo.Data[i].ToString().Length;
+                        if (lengh < floorValue || lengh > ceilValue)
+                            illegalValue.Add(i, fieldInfo.Data[i]);
+                    }
                     else
                     {
                         DateTime inputValue = (DateTime)fieldInfo.Data[i];
@@ -963,7 +1012,7 @@ public class TableCheckHelper
         if (illegalValue.Count > 0)
         {
             StringBuilder illegalValueInfo = new StringBuilder();
-            if (isNumberDataType == true)
+            if (isNumberDataType == true || isStringDataType == true)
             {
                 foreach (var item in illegalValue)
                     illegalValueInfo.AppendFormat("第{0}行数据\"{1}\"不满足要求\n", item.Key + AppValues.DATA_FIELD_DATA_START_INDEX + 1, item.Value);
@@ -2083,7 +2132,7 @@ public class TableCheckHelper
 
                     if (!AppValues.TableInfo.ContainsKey(tableName))
                     {
-                        errorString = string.Format("值引用检查规则声明错误，找不到名为{0}的表格\n", START_STRING);
+                        errorString = string.Format("值引用检查规则声明错误，找不到名为{0}的表格\n", tableName);
                         return false;
                     }
                     if (string.IsNullOrEmpty(fieldIndexDefine))

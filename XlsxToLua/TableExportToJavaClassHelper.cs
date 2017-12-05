@@ -175,7 +175,7 @@ public class TableExportToJavaClassHelper
         // 闭合类定义
         stringBuilder.AppendLine("}");
 
-        if (Utils.SaveJavaClassFile(className, stringBuilder.ToString()) == true)
+        if (Utils.SaveJavaClassFile(tableInfo.TableName, className, stringBuilder.ToString()) == true)
         {
             errorString = null;
             return true;

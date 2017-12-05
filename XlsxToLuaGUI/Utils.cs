@@ -33,6 +33,9 @@ public class Utils
     public static string CombinePath(string path1, string path2)
     {
         path1 = path1.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+        if (!path1.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            path1 = path1 + Path.DirectorySeparatorChar;
+
         path2 = path2.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
         if (path2.StartsWith(Path.DirectorySeparatorChar.ToString()))
             path2 = path2.Substring(1, path2.Length - 1);

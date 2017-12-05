@@ -13,24 +13,26 @@ public class Program
     /// <summary>
     /// 传入参数中，第1个必须为Excel表格所在目录，第2个必须为存放导出lua文件的目录，第3个参数为项目Client目录的路径（无需文件存在型检查规则则填-noClient），第4个参数为必须为lang文件路径（没有填-noLang）
     /// 可附加参数有：
-    /// 1)  -columnInfo（在生成lua文件的最上方用注释形式显示列信息，默认不开启）
-    /// 2)  -unchecked（不对表格进行查错，不推荐使用）
-    /// 3)  -printEmptyStringWhenLangNotMatching（当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串即xx = ""，默认为输出nil）
-    /// 4)  -exportMySQL（将表格数据导出到MySQL数据库中，默认不导出）
-    /// 5)  -part（后面在英文小括号内声明本次要导出的Excel文件名，用|分隔，未声明的文件将被本工具忽略）
-    /// 6)  -except（后面在英文小括号内声明本次要忽略导出的Excel文件名，用|分隔，注意不允许对同一张表格既声明-part又声明-except）
-    /// 7)  -allowedNullNumber（允许int、long、float型字段下填写空值，默认不允许）
-    /// 8)  声明要将指定的Excel表导出为csv文件需要以下2个参数：
+    /// 1)  -exportIncludeSubfolder（将要导出的Excel文件夹下的各级子文件夹中的Excel文件也进行导出，不声明则仅导出选定文件夹直接下属的Excel文件）
+    /// 2)  -exportKeepDirectoryStructure（进行各种导出时将生成的文件按原Excel文件所在的目录结构进行存储，不声明则会将生成的文件均存放在同级目录下）
+    /// 3)  -exportMySQL（将表格数据导出到MySQL数据库中，默认不导出）
+    /// 4)  -columnInfo（在生成lua文件的最上方用注释形式显示列信息，默认不开启）
+    /// 5)  -unchecked（不对表格进行查错，不推荐使用）
+    /// 6)  -printEmptyStringWhenLangNotMatching（当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串即xx = ""，默认为输出nil）
+    /// 7)  -part（后面在英文小括号内声明本次要导出的Excel文件名，用|分隔，未声明的文件将被本工具忽略）
+    /// 8)  -except（后面在英文小括号内声明本次要忽略导出的Excel文件名，用|分隔，注意不允许对同一张表格既声明-part又声明-except）
+    /// 9)  -allowedNullNumber（允许int、long、float型字段下填写空值，默认不允许）
+    /// 10) 声明要将指定的Excel表导出为csv文件需要以下2个参数：
     ///     -exportCsv（后面在英文小括号内声明本次要额外导出csv文件的Excel文件名，用|分隔，或者用$all表示全部。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出csv文件也不会生效）
     ///     -exportCsvParam（可声明导出csv文件的参数）
-    /// 9)  声明要将指定的Excel表导出为csv对应的C#文件需要以下2个参数：
+    /// 11) 声明要将指定的Excel表导出为csv对应的C#文件需要以下2个参数：
     ///     -exportCsClass（后面在英文小括号内声明本次要额外导出csv对应C#类文件的Excel文件名，用|分隔，或者用$all表示全部。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出csv文件也不会生效）
     ///     -exportCsClassParam（可声明导出csv对应C#类文件的参数）
-    /// 10) 声明要将指定的Excel表导出为csv对应的Java文件需要以下2个参数：
+    /// 12) 声明要将指定的Excel表导出为csv对应的Java文件需要以下2个参数：
     ///     -exportJavaClass（后面在英文小括号内声明本次要额外导出csv对应Java类文件的Excel文件名，用|分隔，或者用$all表示全部。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出csv文件也不会生效）
     ///     -exportJavaClassParam（可声明导出csv对应Java类文件的参数）
-    /// 11) -autoNameCsvClassParam（通过classNamePrefix、classNamePostfix两个子参数设置当导出csv对应的C#或Java类文件时，由本工具自动根据Excel名命名时统一追加前后缀）
-    /// 12) 声明要将指定的Excel表导出为json文件需要以下2个参数：
+    /// 13) -autoNameCsvClassParam（通过classNamePrefix、classNamePostfix两个子参数设置当导出csv对应的C#或Java类文件时，由本工具自动根据Excel名命名时统一追加前后缀）
+    /// 14) 声明要将指定的Excel表导出为json文件需要以下2个参数：
     ///     -exportJson（后面在英文小括号内声明本次要额外导出json文件的Excel文件名，用|分隔，或者用$all表示全部。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出json文件也不会生效）
     ///     -exportJsonParam（可声明导出json文件的参数）
     /// </summary>
@@ -44,12 +46,6 @@ public class Program
 
         AppValues.ExcelFolderPath = Path.GetFullPath(args[0]);
         Utils.Log(string.Format("选择的Excel所在路径：{0}", AppValues.ExcelFolderPath));
-
-        // 记录目录中存在的所有Excel文件名（注意不能直接用File.Exists判断某个字符串代表的文件名是否存在，因为Windows会忽略声明的Excel文件名与实际文件名的大小写差异）
-        List<string> existExcelFilePaths = new List<string>(Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"));
-        List<string> existExcelFileNames = new List<string>();
-        foreach (string filePath in existExcelFilePaths)
-            existExcelFileNames.Add(Path.GetFileNameWithoutExtension(filePath));
 
         // 检查第2个参数（存放导出lua文件的目录）是否正确
         if (args.Length < 2)
@@ -97,12 +93,101 @@ public class Program
         else
             Utils.LogErrorAndExit(string.Format("错误：输入的lang文件不存在，路径为{0}", args[3]));
 
+        // 生成Excel文件夹中所有表格文件信息
+        List<string> existExcelFileNames = new List<string>();
+        // 先判断是否指定要导出Excel文件夹下属子文件夹中的Excel文件，若要导出还需要确保不同文件夹下的Excel文件也不允许同名
+        for (int i = 4; i < args.Length; ++i)
+        {
+            string tempParam = args[i];
+            if (tempParam.Equals(AppValues.EXPORT_INCLUDE_SUBFOLDER_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            {
+                AppValues.IsExportIncludeSubfolder = true;
+
+                // 检查Excel文件所在目录及其子目录下都不存在同名文件
+                // 记录重名文件所在目录
+                Dictionary<string, List<string>> sameExcelNameInfo = new Dictionary<string, List<string>>();
+                foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx", SearchOption.AllDirectories))
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(filePath);
+                    if (fileName.StartsWith(AppValues.EXCEL_TEMP_FILE_FILE_NAME_START_STRING))
+                    {
+                        Utils.LogWarning(string.Format("目录中的{0}文件为Excel自动生成的临时文件，将被忽略处理", filePath));
+                        continue;
+                    }
+
+                    if (AppValues.ExportTableNameAndPath.ContainsKey(fileName))
+                    {
+                        if (!sameExcelNameInfo.ContainsKey(fileName))
+                        {
+                            sameExcelNameInfo.Add(fileName, new List<string>());
+                            sameExcelNameInfo[fileName].Add(AppValues.ExportTableNameAndPath[fileName]);
+                        }
+
+                        sameExcelNameInfo[fileName].Add(filePath);
+                    }
+                    else
+                    {
+                        existExcelFileNames.Add(fileName);
+                        AppValues.ExportTableNameAndPath.Add(fileName, filePath);
+                    }
+                }
+
+                if (sameExcelNameInfo.Count > 0)
+                {
+                    StringBuilder sameExcelNameErrorStringBuilder = new StringBuilder();
+                    sameExcelNameErrorStringBuilder.AppendLine("错误：Excel文件夹及其子文件夹中不允许出现同名文件，重名文件如下：");
+                    foreach (var item in sameExcelNameInfo)
+                    {
+                        string fileName = item.Key;
+                        List<string> filePath = item.Value;
+                        sameExcelNameErrorStringBuilder.AppendFormat("以下路径中存在同名文件（{0}）：\n", fileName);
+                        foreach (string oneFilePath in filePath)
+                            sameExcelNameErrorStringBuilder.AppendLine(oneFilePath);
+                    }
+
+                    Utils.LogErrorAndExit(sameExcelNameErrorStringBuilder.ToString());
+                }
+
+                break;
+            }
+        }
+        if (AppValues.IsExportIncludeSubfolder == false)
+        {
+            foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx", SearchOption.TopDirectoryOnly))
+            {
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+                if (fileName.StartsWith(AppValues.EXCEL_TEMP_FILE_FILE_NAME_START_STRING))
+                {
+                    Utils.LogWarning(string.Format("目录中的{0}文件为Excel自动生成的临时文件，将被忽略处理", filePath));
+                    continue;
+                }
+
+                existExcelFileNames.Add(fileName);
+                AppValues.ExportTableNameAndPath.Add(fileName, filePath);
+            }
+        }
+
+        // 记录本次运行是否指定仅导出部分Excel文件
+        bool isExportPart = false;
+
         // 检查其他参数
         for (int i = 4; i < args.Length; ++i)
         {
             string param = args[i];
 
-            if (param.Equals(AppValues.UNCHECKED_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            if (param.Equals(AppValues.EXPORT_INCLUDE_SUBFOLDER_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+                continue;
+            else if (param.Equals(AppValues.EXPORT_KEEP_DIRECTORY_STRUCTURE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
+            {
+                if (AppValues.IsExportIncludeSubfolder == false)
+                {
+                    string warningString = string.Format("警告：只有通过设置{0}参数，将要导出的Excel文件夹下的各级子文件夹中的Excel文件也进行导出时，指定{1}参数设置将生成的文件按原Excel文件所在的目录结构进行存储才有意义，请检查是否遗漏声明{0}参数", AppValues.EXPORT_INCLUDE_SUBFOLDER_PARAM_STRING, AppValues.EXPORT_KEEP_DIRECTORY_STRUCTURE_PARAM_STRING);
+                    Utils.LogWarning(warningString);
+                }
+                else
+                    AppValues.IsExportKeepDirectoryStructure = true;
+            }
+            else if (param.Equals(AppValues.UNCHECKED_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
             {
                 AppValues.IsNeedCheck = false;
                 Utils.LogWarning("警告：你选择了不进行表格检查，请务必自己保证表格的正确性");
@@ -146,24 +231,36 @@ public class Program
             }
             else if (param.StartsWith(AppValues.PART_EXPORT_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
             {
+                isExportPart = true;
+
                 // 解析声明的本次要导出的Excel名
                 string errorString = null;
                 string[] fileNames = Utils.GetExcelFileNames(param, out errorString);
+                List<string> tempExportTableName = new List<string>();
                 if (errorString != null)
                     Utils.LogErrorAndExit(string.Format("错误：声明导出部分Excel表格的参数{0}后{1}", AppValues.PART_EXPORT_PARAM_STRING, errorString));
                 else
                 {
-                    foreach (string fileName in fileNames)
-                        AppValues.ExportTableNames.Add(fileName.Trim());
+                    foreach (string inputFileName in fileNames)
+                    {
+                        string fileName = inputFileName.Trim();
+                        if (!tempExportTableName.Contains(fileName))
+                            tempExportTableName.Add(fileName);
+                    }
 
                     // 检查指定导出的Excel文件是否存在
-                    foreach (string exportExcelFileName in AppValues.ExportTableNames)
+                    foreach (string exportExcelFileName in tempExportTableName)
                     {
                         if (!existExcelFileNames.Contains(exportExcelFileName))
                             Utils.LogErrorAndExit(string.Format("要求导出的Excel文件（{0}）不存在，请检查后重试并注意区分大小写", Utils.CombinePath(AppValues.ExcelFolderPath, string.Concat(exportExcelFileName, ".xlsx"))));
                     }
 
-                    Utils.LogWarning(string.Format("警告：本次将仅检查并导出以下Excel文件：\n{0}\n", Utils.CombineString(AppValues.ExportTableNames, ", ")));
+                    Utils.LogWarning(string.Format("警告：本次将仅检查并导出以下Excel文件：\n{0}\n", Utils.CombineString(tempExportTableName, ", ")));
+                    Dictionary<string, string> tempExportTableNameAndPath = new Dictionary<string, string>();
+                    foreach (string exportExcelFileName in tempExportTableName)
+                        tempExportTableNameAndPath.Add(exportExcelFileName, AppValues.ExportTableNameAndPath[exportExcelFileName]);
+
+                    AppValues.ExportTableNameAndPath = tempExportTableNameAndPath;
                 }
             }
             // 对额外导出csv对应C#或Java类文件自动命名类名时统一添加的前后缀配置
@@ -334,7 +431,7 @@ public class Program
 
                 string exportCsvFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportCsvFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
-                    AppValues.ExportCsvTableNames = AppValues.ExportTableNames;
+                    AppValues.ExportCsvTableNames = existExcelFileNames;
                 else
                 {
                     string[] fileNames = Utils.GetExcelFileNames(param, out errorString);
@@ -451,7 +548,7 @@ public class Program
 
                 string exportCsClassFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportCsClassFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
-                    AppValues.ExportCsClassTableNames = AppValues.ExportTableNames;
+                    AppValues.ExportCsClassTableNames = existExcelFileNames;
                 else
                 {
                     string[] fileNames = Utils.GetExcelFileNames(param, out errorString);
@@ -599,7 +696,7 @@ public class Program
 
                 string exportJavaClassFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportJavaClassFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
-                    AppValues.ExportJavaClassTableNames = AppValues.ExportTableNames;
+                    AppValues.ExportJavaClassTableNames = existExcelFileNames;
                 else
                 {
                     string[] fileNames = Utils.GetExcelFileNames(param, out errorString);
@@ -725,7 +822,7 @@ public class Program
 
                 string exportJsonFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportJsonFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
-                    AppValues.ExportJsonTableNames = AppValues.ExportTableNames;
+                    AppValues.ExportJsonTableNames = existExcelFileNames;
                 else
                 {
                     string[] fileNames = Utils.GetExcelFileNames(param, out errorString);
@@ -754,10 +851,10 @@ public class Program
         }
 
         // 如果设置了部分导出，则检查是否对同一个表格既声明了-part又声明了-except
-        if (AppValues.ExportTableNames.Count > 0)
+        if (isExportPart == true)
         {
             List<string> errorConfigTableNames = new List<string>();
-            foreach (string tableName in AppValues.ExportTableNames)
+            foreach (string tableName in AppValues.ExportTableNameAndPath.Keys)
             {
                 if (AppValues.ExceptExportTableNames.Contains(tableName))
                     errorConfigTableNames.Add(tableName);
@@ -767,24 +864,15 @@ public class Program
                 Utils.LogErrorAndExit(string.Format("错误：以下表格既声明要进行导出，又声明要忽略导出：{0}，请修正配置后重试", Utils.CombineString(errorConfigTableNames, ",")));
         }
 
-        // 如果未指定导出部分Excel文件，则全部导出，但要排除设置了进行忽略的
-        if (AppValues.ExportTableNames.Count == 0)
-        {
-            foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
-            {
-                string fileName = Path.GetFileNameWithoutExtension(filePath);
-                if (fileName.StartsWith(AppValues.EXCEL_TEMP_FILE_FILE_NAME_START_STRING))
-                    Utils.LogWarning(string.Format("目录中的{0}文件为Excel自动生成的临时文件，将被忽略处理", filePath));
-                else if (!AppValues.ExceptExportTableNames.Contains(fileName))
-                    AppValues.ExportTableNames.Add(Path.GetFileNameWithoutExtension(filePath));
-            }
-        }
+        // 排除本次设置为忽略导出的Excel文件
+        foreach (string exceptTableName in AppValues.ExceptExportTableNames)
+            AppValues.ExportTableNameAndPath.Remove(exceptTableName);
 
         // 如果声明要额外导出为csv文件的Excel表本身在本次被忽略，需要进行警告
         List<string> warnExportCsvTableNames = new List<string>();
         foreach (string exportCsvTableName in AppValues.ExportCsvTableNames)
         {
-            if (!AppValues.ExportTableNames.Contains(exportCsvTableName))
+            if (!AppValues.ExportTableNameAndPath.ContainsKey(exportCsvTableName))
                 warnExportCsvTableNames.Add(exportCsvTableName);
         }
         if (warnExportCsvTableNames.Count > 0)
@@ -800,7 +888,7 @@ public class Program
         List<string> warnExportJsonTableNames = new List<string>();
         foreach (string exportJsonTableName in AppValues.ExportJsonTableNames)
         {
-            if (!AppValues.ExportTableNames.Contains(exportJsonTableName))
+            if (!AppValues.ExportTableNameAndPath.ContainsKey(exportJsonTableName))
                 warnExportJsonTableNames.Add(exportJsonTableName);
         }
         if (warnExportJsonTableNames.Count > 0)
@@ -873,9 +961,11 @@ public class Program
         }
 
         // 读取给定的Excel所在目录下的所有Excel文件，然后解析成本工具所需的数据结构
-        Utils.Log("开始解析Excel所在目录下的所有Excel文件：");
+        Utils.Log(string.Format("开始解析Excel所在目录下的所有Excel文件（{0}）：", AppValues.IsExportIncludeSubfolder == true ? "包含子目录中的Excel文件" : "不包含子目录中的Excel文件"));
         Stopwatch stopwatch = new Stopwatch();
-        foreach (string filePath in Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx"))
+        // 注意：不管Excel表格本次是否需要进行导出，都要进行解析，因为其他表格中可能含有对那些表格的引用检查
+        string[] excelFilePath = Directory.GetFiles(AppValues.ExcelFolderPath, "*.xlsx", AppValues.IsExportIncludeSubfolder == true ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        foreach (string filePath in excelFilePath)
         {
             string fileName = Path.GetFileNameWithoutExtension(filePath);
             if (fileName.StartsWith(AppValues.EXCEL_TEMP_FILE_FILE_NAME_START_STRING))
@@ -917,7 +1007,7 @@ public class Program
         {
             Utils.Log("\n下面开始进行表格检查：");
 
-            foreach (string tableName in AppValues.ExportTableNames)
+            foreach (string tableName in AppValues.ExportTableNameAndPath.Keys)
             {
                 TableInfo tableInfo = AppValues.TableInfo[tableName];
                 string errorString = null;
@@ -936,8 +1026,10 @@ public class Program
         {
             Utils.Log("\n表格检查完毕，没有发现错误，开始导出为lua文件\n");
             // 进行表格导出
-            foreach (string tableName in AppValues.ExportTableNames)
+            foreach (var item in AppValues.ExportTableNameAndPath)
             {
+                string tableName = item.Key;
+                string filePath = item.Value;
                 TableInfo tableInfo = AppValues.TableInfo[tableName];
                 string errorString = null;
                 Utils.Log(string.Format("导出表格\"{0}\"：", tableInfo.TableName), ConsoleColor.Green);
@@ -1027,7 +1119,7 @@ public class Program
                 if (!string.IsNullOrEmpty(errorString))
                     Utils.LogErrorAndExit(string.Format("无法连接至MySQL数据库：{0}\n导出至MySQL数据库被迫中止，请修正错误后重试\n", errorString));
 
-                foreach (string tableName in AppValues.ExportTableNames)
+                foreach (string tableName in AppValues.ExportTableNameAndPath.Keys)
                 {
                     TableInfo tableInfo = AppValues.TableInfo[tableName];
                     TableExportToMySQLHelper.ExportTableToDatabase(tableInfo, out errorString);

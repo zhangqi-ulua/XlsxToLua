@@ -7,6 +7,8 @@ public class AppValues
     public const string PROGRAM_NAME = "XlsxToLua.exe";
     public const string GUI_PROGRAM_NAME = "XlsxToLuaGUI.exe";
 
+    public const string EXPORT_INCLUDE_SUBFOLDER_PARAM_STRING = "-exportIncludeSubfolder";
+    public const string EXPORT_KEEP_DIRECTORY_STRUCTURE_PARAM_STRING = "-exportKeepDirectoryStructure";
     public const string NEED_COLUMN_INFO_PARAM_STRING = "-columnInfo";
     public const string UNCHECKED_PARAM_STRING = "-unchecked";
     public const string NO_CLIENT_PATH_STRING = "-noClient";
@@ -73,4 +75,6 @@ public class AppValues
 
     public static string PROGRAM_FOLDER_PATH = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
     public static string PROGRAM_PATH = System.Windows.Forms.Application.ExecutablePath;
+
+    public const string EXCEL_TEMP_FILE_FILE_NAME_START_STRING = "~$";
 }

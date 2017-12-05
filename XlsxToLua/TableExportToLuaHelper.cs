@@ -97,7 +97,7 @@ public class TableExportToLuaHelper
             exportString = _GetColumnInfo(tableInfo) + exportString;
 
         // 保存为lua文件
-        if (Utils.SaveLuaFile(tableInfo.TableName, exportString) == true)
+        if (Utils.SaveLuaFile(tableInfo.TableName, tableInfo.TableName, exportString) == true)
         {
             errorString = null;
             return true;
@@ -352,7 +352,7 @@ public class TableExportToLuaHelper
         }
 
         // 保存为lua文件
-        if (Utils.SaveLuaFile(fileName, exportString) == true)
+        if (Utils.SaveLuaFile(tableInfo.TableName, fileName, exportString) == true)
         {
             errorString = null;
             return true;

@@ -99,7 +99,7 @@ public class TableExportToCsClassHelper
             --level;
         }
 
-        if (Utils.SaveCsClassFile(className, stringBuilder.ToString()) == true)
+        if (Utils.SaveCsClassFile(tableInfo.TableName, className, stringBuilder.ToString()) == true)
         {
             errorString = null;
             return true;

@@ -23,6 +23,21 @@ public class AppValues
     public const string EXCEL_TEMP_FILE_FILE_NAME_START_STRING = "~$";
 
     /// <summary>
+    /// 声明将Excel所在文件夹下属子文件夹中的Excel文件也进行导出的命令参数
+    /// </summary>
+    public const string EXPORT_INCLUDE_SUBFOLDER_PARAM_STRING = "-exportIncludeSubfolder";
+
+    /// <summary>
+    /// 声明将生成的文件按原Excel文件所在的目录结构进行存储的命令参数
+    /// </summary>
+    public const string EXPORT_KEEP_DIRECTORY_STRUCTURE_PARAM_STRING = "-exportKeepDirectoryStructure";
+
+    /// <summary>
+    /// 声明将表格导出到MySQL数据库的命令参数
+    /// </summary>
+    public const string EXPORT_MYSQL_PARAM_STRING = "-exportMySQL";
+
+    /// <summary>
     /// 声明在生成的lua文件开头以注释形式展示列信息的命令参数
     /// </summary>
     public const string NEED_COLUMN_INFO_PARAM_STRING = "-columnInfo";
@@ -46,11 +61,6 @@ public class AppValues
     /// 声明当lang型数据key在lang文件中找不到对应值时，在lua文件输出字段值为空字符串的命令参数
     /// </summary>
     public const string LANG_NOT_MATCHING_PRINT_PARAM_STRING = "-printEmptyStringWhenLangNotMatching";
-
-    /// <summary>
-    /// 声明将表格导出到MySQL数据库的命令参数
-    /// </summary>
-    public const string EXPORT_MYSQL_PARAM_STRING = "-exportMySQL";
 
     /// <summary>
     /// 声明只将部分指定Excel表进行导出的命令参数
@@ -331,6 +341,16 @@ public class AppValues
     public static string ExportLuaFilePath = null;
 
     /// <summary>
+    /// 用户选择的是否要导出Excel文件夹下属子文件夹中的Excel文件（默认为不包含子文件夹）
+    /// </summary>
+    public static bool IsExportIncludeSubfolder = false;
+
+    /// <summary>
+    /// 用户选择的当导出Excel文件夹下属子文件夹中的Excel文件时，是否将生成的文件按原Excel文件所在的目录结构进行存储（默认为直接存储在同级目录下）
+    /// </summary>
+    public static bool IsExportKeepDirectoryStructure = false;
+
+    /// <summary>
     /// 用户输入的国际化文件所在路径
     /// </summary>
     public static string LangFilePath = null;
@@ -411,9 +431,9 @@ public class AppValues
     public static Dictionary<string, TableInfo> TableInfo = new Dictionary<string, TableInfo>();
 
     /// <summary>
-    /// 存储本次要导出的Excel文件名
+    /// 存储本次要导出的Excel文件名对应的文件所在路径（key：表名， value：文件所在路径）
     /// </summary>
-    public static List<string> ExportTableNames = new List<string>();
+    public static Dictionary<string, string> ExportTableNameAndPath = new Dictionary<string, string>();
 
     /// <summary>
     /// 存储本次忽略导出的Excel文件名
