@@ -37,31 +37,26 @@ public class Utils
     /// </summary>
     public static string GetExcelColumnName(int columnNumber)
     {
-        string columnName = string.Empty;
-
-        if (columnNumber <= 26)
-            columnName = ((char)('A' + columnNumber - 1)).ToString();
-        else
+        string result = string.Empty;
+        int temp = columnNumber;
+        int quotient;
+        int remainder;
+        do
         {
-            int quotient = columnNumber / 26;
-            int remainder = columnNumber % 26;
-            char first;
-            char second;
+            quotient = temp / 26;
+            remainder = temp % 26;
             if (remainder == 0)
             {
-                first = (char)('A' + quotient - 2);
-                second = 'Z';
-            }
-            else
-            {
-                first = (char)('A' + quotient - 1);
-                second = (char)('A' + remainder - 1);
+                remainder = 26;
+                --quotient;
             }
 
-            columnName = string.Concat(first, second);
+            result = (char)(remainder - 1 + 'A') + result;
+            temp = quotient;
         }
+        while (quotient > 0);
 
-        return columnName;
+        return result;
     }
 
     /// <summary>
