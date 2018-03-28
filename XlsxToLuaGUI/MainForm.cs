@@ -281,16 +281,16 @@ namespace XlsxToLuaGUI
                     if (cbIsUseRelativePath.Checked == true)
                     {
                         if (Path.IsPathRooted(programPath))
-                            programPath = programUri.MakeRelativeUri(new Uri(programPath)).ToString();
+                            programPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(programPath)).ToString());
                         if (Path.IsPathRooted(excelFolderPath))
-                            excelFolderPath = programUri.MakeRelativeUri(new Uri(excelFolderPath)).ToString();
+                            excelFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(excelFolderPath)).ToString());
                         if (Path.IsPathRooted(exportLuaFolderPath))
-                            exportLuaFolderPath = programUri.MakeRelativeUri(new Uri(exportLuaFolderPath)).ToString();
+                            exportLuaFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportLuaFolderPath)).ToString());
                         if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(clientFolderPath))
-                            clientFolderPath = programUri.MakeRelativeUri(new Uri(clientFolderPath)).ToString();
+                            clientFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(clientFolderPath)).ToString());
 
                         if (!langFilePath.Equals(AppValues.NO_LANG_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(langFilePath))
-                            langFilePath = programUri.MakeRelativeUri(new Uri(langFilePath)).ToString();
+                            langFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(langFilePath)).ToString());
                     }
                     configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_PROGRAM_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(programPath);
                     configStringBuilder.Append(AppValues.SAVE_CONFIG_KEY_EXCEL_FOLDER_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(excelFolderPath);
@@ -314,7 +314,7 @@ namespace XlsxToLuaGUI
                     if (!string.IsNullOrEmpty(exportCsvFilePath))
                     {
                         if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsvFilePath))
-                            exportCsvFilePath = programUri.MakeRelativeUri(new Uri(exportCsvFilePath)).ToString();
+                            exportCsvFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportCsvFilePath)).ToString());
 
                         configStringBuilder.Append(AppValues.EXPORT_CSV_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsvFilePath);
                     }
@@ -335,7 +335,7 @@ namespace XlsxToLuaGUI
                     if (!string.IsNullOrEmpty(exportCsClassFilePath))
                     {
                         if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsClassFilePath))
-                            exportCsClassFilePath = programUri.MakeRelativeUri(new Uri(exportCsClassFilePath)).ToString();
+                            exportCsClassFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportCsClassFilePath)).ToString());
 
                         configStringBuilder.Append(AppValues.EXPORT_CS_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportCsClassFilePath);
                     }
@@ -356,7 +356,7 @@ namespace XlsxToLuaGUI
                     if (!string.IsNullOrEmpty(exportJavaClassFilePath))
                     {
                         if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportJavaClassFilePath))
-                            exportJavaClassFilePath = programUri.MakeRelativeUri(new Uri(exportJavaClassFilePath)).ToString();
+                            exportJavaClassFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportJavaClassFilePath)).ToString());
 
                         configStringBuilder.Append(AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportJavaClassFilePath);
                     }
@@ -385,7 +385,7 @@ namespace XlsxToLuaGUI
                     if (!string.IsNullOrEmpty(exportJsonFilePath))
                     {
                         if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportJsonFilePath))
-                            exportJsonFilePath = programUri.MakeRelativeUri(new Uri(exportJsonFilePath)).ToString();
+                            exportJsonFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportJsonFilePath)).ToString());
 
                         configStringBuilder.Append(AppValues.EXPORT_JSON_PARAM_PARAM_STRING).Append(AppValues.SAVE_CONFIG_PARAM_SUBTYPE_SEPARATOR).Append(AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH).Append(AppValues.SAVE_CONFIG_KEY_VALUE_SEPARATOR).AppendLine(exportJsonFilePath);
                     }
@@ -987,16 +987,16 @@ namespace XlsxToLuaGUI
             if (cbIsUseRelativePath.Checked == true)
             {
                 if (Path.IsPathRooted(programPath))
-                    programPath = programUri.MakeRelativeUri(new Uri(programPath)).ToString();
+                    programPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(programPath)).ToString());
                 if (Path.IsPathRooted(excelFolderPath))
-                    excelFolderPath = programUri.MakeRelativeUri(new Uri(excelFolderPath)).ToString();
+                    excelFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(excelFolderPath)).ToString());
                 if (Path.IsPathRooted(exportLuaFolderPath))
-                    exportLuaFolderPath = programUri.MakeRelativeUri(new Uri(exportLuaFolderPath)).ToString();
+                    exportLuaFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportLuaFolderPath)).ToString());
                 if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(clientFolderPath))
-                    clientFolderPath = programUri.MakeRelativeUri(new Uri(clientFolderPath)).ToString();
+                    clientFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(clientFolderPath)).ToString());
 
                 if (!langFilePath.Equals(AppValues.NO_LANG_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(langFilePath))
-                    langFilePath = programUri.MakeRelativeUri(new Uri(langFilePath)).ToString();
+                    langFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(langFilePath)).ToString());
             }
             stringBuilder.AppendFormat("\"{0}\" ", programPath).AppendFormat("\"{0}\" ", excelFolderPath).AppendFormat("\"{0}\" ", exportLuaFolderPath).AppendFormat("\"{0}\" ", clientFolderPath).AppendFormat("\"{0}\" ", langFilePath);
             if (cbExportIncludeSubfolder.Checked == true)
@@ -1035,7 +1035,7 @@ namespace XlsxToLuaGUI
                 const string KEY_AND_VALUE_FORMAT = "{0}={1}";
                 string exportCsvFilePath = tbExportCsvFilePath.Text.Trim();
                 if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsvFilePath))
-                    exportCsvFilePath = programUri.MakeRelativeUri(new Uri(exportCsvFilePath)).ToString();
+                    exportCsvFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportCsvFilePath)).ToString());
 
                 exportCsvParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CSV_PARAM_SUBTYPE_EXPORT_PATH, exportCsvFilePath));
                 // csv文件扩展名
@@ -1079,7 +1079,7 @@ namespace XlsxToLuaGUI
                 const string KEY_AND_VALUE_FORMAT = "{0}={1}";
                 string exportCsClassFilePath = tbExportCsClassFilePath.Text.Trim();
                 if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportCsClassFilePath))
-                    exportCsClassFilePath = programUri.MakeRelativeUri(new Uri(exportCsClassFilePath)).ToString();
+                    exportCsClassFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportCsClassFilePath)).ToString());
 
                 exportCsClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_CS_CLASS_PARAM_SUBTYPE_EXPORT_PATH, exportCsClassFilePath));
                 // C#类文件命名空间
@@ -1103,7 +1103,7 @@ namespace XlsxToLuaGUI
                 const string KEY_AND_VALUE_FORMAT = "{0}={1}";
                 string exportJavaClassFilePath = tbExportJavaClassFilePath.Text.Trim();
                 if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportJavaClassFilePath))
-                    exportJavaClassFilePath = programUri.MakeRelativeUri(new Uri(exportJavaClassFilePath)).ToString();
+                    exportJavaClassFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportJavaClassFilePath)).ToString());
 
                 exportJavaClassParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JAVA_CLASS_PARAM_SUBTYPE_EXPORT_PATH, exportJavaClassFilePath));
                 // Java类文件的包名
@@ -1133,7 +1133,7 @@ namespace XlsxToLuaGUI
                 const string KEY_AND_VALUE_FORMAT = "{0}={1}";
                 string exportJsonFilePath = tbExportJsonFilePath.Text.Trim();
                 if (cbIsUseRelativePath.Checked == true && Path.IsPathRooted(exportJsonFilePath))
-                    exportJsonFilePath = programUri.MakeRelativeUri(new Uri(exportJsonFilePath)).ToString();
+                    exportJsonFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportJsonFilePath)).ToString());
 
                 exportJsonParamList.Add(string.Format(KEY_AND_VALUE_FORMAT, AppValues.EXPORT_JSON_PARAM_SUBTYPE_EXPORT_PATH, exportJsonFilePath));
                 // json文件扩展名

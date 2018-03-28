@@ -475,7 +475,8 @@ public class Utils
             Uri excelFolderUri = new Uri(excelFolderPath);
             Uri fileUri = new Uri(AppValues.ExportTableNameAndPath[tableName]);
             Uri relativeUri = excelFolderUri.MakeRelativeUri(fileUri);
-            return Path.GetDirectoryName(CombinePath(exportRootPath, relativeUri.ToString()));
+            // 注意：Uri转为的字符串中会将中文转义为%xx，需要恢复为非转义形式
+            return Path.GetDirectoryName(CombinePath(exportRootPath, Uri.UnescapeDataString(relativeUri.ToString())));
         }
         else
             return exportRootPath;

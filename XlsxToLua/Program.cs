@@ -372,7 +372,7 @@ public class Program
                                     if (!Directory.Exists(value))
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的csv文件导出路径不存在", AppValues.EXPORT_CSV_PARAM_PARAM_STRING, AppValues.EXPORT_CSV_PARAM_EXPORT_PATH_PARAM_STRING));
                                     else
-                                        AppValues.ExportCsvPath = value;
+                                        AppValues.ExportCsvPath = Path.GetFullPath(value);
                                 }
                                 else if (AppValues.EXPORT_CSV_PARAM_EXTENSION_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
                                 {
@@ -493,7 +493,7 @@ public class Program
                                     if (!Directory.Exists(value))
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的导出csv对应C#类文件导出路径不存在", AppValues.EXPORT_CS_CLASS_PARAM_PARAM_STRING, AppValues.EXPORT_CS_CLASS_PARAM_EXPORT_PATH_PARAM_STRING));
                                     else
-                                        AppValues.ExportCsClassPath = value;
+                                        AppValues.ExportCsClassPath = Path.GetFullPath(value);
                                 }
                                 else if (AppValues.EXPORT_CS_CLASS_PARAM_NAMESPACE_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
                                 {
@@ -610,7 +610,7 @@ public class Program
                                     if (!Directory.Exists(value))
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的导出csv对应Java类文件导出路径不存在", AppValues.EXPORT_JAVA_CLASS_PARAM_PARAM_STRING, AppValues.EXPORT_JAVA_CLASS_PARAM_EXPORT_PATH_PARAM_STRING));
                                     else
-                                        AppValues.ExportJavaClassPath = value;
+                                        AppValues.ExportJavaClassPath = Path.GetFullPath(value);
                                 }
                                 else if (AppValues.EXPORT_JAVA_CLASS_PARAM_PACKAGE_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
                                 {
@@ -758,7 +758,7 @@ public class Program
                                     if (!Directory.Exists(value))
                                         Utils.LogErrorAndExit(string.Format("错误：声明的{0}参数下属的参数{1}所配置的json文件导出路径不存在", AppValues.EXPORT_JSON_PARAM_PARAM_STRING, AppValues.EXPORT_JSON_PARAM_EXPORT_PATH_PARAM_STRING));
                                     else
-                                        AppValues.ExportJsonPath = value;
+                                        AppValues.ExportJsonPath = Path.GetFullPath(value);
                                 }
                                 else if (AppValues.EXPORT_JSON_PARAM_EXTENSION_PARAM_STRING.Equals(key, StringComparison.CurrentCultureIgnoreCase))
                                 {
