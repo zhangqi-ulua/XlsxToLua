@@ -310,7 +310,7 @@ public class TableExportToMySQLHelper
                 int insertCount = cmd.ExecuteNonQuery();
                 if (insertCount < count)
                 {
-                    errorString = string.Format("需要插入{0}条数据但仅插入了{1}条");
+                    errorString = string.Format("需要插入{0}条数据但仅插入了{1}条", count, insertCount);
                     return false;
                 }
                 else
