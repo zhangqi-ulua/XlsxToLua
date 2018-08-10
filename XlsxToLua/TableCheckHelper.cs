@@ -2098,7 +2098,7 @@ public class TableCheckHelper
                         string exceptDefineString = temp.Substring(leftBracketIndex + 1, rightBracketIndex - leftBracketIndex - 1).Trim();
                         if (!exceptDefineString.StartsWith(EXCEPT_DEFINE_START_STRING, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            errorString = string.Format("值引用检查规则声明错误，若要声明ref检查所忽略的特殊值，需在最后以(except{xx,xx})的形式声明，而你在括号中声明为\"{0}\"\n", exceptDefineString);
+                            errorString = string.Format("值引用检查规则声明错误，若要声明ref检查所忽略的特殊值，需在最后以(except{{xx,xx}})的形式声明，而你在括号中声明为\"{0}\"\n", exceptDefineString);
                             return false;
                         }
                         else

@@ -141,7 +141,7 @@ public class TableExportToLuaHelper
         List<string> integrityCheckRules = new List<string>();
         if (indexFieldDefine.Length < 1)
         {
-            errorString = string.Format("导出配置\"{0}\"定义错误，用于索引的字段不能为空，请按fileName:indexFieldName1-indexFieldName2{otherFieldName1,otherFieldName2}的格式配置\n", exportRule);
+            errorString = string.Format("导出配置\"{0}\"定义错误，用于索引的字段不能为空，请按fileName:indexFieldName1-indexFieldName2{{otherFieldName1,otherFieldName2}}的格式配置\n", exportRule);
             return false;
         }
         // 检查字段是否存在且为int、float、string或lang型
@@ -231,7 +231,7 @@ public class TableExportToLuaHelper
             string[] fieldNames = tableValueFieldName.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
             if (fieldNames.Length < 1)
             {
-                errorString = string.Format("导出配置\"{0}\"定义错误，花括号中声明的table value中的字段不能为空，请按fileName:indexFieldName1-indexFieldName2{otherFieldName1,otherFieldName2}的格式配置\n", exportRule);
+                errorString = string.Format("导出配置\"{0}\"定义错误，花括号中声明的table value中的字段不能为空，请按fileName:indexFieldName1-indexFieldName2{{otherFieldName1,otherFieldName2}}的格式配置\n", exportRule);
                 return false;
             }
             // 检查字段是否存在

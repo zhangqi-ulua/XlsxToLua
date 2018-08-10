@@ -427,7 +427,7 @@ public class Program
                 int paramLeftBracketIndex = param.IndexOf('(');
                 int paramRightBracketIndex = param.LastIndexOf(')');
                 if (paramLeftBracketIndex == -1 || paramRightBracketIndex == -1 || paramLeftBracketIndex > paramRightBracketIndex)
-                    Utils.LogErrorAndExit(string.Format("必须在英文小括号内声明要导出为csv文件的Excel表格名，若要全部导出，请配置为{1}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING));
+                    Utils.LogErrorAndExit(string.Format("必须在英文小括号内声明要导出为csv文件的Excel表格名，若要全部导出，请配置为{0}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING));
 
                 string exportCsvFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportCsvFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
@@ -544,7 +544,7 @@ public class Program
                 int paramLeftBracketIndex = param.IndexOf('(');
                 int paramRightBracketIndex = param.LastIndexOf(')');
                 if (paramLeftBracketIndex == -1 || paramRightBracketIndex == -1 || paramLeftBracketIndex > paramRightBracketIndex)
-                    Utils.LogErrorAndExit(string.Format("必须在英文小括号内声明要导出为csv对应C#类文件的Excel表格名，若要全部导出，请配置为{1}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING));
+                    Utils.LogErrorAndExit(string.Format("必须在英文小括号内声明要导出为csv对应C#类文件的Excel表格名，若要全部导出，请配置为{0}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING));
 
                 string exportCsClassFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportCsClassFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
@@ -692,7 +692,7 @@ public class Program
                 int paramLeftBracketIndex = param.IndexOf('(');
                 int paramRightBracketIndex = param.LastIndexOf(')');
                 if (paramLeftBracketIndex == -1 || paramRightBracketIndex == -1 || paramLeftBracketIndex > paramRightBracketIndex)
-                    Utils.LogErrorAndExit(string.Format("必须在英文小括号内声明要导出为csv对应Java类文件的Excel表格名，若要全部导出，请配置为{1}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING));
+                    Utils.LogErrorAndExit(string.Format("必须在英文小括号内声明要导出为csv对应Java类文件的Excel表格名，若要全部导出，请配置为{0}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING));
 
                 string exportJavaClassFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportJavaClassFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
@@ -818,7 +818,7 @@ public class Program
                 int paramLeftBracketIndex = param.IndexOf('(');
                 int paramRightBracketIndex = param.LastIndexOf(')');
                 if (paramLeftBracketIndex == -1 || paramRightBracketIndex == -1 || paramLeftBracketIndex > paramRightBracketIndex)
-                    Utils.LogErrorAndExit(string.Format("必须在英文小括号内声明要导出为json文件的Excel表格名，若要全部导出，请配置为{1}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING));
+                    Utils.LogErrorAndExit(string.Format("必须在英文小括号内声明要导出为json文件的Excel表格名，若要全部导出，请配置为{0}参数", AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING));
 
                 string exportJsonFileWithoutBracket = param.Substring(paramLeftBracketIndex + 1, paramRightBracketIndex - paramLeftBracketIndex - 1).Trim();
                 if (exportJsonFileWithoutBracket.Equals(AppValues.EXPORT_ALL_TO_EXTRA_FILE_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))

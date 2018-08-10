@@ -1444,7 +1444,7 @@ public class TableAnalyzeHelper
                         fieldInfo.Data.Add(jsonData);
                     else
                     {
-                        errorStringBuilder.AppendFormat("第{0}行填写的的数据（{1}）非法，{2}\n", row - AppValues.DATA_FIELD_DATA_START_INDEX + 1, inputData, errorString);
+                        errorStringBuilder.AppendFormat("第{0}行填写的数据（{1}）非法，{2}\n", row + 1, inputData, errorString);
                         fieldInfo.Data.Add(null);
                     }
                 }
@@ -1992,7 +1992,7 @@ public class TableAnalyzeHelper
             {
                 if (config.ContainsKey(paramName))
                 {
-                    errorString = string.Format("错误：表格{0}的配置表中存在相同的参数名{1}，请修正错误后重试\n");
+                    errorString = string.Format("错误：配置表中存在相同的参数名{0}，请修正错误后重试\n", paramName);
                     return null;
                 }
                 else

@@ -762,7 +762,7 @@ public class MapStringCheckHelper
             }
             else
             {
-                errorString = string.Format("定义字符串中的\"{1}\"非法", c);
+                errorString = string.Format("定义字符串中的\"{0}\"非法", c);
                 return null;
             }
         }
@@ -875,7 +875,7 @@ public class MapStringCheckRuleParser
             }
             else
             {
-                errorString = string.Format("map子元素中的key名（{0}）对应的参数要求非法，输入值为\"{1}\"，请用1或0分别设置该参数为必须含有或不允许含有", keyToken.DefineString);
+                errorString = string.Format("map子元素中的key名（{0}）对应的参数要求非法，输入值为\"{1}\"，请用1或0分别设置该参数为必须含有或不允许含有", key, keyToken.DefineString);
                 return;
             }
         }
@@ -905,7 +905,7 @@ public class MapStringCheckRuleParser
         }
         else
         {
-            errorString = string.Format("map子元素中的key名（{0}）对应的参数要求非法，输入值为\"{1}\"，请用1或0分别设置该参数为必须含有或不允许含有", keyToken.DefineString);
+            errorString = string.Format("map子元素中的key名（{0}）对应的参数要求非法，输入值为\"{1}\"，请用1或0分别设置该参数为必须含有或不允许含有", key, keyToken.DefineString);
             return;
         }
 
