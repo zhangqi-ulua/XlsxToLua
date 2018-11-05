@@ -130,6 +130,7 @@
             // 
             // tbExcelFolderPath
             // 
+            this.tbExcelFolderPath.AllowDrop = true;
             this.tbExcelFolderPath.Location = new System.Drawing.Point(184, 76);
             this.tbExcelFolderPath.Margin = new System.Windows.Forms.Padding(4);
             this.tbExcelFolderPath.Name = "tbExcelFolderPath";
@@ -159,6 +160,7 @@
             // 
             // tbExportLuaFolderPath
             // 
+            this.tbExportLuaFolderPath.AllowDrop = true;
             this.tbExportLuaFolderPath.Location = new System.Drawing.Point(184, 122);
             this.tbExportLuaFolderPath.Margin = new System.Windows.Forms.Padding(4);
             this.tbExportLuaFolderPath.Name = "tbExportLuaFolderPath";
@@ -188,6 +190,7 @@
             // 
             // tbClientFolderPath
             // 
+            this.tbClientFolderPath.AllowDrop = true;
             this.tbClientFolderPath.Location = new System.Drawing.Point(184, 165);
             this.tbClientFolderPath.Margin = new System.Windows.Forms.Padding(4);
             this.tbClientFolderPath.Name = "tbClientFolderPath";
@@ -217,6 +220,7 @@
             // 
             // tbLangFilePath
             // 
+            this.tbLangFilePath.AllowDrop = true;
             this.tbLangFilePath.Location = new System.Drawing.Point(184, 207);
             this.tbLangFilePath.Margin = new System.Windows.Forms.Padding(4);
             this.tbLangFilePath.Name = "tbLangFilePath";
@@ -302,6 +306,7 @@
             // 
             // tbPartExcelNames
             // 
+            this.tbPartExcelNames.AllowDrop = true;
             this.tbPartExcelNames.Location = new System.Drawing.Point(92, 532);
             this.tbPartExcelNames.Margin = new System.Windows.Forms.Padding(4);
             this.tbPartExcelNames.Name = "tbPartExcelNames";
@@ -376,6 +381,7 @@
             // 
             // tbProgramPath
             // 
+            this.tbProgramPath.AllowDrop = true;
             this.tbProgramPath.Location = new System.Drawing.Point(184, 30);
             this.tbProgramPath.Margin = new System.Windows.Forms.Padding(4);
             this.tbProgramPath.Name = "tbProgramPath";
@@ -427,6 +433,7 @@
             // 
             // tbExportCsvTableNames
             // 
+            this.tbExportCsvTableNames.AllowDrop = true;
             this.tbExportCsvTableNames.Location = new System.Drawing.Point(1245, 62);
             this.tbExportCsvTableNames.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tbExportCsvTableNames.Name = "tbExportCsvTableNames";
@@ -556,6 +563,7 @@
             // 
             // tbExportJsonTableNames
             // 
+            this.tbExportJsonTableNames.AllowDrop = true;
             this.tbExportJsonTableNames.Location = new System.Drawing.Point(397, 670);
             this.tbExportJsonTableNames.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tbExportJsonTableNames.Name = "tbExportJsonTableNames";
@@ -654,6 +662,7 @@
             // 
             // tbExceptExcelNames
             // 
+            this.tbExceptExcelNames.AllowDrop = true;
             this.tbExceptExcelNames.Location = new System.Drawing.Point(92, 597);
             this.tbExceptExcelNames.Margin = new System.Windows.Forms.Padding(4);
             this.tbExceptExcelNames.Name = "tbExceptExcelNames";
@@ -694,6 +703,7 @@
             // 
             // tbExportCsClassTableNames
             // 
+            this.tbExportCsClassTableNames.AllowDrop = true;
             this.tbExportCsClassTableNames.Location = new System.Drawing.Point(1245, 319);
             this.tbExportCsClassTableNames.Margin = new System.Windows.Forms.Padding(4);
             this.tbExportCsClassTableNames.Name = "tbExportCsClassTableNames";
@@ -845,6 +855,7 @@
             // 
             // tbExportJavaClassTableNames
             // 
+            this.tbExportJavaClassTableNames.AllowDrop = true;
             this.tbExportJavaClassTableNames.Location = new System.Drawing.Point(1248, 518);
             this.tbExportJavaClassTableNames.Margin = new System.Windows.Forms.Padding(4);
             this.tbExportJavaClassTableNames.Name = "tbExportJavaClassTableNames";

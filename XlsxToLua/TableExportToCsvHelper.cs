@@ -179,7 +179,7 @@ public class TableExportToCsvHelper
                                     StringBuilder stringBuilder = rowContentList[row];
                                     stringBuilder.Append(AppValues.ExportCsvSplitString);
                                     if (fieldInfo.Data[row] != null)
-                                        stringBuilder.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalSeconds);
+                                        stringBuilder.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE_LOCAL).TotalSeconds);
                                 }
                                 break;
                             }
@@ -190,7 +190,7 @@ public class TableExportToCsvHelper
                                     StringBuilder stringBuilder = rowContentList[row];
                                     stringBuilder.Append(AppValues.ExportCsvSplitString);
                                     if (fieldInfo.Data[row] != null)
-                                        stringBuilder.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalMilliseconds);
+                                        stringBuilder.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE_LOCAL).TotalMilliseconds);
                                 }
                                 break;
                             }

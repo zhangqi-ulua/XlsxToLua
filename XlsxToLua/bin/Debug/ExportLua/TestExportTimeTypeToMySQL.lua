@@ -10,7 +10,7 @@
 
 return {
 	[1] = {
-		testExportDateToDatetime = "2016-07-01 00:00:00",
+		testExportDateToDatetime = "2016-07-01 08:00:00",
 		testExportDateToReferenceSec = "2016-07-01 00:00:00",
 		testExportDateToReferenceMsec = "2016-07-01 00:00:00",
 		testExportDateToDate = "2016-07-01 00:00:00",
@@ -20,7 +20,7 @@ return {
 		testExportTimeToVarchar = "00:00:00",
 	},
 	[2] = {
-		testExportDateToDatetime = "2016-07-01 01:00:01",
+		testExportDateToDatetime = "2016-07-01 09:00:01",
 		testExportDateToReferenceSec = "2016-07-01 00:00:00",
 		testExportDateToReferenceMsec = "2016-07-01 00:00:00",
 		testExportDateToDate = "2016-07-01 00:00:00",
@@ -30,7 +30,7 @@ return {
 		testExportTimeToVarchar = "00:32:00",
 	},
 	[3] = {
-		testExportDateToDatetime = "2016-10-10 00:00:00",
+		testExportDateToDatetime = "2016-10-10 08:00:00",
 		testExportDateToReferenceSec = "2016-07-01 10:10:00",
 		testExportDateToReferenceMsec = "2016-07-01 10:10:00",
 		testExportDateToDate = "2016-07-01 10:10:00",
@@ -40,7 +40,7 @@ return {
 		testExportTimeToVarchar = "10:10:00",
 	},
 	[4] = {
-		testExportDateToDatetime = "2016-10-10 10:10:10",
+		testExportDateToDatetime = "2016-10-10 18:10:10",
 		testExportDateToReferenceSec = "2016-10-10 00:00:10",
 		testExportDateToReferenceMsec = "2016-10-10 00:00:10",
 		testExportDateToDate = "2016-10-10 00:00:10",

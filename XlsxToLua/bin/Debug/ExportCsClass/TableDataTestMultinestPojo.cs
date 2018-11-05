@@ -7,7 +7,7 @@ namespace Assets.Scripts.CsClass
     {
         public int Id { get; set; }
         public Dictionary<string, object> TestDict { get; set; }
-        public List<Dictionary<string, object>> TestArray1 { get; set; }
+        public List<Dictionary<string, Dictionary<string, object>>> TestArray1 { get; set; }
         public List<List<Dictionary<string, object>>> TestArray2 { get; set; }
     }
 }

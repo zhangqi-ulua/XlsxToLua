@@ -14,6 +14,38 @@ namespace XlsxToLuaGUI
         public MainForm()
         {
             InitializeComponent();
+
+            tbProgramPath.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExcelFolderPath.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExportLuaFolderPath.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbClientFolderPath.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbLangFilePath.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExportJsonFilePath.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExportCsvFilePath.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExportCsClassFilePath.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExportJavaClassFilePath.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbPartExcelNames.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExceptExcelNames.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExportJsonTableNames.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExportCsvTableNames.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExportCsClassTableNames.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+            tbExportJavaClassTableNames.DragEnter += new DragEventHandler(_TextBoxDragEnter);
+
+            tbProgramPath.DragDrop += new DragEventHandler(_TextBoxOneFileDragDrop);
+            tbLangFilePath.DragDrop += new DragEventHandler(_TextBoxOneFileDragDrop);
+            tbExcelFolderPath.DragDrop += new DragEventHandler(_TextBoxOneDirDragDrop);
+            tbExportLuaFolderPath.DragDrop += new DragEventHandler(_TextBoxOneDirDragDrop);
+            tbClientFolderPath.DragDrop += new DragEventHandler(_TextBoxOneDirDragDrop);
+            tbExportJsonFilePath.DragDrop += new DragEventHandler(_TextBoxOneDirDragDrop);
+            tbExportCsvFilePath.DragDrop += new DragEventHandler(_TextBoxOneDirDragDrop);
+            tbExportCsClassFilePath.DragDrop += new DragEventHandler(_TextBoxOneDirDragDrop);
+            tbExportJavaClassFilePath.DragDrop += new DragEventHandler(_TextBoxOneDirDragDrop);
+            tbPartExcelNames.DragDrop += new DragEventHandler(_TextBoxMultipleExcelFileDragDrop);
+            tbExceptExcelNames.DragDrop += new DragEventHandler(_TextBoxMultipleExcelFileDragDrop);
+            tbExportJsonTableNames.DragDrop += new DragEventHandler(_TextBoxMultipleExcelFileDragDrop);
+            tbExportCsvTableNames.DragDrop += new DragEventHandler(_TextBoxMultipleExcelFileDragDrop);
+            tbExportCsClassTableNames.DragDrop += new DragEventHandler(_TextBoxMultipleExcelFileDragDrop);
+            tbExportJavaClassTableNames.DragDrop += new DragEventHandler(_TextBoxMultipleExcelFileDragDrop);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -1211,17 +1243,17 @@ namespace XlsxToLuaGUI
                 foreach (string filePath in filePaths)
                     fileNames.Add(Path.GetFileNameWithoutExtension(filePath));
 
-                originalText = originalText.Trim();
-                if (!string.IsNullOrEmpty(originalText))
-                {
-                    string[] originalInputExcelFile = originalText.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
-                    for (int i = 0; i < originalInputExcelFile.Length; ++i)
-                    {
-                        string oneOriginalInputExcelFile = originalInputExcelFile[i].Trim();
-                        if (!string.IsNullOrEmpty(oneOriginalInputExcelFile) && !fileNames.Contains(oneOriginalInputExcelFile))
-                            fileNames.Add(oneOriginalInputExcelFile);
-                    }
-                }
+                //originalText = originalText.Trim();
+                //if (!string.IsNullOrEmpty(originalText))
+                //{
+                //    string[] originalInputExcelFile = originalText.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+                //    for (int i = 0; i < originalInputExcelFile.Length; ++i)
+                //    {
+                //        string oneOriginalInputExcelFile = originalInputExcelFile[i].Trim();
+                //        if (!string.IsNullOrEmpty(oneOriginalInputExcelFile) && !fileNames.Contains(oneOriginalInputExcelFile))
+                //            fileNames.Add(oneOriginalInputExcelFile);
+                //    }
+                //}
 
                 errorString = null;
                 return Utils.CombineString(fileNames, "|");
@@ -1230,6 +1262,167 @@ namespace XlsxToLuaGUI
             {
                 errorString = null;
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// 想拖拽接收文件或文件夹路径的文本框，需要注册DragEnter事件回调
+        /// </summary>
+        private void _TextBoxDragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Link;
+        }
+
+        /// <summary>
+        /// 要求拖拽一个文件到文本框的DragDrop事件回调
+        /// </summary>
+        private void _TextBoxOneFileDragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) == true)
+            {
+                Array dragDropFileArray = e.Data.GetData(DataFormats.FileDrop) as Array;
+                if (dragDropFileArray.Length != 1)
+                {
+                    MessageBox.Show("只允许拖入一个指定的文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                string path = dragDropFileArray.GetValue(0).ToString();
+                if (Directory.Exists(path) == true)
+                {
+                    MessageBox.Show("请拖入一个指定的文件而不是文件夹", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                else
+                {
+                    if (File.Exists(path))
+                    {
+                        TextBox textBox = sender as TextBox;
+                        textBox.Text = path;
+                    }
+                    else
+                    {
+                        MessageBox.Show("请拖入一个指定的文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("请拖入一个指定的文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 要求拖拽一个文件夹到文本框的DragDrop事件回调
+        /// </summary>
+        private void _TextBoxOneDirDragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) == true)
+            {
+                Array dragDropDirArray = e.Data.GetData(DataFormats.FileDrop) as Array;
+                if (dragDropDirArray.Length != 1)
+                {
+                    MessageBox.Show("只允许拖入一个指定的文件夹", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                string path = dragDropDirArray.GetValue(0).ToString();
+                if (File.Exists(path) == true)
+                {
+                    MessageBox.Show("请拖入一个指定的文件夹而不是文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                else
+                {
+                    if (Directory.Exists(path))
+                    {
+                        TextBox textBox = sender as TextBox;
+                        textBox.Text = path;
+                    }
+                    else
+                    {
+                        MessageBox.Show("请拖入一个指定的文件夹", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("请拖入一个指定的文件夹", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 在Excel所在目录中选择多个表格文件拖拽到文本框的DragDrop事件回调
+        /// </summary>
+        private void _TextBoxMultipleExcelFileDragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) == true)
+            {
+                string excelFolderPath = tbExcelFolderPath.Text.Trim();
+                if (string.IsNullOrEmpty(excelFolderPath))
+                {
+                    MessageBox.Show("请先指定Excel文件所在目录", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (!Directory.Exists(excelFolderPath))
+                {
+                    MessageBox.Show("指定Excel文件所在目录不存在，请重新设置", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                Array dragDropFileArray = e.Data.GetData(DataFormats.FileDrop) as Array;
+                List<string> fileNames = new List<string>();
+                foreach (string path in dragDropFileArray)
+                {
+                    if (Directory.Exists(path) == true)
+                    {
+                        MessageBox.Show("请在Excel所在文件夹中选择并拖入若干个表格文件，而不是文件夹", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    if (File.Exists(path) == false)
+                    {
+                        MessageBox.Show("请在Excel所在文件夹中选择并拖入若干个表格文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    // 检查选择的Excel文件是否在设置的Excel所在目录
+                    string checkFilePath = Path.GetDirectoryName(path);
+                    if (cbExportIncludeSubfolder.Checked == true)
+                    {
+                        if (!Path.GetFullPath(checkFilePath).StartsWith(Path.GetFullPath(excelFolderPath), StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            string errorString = string.Format("必须在指定的Excel文件所在目录或子目录中选择导出文件\n设置的Excel文件所在根目录为：{0}\n而你选择的Excel所在目录为：{1}", Path.GetFullPath(excelFolderPath), Path.GetFullPath(checkFilePath));
+                            MessageBox.Show(errorString, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (!Path.GetFullPath(checkFilePath).Equals(Path.GetFullPath(excelFolderPath), StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            string errorString = string.Format("必须在指定的Excel文件所在目录中选择导出文件\n设置的Excel文件所在目录为：{0}\n而你选择的Excel所在目录为：{1}", Path.GetFullPath(excelFolderPath), Path.GetFullPath(checkFilePath));
+                            MessageBox.Show(errorString, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
+                    // 检查是否为Excel文件
+                    if (!".xlsx".Equals(Path.GetExtension(path), StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        MessageBox.Show("选择的必须都是Excel文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    fileNames.Add(Path.GetFileNameWithoutExtension(path));
+                }
+
+                TextBox textBox = sender as TextBox;
+                textBox.Text = Utils.CombineString(fileNames, "|");
+            }
+            else
+            {
+                MessageBox.Show("请在Excel所在文件夹中选择并拖入若干个表格文件", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
         }
     }

@@ -36,8 +36,10 @@ public class Program
     ///     -exportJson（后面在英文小括号内声明本次要额外导出json文件的Excel文件名，用|分隔，或者用$all表示全部。注意如果-part参数中未指定本次要导出某个Excel表，即便声明要导出json文件也不会生效）
     ///     -exportJsonParam（可声明导出json文件的参数）
     /// </summary>
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
+        int errorLevel = 0;
+
         // 检查第1个参数（Excel表格所在目录）是否正确
         if (args.Length < 1)
             Utils.LogErrorAndExit("错误：未输入Excel表格所在目录");
@@ -1106,9 +1108,6 @@ public class Program
                         Utils.Log("额外导出为json文件成功");
                 }
             }
-
-            Utils.Log("\n导出lua文件完毕\n");
-
             // 进行数据库导出
             if (AppValues.IsExportMySQL == true)
             {
@@ -1135,9 +1134,11 @@ public class Program
             Utils.LogError("\n表格检查完毕，但存在上面所列错误，必须全部修正后才可以进行表格导出\n");
             // 将错误信息全部输出保存到txt文件中
             Utils.SaveErrorInfoToFile();
+            errorLevel = -1;
         }
 
-        Utils.Log("\n按任意键退出本工具");
+        Utils.Log("\n导出完毕", ConsoleColor.Green);
         Console.ReadKey();
+        return errorLevel;
     }
 }

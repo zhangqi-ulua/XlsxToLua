@@ -232,16 +232,57 @@ public class TableExportToJavaClassHelper
                 }
             case DataType.Dict:
                 {
-                    stringBuilder.Append("HashMap<String, Object>");
+                    // 如果dict型下属各字段都是同一种类型，则HashMap的值类型可以具体指定，否则只能设为通用的Object
+                    bool isSameChildDataType = true;
+                    DataType firstDataType = fieldInfo.ChildField[0].DataType;
+                    foreach (FieldInfo childFieldInfo in fieldInfo.ChildField)
+                    {
+                        if (childFieldInfo.DataType != firstDataType)
+                        {
+                            isSameChildDataType = false;
+                            break;
+                        }
+                    }
+                    if (isSameChildDataType == true)
+                    {
+                        stringBuilder.Append("HashMap<String, ");
+                        stringBuilder.Append(_GetJavaClassFieldDefine(fieldInfo.ChildField[0]));
+                        stringBuilder.Append(">");
+                    }
+                    else
+                        stringBuilder.Append("HashMap<String, Object>");
+
                     break;
                 }
             case DataType.Date:
+                {
+                    DateFormatType dateFormatType = TableAnalyzeHelper.GetDateFormatType(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_LUA_FORMAT].ToString());
+                    if (dateFormatType == DateFormatType.ReferenceDateSec)
+                        stringBuilder.Append("Integer");
+                    else if (dateFormatType == DateFormatType.ReferenceDateMsec)
+                        stringBuilder.Append("Long");
+                    else
+                    {
+                        if (AppValues.ExportJavaClassIsUseDate == true)
+                            stringBuilder.Append("Date");
+                        else
+                            stringBuilder.Append("Calendar");
+                    }
+
+                    break;
+                }
             case DataType.Time:
                 {
-                    if (AppValues.ExportJavaClassIsUseDate == true)
-                        stringBuilder.Append("Date");
+                    TimeFormatType timeFormatType = TableAnalyzeHelper.GetTimeFormatType(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_LUA_FORMAT].ToString());
+                    if (timeFormatType == TimeFormatType.ReferenceTimeSec)
+                        stringBuilder.Append("Integer");
                     else
-                        stringBuilder.Append("Calendar");
+                    {
+                        if (AppValues.ExportJavaClassIsUseDate == true)
+                            stringBuilder.Append("Date");
+                        else
+                            stringBuilder.Append("Calendar");
+                    }
 
                     break;
                 }

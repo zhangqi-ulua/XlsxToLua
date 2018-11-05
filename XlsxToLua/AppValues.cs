@@ -321,9 +321,14 @@ public class AppValues
     public static string PROGRAM_FOLDER_PATH = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
 
     /// <summary>
-    /// 以1970年1月1日作为计算距今秒数的参考时间，并且作为存储time型的DateTime变量的日期部分
+    /// 以1970年1月1日作为计算距今秒数的参考时间，并且作为存储time型的DateTime变量的日期部分，此时间的DateTimeKind为Unspecified
     /// </summary>
-    public static DateTime REFERENCE_DATE = new DateTime(1970, 1, 1);
+    public static DateTime REFERENCE_DATE = new DateTime(1970, 1, 1, 0, 0, 0);
+
+    /// <summary>
+    /// 此时间的DateTimeKind为Local，用于转为时间戳时用当前时区表示。北京时间的时间戳0表示1970-01-01 08:00:00
+    /// </summary>
+    public static DateTime REFERENCE_DATE_LOCAL = TimeZone.CurrentTimeZone.ToLocalTime(REFERENCE_DATE);
 
     /// <summary>
     /// 未对某字段命名时，默认给予的字段名前缀

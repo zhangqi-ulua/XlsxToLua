@@ -10,7 +10,7 @@ public class TableDataTestAllDataTypePojo {
 	private String testLang;
 	private Long testLong;
 	private HashMap<String, Object> testSimpleDict;
-	private HashMap<String, Object> testDictIncludeArray;
+	private HashMap<String, ArrayList<String>> testDictIncludeArray;
 	private Float testFloat;
 	private String testString;
 	private ArrayList<String> testSimpleArray;
@@ -18,15 +18,15 @@ public class TableDataTestAllDataTypePojo {
 	private HashMap<Integer ,Boolean> testTableString1;
 	private ArrayList<ArrayList<String>> testArrayIncludeArray;
 	private ArrayList<Integer> testTableString2;
-	private ArrayList<HashMap<String, Object>> testArrayIncludeDict;
+	private ArrayList<HashMap<String, Integer>> testArrayIncludeDict;
 	private HashMap<String, Object> testDictIncludeDict;
 	private ArrayList<HashMap<String, Object>> testTableString3;
 	private Date testDate1;
 	private Date testDate2;
 	private Date testDate3;
-	private Date testDate4;
+	private Integer testDate4;
 	private Date testTime1;
-	private Date testTime2;
+	private Integer testTime2;
 	private Date testTime3;
 	private HashMap<String, Object> testExportJsonSpecialString;
 	private Object testJson;
@@ -66,11 +66,11 @@ public class TableDataTestAllDataTypePojo {
 	public void setTestSimpleDict(HashMap<String, Object> testSimpleDict) {
 		this.testSimpleDict = testSimpleDict;
 	}
-	public HashMap<String, Object> getTestDictIncludeArray() {
+	public HashMap<String, ArrayList<String>> getTestDictIncludeArray() {
 		return testDictIncludeArray;
 	}
 
-	public void setTestDictIncludeArray(HashMap<String, Object> testDictIncludeArray) {
+	public void setTestDictIncludeArray(HashMap<String, ArrayList<String>> testDictIncludeArray) {
 		this.testDictIncludeArray = testDictIncludeArray;
 	}
 	public Float getTestFloat() {
@@ -122,11 +122,11 @@ public class TableDataTestAllDataTypePojo {
 	public void setTestTableString2(ArrayList<Integer> testTableString2) {
 		this.testTableString2 = testTableString2;
 	}
-	public ArrayList<HashMap<String, Object>> getTestArrayIncludeDict() {
+	public ArrayList<HashMap<String, Integer>> getTestArrayIncludeDict() {
 		return testArrayIncludeDict;
 	}
 
-	public void setTestArrayIncludeDict(ArrayList<HashMap<String, Object>> testArrayIncludeDict) {
+	public void setTestArrayIncludeDict(ArrayList<HashMap<String, Integer>> testArrayIncludeDict) {
 		this.testArrayIncludeDict = testArrayIncludeDict;
 	}
 	public HashMap<String, Object> getTestDictIncludeDict() {
@@ -164,11 +164,11 @@ public class TableDataTestAllDataTypePojo {
 	public void setTestDate3(Date testDate3) {
 		this.testDate3 = testDate3;
 	}
-	public Date getTestDate4() {
+	public Integer getTestDate4() {
 		return testDate4;
 	}
 
-	public void setTestDate4(Date testDate4) {
+	public void setTestDate4(Integer testDate4) {
 		this.testDate4 = testDate4;
 	}
 	public Date getTestTime1() {
@@ -178,11 +178,11 @@ public class TableDataTestAllDataTypePojo {
 	public void setTestTime1(Date testTime1) {
 		this.testTime1 = testTime1;
 	}
-	public Date getTestTime2() {
+	public Integer getTestTime2() {
 		return testTime2;
 	}
 
-	public void setTestTime2(Date testTime2) {
+	public void setTestTime2(Integer testTime2) {
 		this.testTime2 = testTime2;
 	}
 	public Date getTestTime3() {
@@ -210,7 +210,7 @@ public class TableDataTestAllDataTypePojo {
 	public TableDataTestAllDataTypePojo() {
 	}
 
-	public TableDataTestAllDataTypePojo(Integer id, Boolean testBool, String testLang, Long testLong, HashMap<String, Object> testSimpleDict, HashMap<String, Object> testDictIncludeArray, Float testFloat, String testString, ArrayList<String> testSimpleArray, ArrayList<String> testSimpleArray2, HashMap<Integer ,Boolean> testTableString1, ArrayList<ArrayList<String>> testArrayIncludeArray, ArrayList<Integer> testTableString2, ArrayList<HashMap<String, Object>> testArrayIncludeDict, HashMap<String, Object> testDictIncludeDict, ArrayList<HashMap<String, Object>> testTableString3, Date testDate1, Date testDate2, Date testDate3, Date testDate4, Date testTime1, Date testTime2, Date testTime3, HashMap<String, Object> testExportJsonSpecialString, Object testJson) {
+	public TableDataTestAllDataTypePojo(Integer id, Boolean testBool, String testLang, Long testLong, HashMap<String, Object> testSimpleDict, HashMap<String, ArrayList<String>> testDictIncludeArray, Float testFloat, String testString, ArrayList<String> testSimpleArray, ArrayList<String> testSimpleArray2, HashMap<Integer ,Boolean> testTableString1, ArrayList<ArrayList<String>> testArrayIncludeArray, ArrayList<Integer> testTableString2, ArrayList<HashMap<String, Integer>> testArrayIncludeDict, HashMap<String, Object> testDictIncludeDict, ArrayList<HashMap<String, Object>> testTableString3, Date testDate1, Date testDate2, Date testDate3, Integer testDate4, Date testTime1, Integer testTime2, Date testTime3, HashMap<String, Object> testExportJsonSpecialString, Object testJson) {
 		this.id = id;
 		this.testBool = testBool;
 		this.testLang = testLang;

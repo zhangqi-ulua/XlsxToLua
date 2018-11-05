@@ -1032,7 +1032,7 @@ public class TableAnalyzeHelper
                         invalidInfo.Add(row, inputData);
                     else
                     {
-                        DateTime dateTime = AppValues.REFERENCE_DATE.AddSeconds((double)inputLongValue);
+                        DateTime dateTime = AppValues.REFERENCE_DATE_LOCAL.AddSeconds((double)inputLongValue);
                         fieldInfo.Data.Add(dateTime);
                     }
                 }
@@ -1053,7 +1053,7 @@ public class TableAnalyzeHelper
                         invalidInfo.Add(row, inputData);
                     else
                     {
-                        DateTime dateTime = AppValues.REFERENCE_DATE.AddMilliseconds((double)inputLongValue);
+                        DateTime dateTime = AppValues.REFERENCE_DATE_LOCAL.AddMilliseconds((double)inputLongValue);
                         fieldInfo.Data.Add(dateTime);
                     }
                 }
@@ -1277,11 +1277,7 @@ public class TableAnalyzeHelper
                             invalidInfo.Add(row, inputData);
                         else
                         {
-                            int hour = (int)inputIntValue / 60 / 60;
-                            int remainingSecond = (int)inputIntValue - hour * 60 * 60;
-                            int minute = remainingSecond / 60;
-                            remainingSecond = remainingSecond - minute * 60;
-                            DateTime dateTime = new DateTime(AppValues.REFERENCE_DATE.Year, AppValues.REFERENCE_DATE.Month, AppValues.REFERENCE_DATE.Day, hour, minute, remainingSecond);
+                            DateTime dateTime = AppValues.REFERENCE_DATE.AddSeconds(inputIntValue);
                             fieldInfo.Data.Add(dateTime);
                         }
                     }

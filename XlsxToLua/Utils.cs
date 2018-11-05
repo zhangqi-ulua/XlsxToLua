@@ -382,7 +382,7 @@ public class Utils
         Console.WriteLine(errorString);
         Console.WriteLine("程序被迫退出，请修正错误后重试");
         Console.ReadKey();
-        Environment.Exit(0);
+        Environment.Exit(-1);
     }
 
     /// <summary>

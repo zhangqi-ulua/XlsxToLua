@@ -307,7 +307,7 @@ public class TableExportToJsonHelper
                     if (fieldInfo.Data[row] == null)
                         content.Append("null");
                     else
-                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalSeconds);
+                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE_LOCAL).TotalSeconds);
 
                     break;
                 }
@@ -316,7 +316,7 @@ public class TableExportToJsonHelper
                     if (fieldInfo.Data[row] == null)
                         content.Append("null");
                     else
-                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalMilliseconds);
+                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE_LOCAL).TotalMilliseconds);
 
                     break;
                 }

@@ -54,7 +54,7 @@
 -- testDate4                        date(input=#1970msec|toLua=#1970sec)   测试date（以距离1970年毫秒数输入、导出至lua文件采用距离1970年秒数）
 -- testTime1                        time(input=HH时mm分ss秒|toLua=HH:mm:ss)   测试time（自定义时间输入、导出至lua文件的格式）
 -- testTime2                        time(toLua=#sec)                 测试time（使用默认的时间输入格式，导出至lua文件采用距离0点的秒数）
--- testTime3                        time(input=#sec)                 测试date（以距离0点的秒数输入，导出至lua文件采用默认的时间格式）
+-- testTime3                        time(input=#sec)                 测试time（以距离0点的秒数输入，导出至lua文件采用默认的时间格式）
 -- testExportJsonSpecialString      dict[2]                          测试导出json时，字符串中含有括号、转义引号的特殊情况
 --    testExportJsonArrayInDict     array[string:2]                  dict下的array
 --       [1]                        string                           1
@@ -83,8 +83,8 @@ return {
 		testDictIncludeDict = nil,
 		testTableString3 = nil,
 		testDate1 = "2016/07/01 00:00:00",
-		testDate2 = os.date("!*t", 1467331200),
-		testDate3 = "2016年07月01日 00时00分00秒",
+		testDate2 = os.date("!*t", 1467302400),
+		testDate3 = "2016年07月01日 08时00分00秒",
 		testDate4 = 1467331200,
 		testTime1 = "00:00:00",
 		testTime2 = 0,
@@ -156,8 +156,8 @@ return {
 			},
 		},
 		testDate1 = "2016/07/01 01:00:01",
-		testDate2 = os.date("!*t", 1467334801),
-		testDate3 = "2016年07月01日 01时00分01秒",
+		testDate2 = os.date("!*t", 1467306001),
+		testDate3 = "2016年07月01日 09时00分01秒",
 		testDate4 = 1467334801,
 		testTime1 = "00:32:00",
 		testTime2 = 1920,
@@ -243,8 +243,8 @@ return {
 			},
 		},
 		testDate1 = "2016/10/10 00:00:00",
-		testDate2 = os.date("!*t", 1476057600),
-		testDate3 = "2016年10月10日 00时00分00秒",
+		testDate2 = os.date("!*t", 1476028800),
+		testDate3 = "2016年10月10日 08时00分00秒",
 		testDate4 = 1476057600,
 		testTime1 = "10:10:00",
 		testTime2 = 36600,
@@ -352,8 +352,8 @@ return {
 			},
 		},
 		testDate1 = "2016/10/10 10:10:10",
-		testDate2 = os.date("!*t", 1476094210),
-		testDate3 = "2016年10月10日 10时10分10秒",
+		testDate2 = os.date("!*t", 1476065410),
+		testDate3 = "2016年10月10日 18时10分10秒",
 		testDate4 = 1476094210,
 		testTime1 = "03:00:32",
 		testTime2 = 10832,

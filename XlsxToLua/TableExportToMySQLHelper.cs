@@ -218,9 +218,9 @@ public class TableExportToMySQLHelper
                                 values.Add(string.Format("'{0}'", ((DateTime)(fieldInfo.Data[i])).ToString(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_DATABASE_FORMAT].ToString())));
                         }
                         else if (toDatabaseFormatType == DateFormatType.ReferenceDateSec)
-                            values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE).TotalSeconds));
+                            values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE_LOCAL).TotalSeconds));
                         else if (toDatabaseFormatType == DateFormatType.ReferenceDateMsec)
-                            values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE).TotalMilliseconds));
+                            values.Add(string.Format("'{0}'", ((DateTime)fieldInfo.Data[i] - AppValues.REFERENCE_DATE_LOCAL).TotalMilliseconds));
                         else
                         {
                             errorString = "date型导出至MySQL的格式定义非法";

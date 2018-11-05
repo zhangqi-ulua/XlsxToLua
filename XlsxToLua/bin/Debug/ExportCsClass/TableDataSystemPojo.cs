@@ -8,7 +8,7 @@ namespace Assets.Scripts.CsClass
         public int SystemId { get; set; }
         public string SystemName { get; set; }
         public string Help { get; set; }
-        public Dictionary<string, object> OpenCondition { get; set; }
-        public List<Dictionary<string, object>> OpenRewards { get; set; }
+        public Dictionary<string, int> OpenCondition { get; set; }
+        public List<Dictionary<string, int>> OpenRewards { get; set; }
     }
 }

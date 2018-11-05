@@ -144,13 +144,48 @@ public class TableExportToCsClassHelper
                 }
             case DataType.Dict:
                 {
-                    stringBuilder.Append("Dictionary<string, object>");
+                    // 如果dict型下属各字段都是同一种类型，则Dictionary的值类型可以具体指定，否则只能设为通用的Object
+                    bool isSameChildDataType = true;
+                    DataType firstDataType = fieldInfo.ChildField[0].DataType;
+                    foreach (FieldInfo childFieldInfo in fieldInfo.ChildField)
+                    {
+                        if (childFieldInfo.DataType != firstDataType)
+                        {
+                            isSameChildDataType = false;
+                            break;
+                        }
+                    }
+                    if (isSameChildDataType == true)
+                    {
+                        stringBuilder.Append("Dictionary<string, ");
+                        stringBuilder.Append(_GetCsClassFieldDefine(fieldInfo.ChildField[0]));
+                        stringBuilder.Append(">");
+                    }
+                    else
+                        stringBuilder.Append("Dictionary<string, object>");
+
                     break;
                 }
             case DataType.Date:
+                {
+                    DateFormatType dateFormatType = TableAnalyzeHelper.GetDateFormatType(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_DATE_TO_LUA_FORMAT].ToString());
+                    if (dateFormatType == DateFormatType.ReferenceDateSec)
+                        stringBuilder.Append("int");
+                    else if (dateFormatType == DateFormatType.ReferenceDateMsec)
+                        stringBuilder.Append("long");
+                    else
+                        stringBuilder.Append("DateTime");
+
+                    break;
+                }
             case DataType.Time:
                 {
-                    stringBuilder.Append("DateTime");
+                    TimeFormatType timeFormatType = TableAnalyzeHelper.GetTimeFormatType(fieldInfo.ExtraParam[AppValues.TABLE_INFO_EXTRA_PARAM_KEY_TIME_TO_LUA_FORMAT].ToString());
+                    if (timeFormatType == TimeFormatType.ReferenceTimeSec)
+                        stringBuilder.Append("int");
+                    else
+                        stringBuilder.Append("DateTime");
+
                     break;
                 }
             case DataType.TableString:

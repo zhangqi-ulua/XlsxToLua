@@ -633,7 +633,7 @@ public class TableExportToLuaHelper
                     if (fieldInfo.Data[row] == null)
                         content.Append("nil");
                     else
-                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalSeconds);
+                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE_LOCAL).TotalSeconds);
 
                     break;
                 }
@@ -642,7 +642,7 @@ public class TableExportToLuaHelper
                     if (fieldInfo.Data[row] == null)
                         content.Append("nil");
                     else
-                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalMilliseconds);
+                        content.Append(((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE_LOCAL).TotalMilliseconds);
 
                     break;
                 }
@@ -652,7 +652,7 @@ public class TableExportToLuaHelper
                         content.Append("nil");
                     else
                     {
-                        double totalSeconds = ((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE).TotalSeconds;
+                        double totalSeconds = ((DateTime)(fieldInfo.Data[row]) - AppValues.REFERENCE_DATE_LOCAL).TotalSeconds;
                         content.Append("os.date(\"!*t\", ").Append(totalSeconds).Append(")");
                     }
 
