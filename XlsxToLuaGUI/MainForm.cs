@@ -696,6 +696,17 @@ namespace XlsxToLuaGUI
                     return false;
                 }
             }
+            else
+            {
+                foreach (string filePath in Directory.GetFiles(excelFolderPath, "*.xlsx", SearchOption.TopDirectoryOnly))
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(filePath);
+                    if (fileName.StartsWith(AppValues.EXCEL_TEMP_FILE_FILE_NAME_START_STRING))
+                        continue;
+
+                    tableNameAndPath.Add(fileName, filePath);
+                }
+            }
             // 检查如果设置了-exportKeepDirectoryStructure参数，是否也设置了-exportIncludeSubfolder参数
             if (cbExportKeepDirectoryStructure.Checked == true && cbExportIncludeSubfolder.Checked == false)
             {
