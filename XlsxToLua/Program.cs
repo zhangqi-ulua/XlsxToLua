@@ -11,7 +11,7 @@ using System.Text;
 public class Program
 {
     /// <summary>
-    /// 传入参数中，第1个必须为Excel表格所在目录，第2个必须为存放导出lua文件的目录，第3个参数为项目Client目录的路径（无需文件存在型检查规则则填-noClient），第4个参数为必须为lang文件路径（没有填-noLang）
+    /// 传入参数中，第1个为Excel表格所在目录，第2个为存放导出lua文件的目录（不导出lua文件填-notExportLua），第3个参数为项目Client目录的路径（无需文件存在型检查规则则填-noClient），第4个参数为必须为lang文件路径（没有填-noLang）
     /// 可附加参数有：
     /// 1)  -exportIncludeSubfolder（将要导出的Excel文件夹下的各级子文件夹中的Excel文件也进行导出，不声明则仅导出选定文件夹直接下属的Excel文件）
     /// 2)  -exportKeepDirectoryStructure（进行各种导出时将生成的文件按原Excel文件所在的目录结构进行存储，不声明则会将生成的文件均存放在同级目录下）
@@ -52,15 +52,21 @@ public class Program
         // 检查第2个参数（存放导出lua文件的目录）是否正确
         if (args.Length < 2)
             Utils.LogErrorAndExit("错误：未输入要将生成lua文件存放的路径");
-        if (!Directory.Exists(args[1]))
-            Utils.LogErrorAndExit(string.Format("错误：输入的lua文件导出路径不存在，路径为{0}", args[1]));
 
-        AppValues.ExportLuaFilePath = Path.GetFullPath(args[1]);
-        Utils.Log(string.Format("选择的lua文件导出路径：{0}", AppValues.ExportLuaFilePath));
+        if (AppValues.NOT_EXPORT_LUA_PARAM_STRING.Equals(args[1], StringComparison.CurrentCultureIgnoreCase))
+            Utils.Log("设置不进行lua文件导出");
+        else
+        {
+            if (!Directory.Exists(args[1]))
+                Utils.LogErrorAndExit(string.Format("错误：输入的lua文件导出路径不存在，路径为{0}", args[1]));
+
+            AppValues.ExportLuaFilePath = Path.GetFullPath(args[1]);
+            Utils.Log(string.Format("选择的lua文件导出路径：{0}", AppValues.ExportLuaFilePath));
+        }
         // 检查第3个参数（项目Client目录的路径）是否正确
         if (args.Length < 3)
             Utils.LogErrorAndExit("错误：未输入项目Client目录的路径，如果不需要请输入参数-noClient");
-        if (AppValues.NO_CLIENT_PATH_STRING.Equals(args[2], StringComparison.CurrentCultureIgnoreCase))
+        if (AppValues.NO_CLIENT_PATH_PARAM_STRING.Equals(args[2], StringComparison.CurrentCultureIgnoreCase))
         {
             Utils.LogWarning("警告：你选择了不指定Client文件夹路径，则本工具无法检查表格中填写的图片路径等对应的文件是否存在");
             AppValues.ClientPath = null;
@@ -1026,7 +1032,7 @@ public class Program
         }
         if (isTableAllRight == true)
         {
-            Utils.Log("\n表格检查完毕，没有发现错误，开始导出为lua文件\n");
+            Utils.Log("\n表格检查完毕，没有发现错误，开始导出\n");
             // 进行表格导出
             foreach (var item in AppValues.ExportTableNameAndPath)
             {
@@ -1035,41 +1041,44 @@ public class Program
                 TableInfo tableInfo = AppValues.TableInfo[tableName];
                 string errorString = null;
                 Utils.Log(string.Format("导出表格\"{0}\"：", tableInfo.TableName), ConsoleColor.Green);
-                bool isNeedExportOriginalTable = true;
-                // 判断是否设置了特殊导出规则
-                if (tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_EXPORT))
+                if (AppValues.ExportLuaFilePath != null)
                 {
-                    List<string> inputParams = tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT];
-                    if (inputParams.Contains(AppValues.CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE))
+                    bool isNeedExportOriginalTable = true;
+                    // 判断是否设置了特殊导出规则
+                    if (tableInfo.TableConfig != null && tableInfo.TableConfig.ContainsKey(AppValues.CONFIG_NAME_EXPORT))
                     {
-                        isNeedExportOriginalTable = false;
-                        if (inputParams.Count == 1)
-                            Utils.LogWarning(string.Format("警告：你设置了不对表格\"{0}\"按默认方式进行导出，而又没有指定任何其他自定义导出规则，本工具对此表格不进行任何导出，请确认是否真要如此", tableInfo.TableName));
-                        else
-                            Utils.Log("你设置了不对此表进行默认规则导出");
-                    }
-                    // 执行设置的特殊导出规则
-                    foreach (string param in inputParams)
-                    {
-                        if (!AppValues.CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE.Equals(param, StringComparison.CurrentCultureIgnoreCase))
+                        List<string> inputParams = tableInfo.TableConfig[AppValues.CONFIG_NAME_EXPORT];
+                        if (inputParams.Contains(AppValues.CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE))
                         {
-                            Utils.Log(string.Format("对此表格按\"{0}\"自定义规则进行导出：", param));
-                            TableExportToLuaHelper.SpecialExportTableToLua(tableInfo, param, out errorString);
-                            if (errorString != null)
-                                Utils.LogErrorAndExit(string.Format("导出失败：\n{0}\n", errorString));
+                            isNeedExportOriginalTable = false;
+                            if (inputParams.Count == 1)
+                                Utils.LogWarning(string.Format("警告：你设置了不对表格\"{0}\"按默认方式进行导出，而又没有指定任何其他自定义导出规则，本工具对此表格不进行任何导出，请确认是否真要如此", tableInfo.TableName));
                             else
-                                Utils.Log("成功");
+                                Utils.Log("你设置了不对此表进行默认规则导出");
+                        }
+                        // 执行设置的特殊导出规则
+                        foreach (string param in inputParams)
+                        {
+                            if (!AppValues.CONFIG_PARAM_NOT_EXPORT_ORIGINAL_TABLE.Equals(param, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                Utils.Log(string.Format("对此表格按\"{0}\"自定义规则导出lua文件：", param));
+                                TableExportToLuaHelper.SpecialExportTableToLua(tableInfo, param, out errorString);
+                                if (errorString != null)
+                                    Utils.LogErrorAndExit(string.Format("导出失败：\n{0}\n", errorString));
+                                else
+                                    Utils.Log("成功");
+                            }
                         }
                     }
-                }
-                // 对表格按默认方式导出（除非通过参数设置不执行此操作）
-                if (isNeedExportOriginalTable == true)
-                {
-                    TableExportToLuaHelper.ExportTableToLua(tableInfo, out errorString);
-                    if (errorString != null)
-                        Utils.LogErrorAndExit(errorString);
-                    else
-                        Utils.Log("按默认方式导出成功");
+                    // 对表格按默认方式导出（除非通过参数设置不执行此操作）
+                    if (isNeedExportOriginalTable == true)
+                    {
+                        TableExportToLuaHelper.ExportTableToLua(tableInfo, out errorString);
+                        if (errorString != null)
+                            Utils.LogErrorAndExit(errorString);
+                        else
+                            Utils.Log("按默认方式导出lua文件成功");
+                    }
                 }
                 // 判断是否要额外导出为csv文件
                 if (AppValues.ExportCsvTableNames.Contains(tableName))

@@ -48,9 +48,14 @@ public class AppValues
     public const string UNCHECKED_PARAM_STRING = "-unchecked";
 
     /// <summary>
+    /// 声明不导出lua文件的命令参数
+    /// </summary>
+    public const string NOT_EXPORT_LUA_PARAM_STRING = "-notExportLua";
+
+    /// <summary>
     /// 声明不指定项目Client目录的命令参数
     /// </summary>
-    public const string NO_CLIENT_PATH_STRING = "-noClient";
+    public const string NO_CLIENT_PATH_PARAM_STRING = "-noClient";
 
     /// <summary>
     /// 声明不含有lang文件的命令参数

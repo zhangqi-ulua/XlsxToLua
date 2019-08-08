@@ -51,7 +51,8 @@ namespace XlsxToLuaGUI
         private void MainForm_Load(object sender, EventArgs e)
         {
             // 部分文本框填入默认值
-            tbClientFolderPath.Text = AppValues.NO_CLIENT_PATH_STRING;
+            tbExportLuaFolderPath.Text = AppValues.NOT_EXPORT_LUA_PARAM_STRING;
+            tbClientFolderPath.Text = AppValues.NO_CLIENT_PATH_PARAM_STRING;
             tbLangFilePath.Text = AppValues.NO_LANG_PARAM_STRING;
             // 查找本程序所在目录下是否含有XlsxToLua工具，如果有直接填写路径到“工具所在目录”文本框中
             string defaultPath = Utils.CombinePath(AppValues.PROGRAM_FOLDER_PATH, AppValues.PROGRAM_NAME);
@@ -316,9 +317,9 @@ namespace XlsxToLuaGUI
                             programPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(programPath)).ToString());
                         if (Path.IsPathRooted(excelFolderPath))
                             excelFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(excelFolderPath)).ToString());
-                        if (Path.IsPathRooted(exportLuaFolderPath))
+                        if (!exportLuaFolderPath.Equals(AppValues.NOT_EXPORT_LUA_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(exportLuaFolderPath))
                             exportLuaFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportLuaFolderPath)).ToString());
-                        if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(clientFolderPath))
+                        if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(clientFolderPath))
                             clientFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(clientFolderPath)).ToString());
 
                         if (!langFilePath.Equals(AppValues.NO_LANG_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(langFilePath))
@@ -717,23 +718,27 @@ namespace XlsxToLuaGUI
             string exportLuaFolderPath = tbExportLuaFolderPath.Text.Trim();
             if (string.IsNullOrEmpty(exportLuaFolderPath))
             {
-                MessageBox.Show("必须指定lua文件导出目录", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("必须指定lua文件导出目录（若不导出lua文件，请填写{0}）", AppValues.NOT_EXPORT_LUA_PARAM_STRING), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                tbExportLuaFolderPath.Text = AppValues.NOT_EXPORT_LUA_PARAM_STRING;
                 return false;
             }
-            if (!Directory.Exists(exportLuaFolderPath))
+            if (!exportLuaFolderPath.Equals(AppValues.NOT_EXPORT_LUA_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
             {
-                MessageBox.Show("指定的lua文件导出目录不存在", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
+                if (!Directory.Exists(exportLuaFolderPath))
+                {
+                    MessageBox.Show("指定的lua文件导出目录不存在", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
             }
             // 检查项目Client所在目录是否填写正确
             string clientFolderPath = tbClientFolderPath.Text.Trim();
             if (string.IsNullOrEmpty(clientFolderPath))
             {
-                MessageBox.Show(string.Format("未指定Client所在目录（若无需指定，请填写{0}）", AppValues.NO_CLIENT_PATH_STRING), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                tbClientFolderPath.Text = AppValues.NO_CLIENT_PATH_STRING;
+                MessageBox.Show(string.Format("未指定Client所在目录（若无需指定，请填写{0}）", AppValues.NO_CLIENT_PATH_PARAM_STRING), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                tbClientFolderPath.Text = AppValues.NO_CLIENT_PATH_PARAM_STRING;
                 return false;
             }
-            if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_STRING, StringComparison.CurrentCultureIgnoreCase))
+            if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase))
             {
                 if (!Directory.Exists(clientFolderPath))
                 {
@@ -1033,11 +1038,10 @@ namespace XlsxToLuaGUI
                     programPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(programPath)).ToString());
                 if (Path.IsPathRooted(excelFolderPath))
                     excelFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(excelFolderPath)).ToString());
-                if (Path.IsPathRooted(exportLuaFolderPath))
+                if (!exportLuaFolderPath.Equals(AppValues.NOT_EXPORT_LUA_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(exportLuaFolderPath))
                     exportLuaFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(exportLuaFolderPath)).ToString());
-                if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(clientFolderPath))
+                if (!clientFolderPath.Equals(AppValues.NO_CLIENT_PATH_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(clientFolderPath))
                     clientFolderPath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(clientFolderPath)).ToString());
-
                 if (!langFilePath.Equals(AppValues.NO_LANG_PARAM_STRING, StringComparison.CurrentCultureIgnoreCase) && Path.IsPathRooted(langFilePath))
                     langFilePath = Uri.UnescapeDataString(programUri.MakeRelativeUri(new Uri(langFilePath)).ToString());
             }
